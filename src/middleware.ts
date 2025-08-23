@@ -20,8 +20,7 @@ const clerkMw = clerkMiddleware(async (auth, req) =>
 export default async function middleware(req: NextRequest, event: NextFetchEvent)
 {
     const DISABLED =
-        process.env.NEXT_PUBLIC_DISABLE_AUTH === "true" ||
-        process.env.NODE_ENV === "development"; // an toàn: dev mặc định tắt
+        process.env.NEXT_PUBLIC_DISABLE_AUTH === "true"; 
 
     // CORS headers 
     const setCORS = (res: NextResponse) =>
@@ -40,7 +39,7 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
 
     // Production
     
-  const res = await clerkMw(req, event);
+    const res = await clerkMw(req, event);
 
     if (res instanceof NextResponse) setCORS(res);
 
