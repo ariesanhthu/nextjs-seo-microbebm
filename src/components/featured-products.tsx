@@ -21,21 +21,22 @@ const products = [
     name: "Túi vải tự nhiên",
     description: "Túi vải được làm từ bông hữu cơ 100%, thân thiện với môi trường và có thể tái sử dụng nhiều lần.",
     image: "/images/product-1.jpg",
-    price: 150000,
+    price: "Liên hệ",
   },
   {
     _id: 2,
     name: "Bình nước thủy tinh",
     description: "Bình nước thủy tinh cao cấp, không chứa BPA, an toàn cho sức khỏe và thân thiện với môi trường.",
     image: "/images/product-2.jpg",
-    price: 280000,
+    price: "Liên hệ",
+    
   },
   {
     _id: 3,
     name: "Ống hút tre tự nhiên",
     description: "Ống hút làm từ tre tự nhiên, thay thế hoàn hảo cho ống hút nhựa, có thể phân hủy sinh học.",
     image: "/images/product-3.jpg",
-    price: 75000,
+    price: "Liên hệ",
   },
 ]
 
@@ -107,7 +108,8 @@ export default function FeaturedProducts() {
             <p className="mb-4 text-gray-600">{product.description}</p>
             <div className="flex item-center justify-between">
               <span className="text-lg font-bold text-green-600">
-                {formatCurrency(product.price)}
+                {/* {formatCurrency(product.price)} */}
+                {product.price}
               </span>
               <Link
                 href="#"

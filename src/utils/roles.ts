@@ -1,10 +1,18 @@
-import { Roles } from '@/types/globals'
-import { auth } from '@clerk/nextjs/server'
+// src/utils/roles.ts
+import { auth } from "@clerk/nextjs/server";
+import type { Roles } from "@/types/globals";
 
-export const checkRole = async (role: Roles) => {
-  const { sessionClaims } = await auth()
-  
-  console.log("sessionClaims", sessionClaims);
-  
-  return sessionClaims?.metadata.role === role
-}
+const DISABLE_AUTH =
+    process.env.NEXT_PUBLIC_DISABLE_AUTH === "true" ||
+    process.env.NODE_ENV === "development";
+
+export const checkRole = async (role: Roles) =>
+{
+    if (DISABLE_AUTH)
+    {
+        return true;
+    }
+
+    const { sessionClaims } = await auth();
+    return sessionClaims?.metadata?.role === role;
+};
