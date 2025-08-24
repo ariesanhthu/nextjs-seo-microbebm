@@ -8,6 +8,8 @@ import {
 } from '@/lib/dto/product.dto';
 import { ProductSchema, CreateProductSchema, UpdateProductSchema } from '@/lib/schemas/product.schema';
 import { generateSlug } from '@/utils/generate-slug';
+import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
+import { ESort } from '@/lib/enums/sort.enum';
 
 export class ProductService {
   private static readonly COLLECTION = 'products';
@@ -100,15 +102,51 @@ export class ProductService {
     }
   }
 
-  static async getAll(): Promise<ProductResponseDto[]> {
+  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
     try {
-      const snapshot = await this.getReadCollectionRef().get();
-      const products = await Promise.all(
-        snapshot.docs.map(async (doc) => {
-          return await this.populateCategory(doc.data()) as ProductResponseDto;
+      const {
+        cursor,
+        limit = 10,
+        sort = ESort.DESC
+      } = query;
+
+      let queryRef = this.getReadCollectionRef()
+        .orderBy("created_at", sort)
+        .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      // If cursor exists, get the document and use it for startAfter
+      console.log("Run1");
+      if (cursor) {
+        const cursorDoc = await this.getDocRef(cursor).get();
+        if (cursorDoc.exists) {
+          queryRef = queryRef.startAfter(cursorDoc);
+        }
+      }
+      console.log("Run2");
+
+      const snapshot = await queryRef.get();
+      const allDocs = await Promise.all(
+        snapshot.docs.map(async (doc: any) => {
+          const rawData = { id: doc.id, ...doc.data() };
+          return await this.populateCategory(rawData) as ProductResponseDto;
         })
       );
-      return products;
+      
+      // Check if there's a next page
+      const hasNextPage = allDocs.length > limit;
+      
+      // Remove the extra document if it exists
+      const data = hasNextPage ? allDocs.slice(0, limit) : allDocs;
+      
+      // Set nextCursor to the last document's ID
+      const nextCursor = data.length > 0 ? data[data.length - 1].id : null;
+
+      return {
+        nextCursor,
+        data,
+        hasNextPage
+      };
+      
     } catch (error) {
       console.error('Error getting all products:', error);
       throw new Error(`Failed to get products: ${error instanceof Error ? error.message : 'Unknown error'}`);

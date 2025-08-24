@@ -1,16 +1,28 @@
 import { NextResponse } from "next/server";
 import { ProductService } from "@/services/firebase/product/product.service";
 import { CreateProductDto } from "@/lib/dto/product.dto";
+import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
+import { ESort } from "@/lib/enums/sort.enum";
 
-// GET /api/product - Get all products
+// GET /api/product - Get all products with pagination
 export async function GET(request: Request) {
   try {
-    const products = await ProductService.getAll();
+    const { searchParams } = new URL(request.url);
+    
+    const query: PaginationCursorDto = {
+      cursor: searchParams.get('cursor') || undefined,
+      limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
+      sort: (searchParams.get('sort') as ESort) || ESort.DESC
+    };
+
+    const result = await ProductService.getAll(query);
     
     return NextResponse.json({
       success: true,
-      data: products,
-      count: products.length
+      data: result.data,
+      nextCursor: result.nextCursor,
+      hasNextPage: result.hasNextPage,
+      count: result.data.length
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching products:', error);

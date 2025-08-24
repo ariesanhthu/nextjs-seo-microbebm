@@ -8,6 +8,9 @@ import {
 } from '@/lib/dto/category.dto';
 import { CategorySchema, CreateCategorySchema, UpdateCategorySchema } from '@/lib/schemas/category.schema';
 import { generateSlug } from '@/utils/generate-slug';
+import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
+import { ESort } from '@/lib/enums/sort.enum';
+import { number } from 'zod';
 
 export class CategoryService {
   private static readonly COLLECTION = 'categories';
@@ -66,13 +69,47 @@ export class CategoryService {
     }
   }
 
-  static async getAll(): Promise<CategoryResponseDto[]> {
+  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
     try {
-      const snapshot = await this.getReadCollectionRef().get();
-      return snapshot.docs.map(doc => doc.data()!);
+      const {
+        cursor,
+        limit = 10,
+        sort = ESort.DESC
+      } = query;
+
+      let queryRef = this.getReadCollectionRef()
+        .orderBy("created_at", sort)
+        .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      // If cursor exists, get the document and use it for startAfter
+      if (cursor) {
+        const cursorDoc = await this.getDocRef(cursor).get();
+        if (cursorDoc.exists) {
+          queryRef = queryRef.startAfter(cursorDoc);
+        }
+      }
+
+      const snapshot = await queryRef.get();
+      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      
+      // Check if there's a next page
+      const hasNextPage = allDocs.length > limit;
+      
+      // Remove the extra document if it exists
+      const data = hasNextPage ? allDocs.slice(0, limit) : allDocs;
+      
+      // Set nextCursor to the last document's ID
+      const nextCursor = data.length > 0 ? data[data.length - 1].id : null;
+
+      return {
+        nextCursor,
+        data,
+        hasNextPage
+      };
+      
     } catch (error) {
-      console.error('Error getting all categorys:', error);
-      throw new Error(`Failed to get categorys: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error getting all categories:', error);
+      throw new Error(`Failed to get categories: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

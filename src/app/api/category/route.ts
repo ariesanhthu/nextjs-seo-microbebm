@@ -1,16 +1,28 @@
 import { NextResponse } from "next/server";
 import { CategoryService } from "@/services/firebase/category/category.service";
-import { CreateCategoryDto, UpdateCategoryDto } from "@/lib/dto/category.dto";
+import { CreateCategoryDto } from "@/lib/dto/category.dto";
+import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
+import { ESort } from "@/lib/enums/sort.enum";
 
-// GET /api/category - Get all categories
+// GET /api/category - Get all categories with pagination
 export async function GET(request: Request) {
   try {
-    const categories = await CategoryService.getAll();
+    const { searchParams } = new URL(request.url);
+    
+    const query: PaginationCursorDto = {
+      cursor: searchParams.get('cursor') || undefined,
+      limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
+      sort: (searchParams.get('sort') as ESort) || ESort.DESC
+    };
+
+    const result = await CategoryService.getAll(query);
     
     return NextResponse.json({
       success: true,
-      data: categories,
-      count: categories.length
+      data: result.data,
+      nextCursor: result.nextCursor,
+      hasNextPage: result.hasNextPage,
+      count: result.data.length
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching categories:', error);
