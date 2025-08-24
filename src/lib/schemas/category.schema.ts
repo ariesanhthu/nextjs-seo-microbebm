@@ -1,21 +1,20 @@
-import { Timestamp } from 'firebase-admin/firestore'
 import { z } from 'zod'
+import { GeneralSchema } from './general.schema'
 
-// Base schema - core category data without metadata
-export const CategoryBaseSchema = z.object({
+
+export const CategorySchema = GeneralSchema.extend({
   name: z.string().min(1, 'Category name is required').max(100, 'Name too long'),
-}).strict()
-
-// Schema for creating categories (no id, no timestamps)
-export const CreateCategorySchema = CategoryBaseSchema
-
-// Schema for updating categories (all fields optional)
-export const UpdateCategorySchema = CategoryBaseSchema.partial()
-
-// Complete schema for documents in Firestore (includes id + timestamps)
-export const CategorySchema = CategoryBaseSchema.extend({
-  id: z.string(),
   slug: z.string().min(1).max(100),
-  created_at: z.instanceof(Timestamp),
-  updated_at: z.instanceof(Timestamp),
-})
+}).strict();
+
+
+export const CreateCategorySchema = CategorySchema.pick({
+  name: true
+});
+
+
+export const UpdateCategorySchema = CategorySchema.pick({
+  name: true
+}).partial();
+
+export const CategoryResponseSchema = CategorySchema;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { CategoryService } from "@/services/firebase/category/category.service";
-import { UpdateCategoryDto } from "@/lib/dto/category.dto";
+import { ProductService } from "@/services/firebase/product/product.service";
+import { UpdateProductDto } from "@/lib/dto/product.dto";
 
 export async function GET(
   request: Request,
@@ -13,35 +13,35 @@ export async function GET(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Product ID is required'
       }, { status: 400 });
     }
 
-    const category = await CategoryService.getById(id);
+    const product = await ProductService.getById(id);
     
-    if (!category) {
+    if (!product) {
       return NextResponse.json({
         success: false,
         error: 'Not found',
-        message: `Category with ID '${id}' not found`
+        message: `Product with ID '${id}' not found`
       }, { status: 404 });
     }
     
     return NextResponse.json({
       success: true,
-      data: category
+      data: product
     }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching category:', error);
+    console.error('Error fetching product:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch category',
+      error: 'Failed to fetch product',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// PUT /api/category/[id] - Update category by ID
+// PUT /api/product/[id] - Update product by ID
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -53,23 +53,23 @@ export async function PUT(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Product ID is required'
       }, { status: 400 });
     }
 
     // Destructure the request body
-    const body: UpdateCategoryDto = await request.json();
+    const body: UpdateProductDto = await request.json();
 
-    // Update category using the service
-    const updatedCategory = await CategoryService.update(id, body);
+    // Update product using the service
+    const updatedProduct = await ProductService.update(id, body);
     
     return NextResponse.json({
       success: true,
-      data: updatedCategory,
-      message: 'Category updated successfully'
+      data: updatedProduct,
+      message: 'Product updated successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error updating category:', error);
+    console.error('Error updating product:', error);
     
     // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
@@ -82,13 +82,13 @@ export async function PUT(
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to update category',
+      error: 'Failed to update product',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// DELETE /api/category/[id] - Delete category by ID
+// DELETE /api/product/[id] - Delete product by ID
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -100,19 +100,19 @@ export async function DELETE(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Product ID is required'
       }, { status: 400 });
     }
 
-    // Delete category using the service
-    await CategoryService.delete(id);
+    // Delete product using the service
+    await ProductService.delete(id);
     
     return NextResponse.json({
       success: true,
-      message: 'Category deleted successfully'
+      message: 'Product deleted successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error deleting product:', error);
     
     // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
@@ -125,7 +125,7 @@ export async function DELETE(
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to delete category',
+      error: 'Failed to delete product',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

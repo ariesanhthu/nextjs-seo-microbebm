@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { CategoryService } from "@/services/firebase/category/category.service";
-import { UpdateCategoryDto } from "@/lib/dto/category.dto";
+import { HomepageService } from "@/services/firebase/homepage/homepage.service";
+import { UpdateHomepageDto } from "@/lib/dto/homepage.dto";
 
 export async function GET(
   request: Request,
@@ -13,35 +13,34 @@ export async function GET(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Homepage ID is required'
       }, { status: 400 });
     }
 
-    const category = await CategoryService.getById(id);
+    const homepage = await HomepageService.getById(id);
     
-    if (!category) {
+    if (!homepage) {
       return NextResponse.json({
         success: false,
         error: 'Not found',
-        message: `Category with ID '${id}' not found`
+        message: `Homepage with ID '${id}' not found`
       }, { status: 404 });
     }
     
     return NextResponse.json({
       success: true,
-      data: category
+      data: homepage
     }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching category:', error);
+    console.error('Error fetching homepage:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch category',
+      error: 'Failed to fetch homepage',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// PUT /api/category/[id] - Update category by ID
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -53,25 +52,22 @@ export async function PUT(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Homepage ID is required'
       }, { status: 400 });
     }
 
-    // Destructure the request body
-    const body: UpdateCategoryDto = await request.json();
+    const body: UpdateHomepageDto = await request.json();
 
-    // Update category using the service
-    const updatedCategory = await CategoryService.update(id, body);
+    const updatedHomepage = await HomepageService.update(id, body);
     
     return NextResponse.json({
       success: true,
-      data: updatedCategory,
-      message: 'Category updated successfully'
+      data: updatedHomepage,
+      message: 'Homepage updated successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error updating category:', error);
+    console.error('Error updating homepage:', error);
     
-    // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
       return NextResponse.json({
         success: false,
@@ -79,16 +75,24 @@ export async function PUT(
         message: error.message
       }, { status: 404 });
     }
+
+    // Handle specific validation errors
+    if (error instanceof Error && error.message.includes('Product with id')) {
+      return NextResponse.json({
+        success: false,
+        error: 'Validation failed',
+        message: error.message
+      }, { status: 400 });
+    }
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to update category',
+      error: 'Failed to update homepage',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// DELETE /api/category/[id] - Delete category by ID
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -100,21 +104,19 @@ export async function DELETE(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Homepage ID is required'
       }, { status: 400 });
     }
 
-    // Delete category using the service
-    await CategoryService.delete(id);
+    await HomepageService.delete(id);
     
     return NextResponse.json({
       success: true,
-      message: 'Category deleted successfully'
+      message: 'Homepage deleted successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error deleting homepage:', error);
     
-    // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
       return NextResponse.json({
         success: false,
@@ -125,7 +127,7 @@ export async function DELETE(
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to delete category',
+      error: 'Failed to delete homepage',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { CategoryService } from "@/services/firebase/category/category.service";
-import { UpdateCategoryDto } from "@/lib/dto/category.dto";
+import { TagService } from "@/services/firebase/tag/tag.service";
+import { UpdateTagDto } from "@/lib/dto/tag.dto";
 
 export async function GET(
   request: Request,
@@ -13,35 +13,35 @@ export async function GET(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Tag ID is required'
       }, { status: 400 });
     }
 
-    const category = await CategoryService.getById(id);
+    const tag = await TagService.getById(id);
     
-    if (!category) {
+    if (!tag) {
       return NextResponse.json({
         success: false,
         error: 'Not found',
-        message: `Category with ID '${id}' not found`
+        message: `Tag with ID '${id}' not found`
       }, { status: 404 });
     }
     
     return NextResponse.json({
       success: true,
-      data: category
+      data: tag
     }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching category:', error);
+    console.error('Error fetching tag:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch category',
+      error: 'Failed to fetch tag',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// PUT /api/category/[id] - Update category by ID
+// PUT /api/tag/[id] - Update tag by ID
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -53,23 +53,23 @@ export async function PUT(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Tag ID is required'
       }, { status: 400 });
     }
 
     // Destructure the request body
-    const body: UpdateCategoryDto = await request.json();
+    const body: UpdateTagDto = await request.json();
 
-    // Update category using the service
-    const updatedCategory = await CategoryService.update(id, body);
+    // Update tag using the service
+    const updatedTag = await TagService.update(id, body);
     
     return NextResponse.json({
       success: true,
-      data: updatedCategory,
-      message: 'Category updated successfully'
+      data: updatedTag,
+      message: 'Tag updated successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error updating category:', error);
+    console.error('Error updating tag:', error);
     
     // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
@@ -82,13 +82,13 @@ export async function PUT(
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to update category',
+      error: 'Failed to update tag',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
 
-// DELETE /api/category/[id] - Delete category by ID
+// DELETE /api/tag/[id] - Delete tag by ID
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -100,19 +100,19 @@ export async function DELETE(
       return NextResponse.json({
         success: false,
         error: 'Validation failed',
-        message: 'Category ID is required'
+        message: 'Tag ID is required'
       }, { status: 400 });
     }
 
-    // Delete category using the service
-    await CategoryService.delete(id);
+    // Delete tag using the service
+    await TagService.delete(id);
     
     return NextResponse.json({
       success: true,
-      message: 'Category deleted successfully'
+      message: 'Tag deleted successfully'
     }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error deleting tag:', error);
     
     // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
@@ -125,7 +125,7 @@ export async function DELETE(
     
     return NextResponse.json({
       success: false,
-      error: 'Failed to delete category',
+      error: 'Failed to delete tag',
       message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

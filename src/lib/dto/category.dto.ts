@@ -1,14 +1,10 @@
 import { z } from 'zod';
 import { 
-  CategoryBaseSchema, 
   CreateCategorySchema, 
   UpdateCategorySchema, 
-  CategorySchema
+  CategoryResponseSchema
 } from '@/lib/schemas/category.schema';
 
-
-// Base category data type
-export type CategoryBaseDto = z.infer<typeof CategoryBaseSchema>;
 
 // DTO for creating a new category
 export type CreateCategoryDto = z.infer<typeof CreateCategorySchema>;
@@ -17,4 +13,4 @@ export type CreateCategoryDto = z.infer<typeof CreateCategorySchema>;
 export type UpdateCategoryDto = z.infer<typeof UpdateCategorySchema>;
 
 // DTO for category response (includes all fields + metadata)
-export type CategoryResponseDto = z.infer<typeof CategorySchema>;
+export type CategoryResponseDto = z.infer<typeof CategoryResponseSchema>;
