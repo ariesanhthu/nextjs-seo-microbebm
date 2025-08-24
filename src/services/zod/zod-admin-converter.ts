@@ -25,6 +25,7 @@ export function zodAdminConverter<T extends ZodType>(
           ... data
         });
       } catch (error) {
+        console.error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${error}`);
         throw new Error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${error}`);
       }
     },

@@ -6,10 +6,10 @@ export const HomepageSchema = GeneralSchema.extend({
   navigation_bar: z.array(z.object({
     title: z.string(),
     url: z.string() 
-  })),
-  footer: z.object({}),
-  slider: z.array(z.string()),
-  products: z.array(ProductResponseSchema),
+  })).default([]),
+  footer: z.object({}).default({}),
+  slider: z.array(z.string()).default([]),
+  products: z.array(ProductResponseSchema).default([]),
 }).strict()
 
 export const CreateHomepageSchema = HomepageSchema.pick({

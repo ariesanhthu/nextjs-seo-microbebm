@@ -10,6 +10,7 @@ import { ProductSchema, CreateProductSchema, UpdateProductSchema } from '@/lib/s
 import { generateSlug } from '@/utils/generate-slug';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
+import { CategoryService } from '../category/category.service';
 
 export class ProductService {
   private static readonly COLLECTION = 'products';
@@ -51,15 +52,27 @@ export class ProductService {
     }
   }
 
+  private static async getListRef(listIds: string[]) {
+    const uniqueIds = [... (new Set(listIds))];
+    const listRef = await Promise.all(
+      uniqueIds.map(async (id) => {
+        const doc = await adminDb.collection('categories').doc(id).get();
+        if (!doc.exists) {
+          throw new Error(`Category with ID '${id}' now found`);
+        }
+        return adminDb.collection('categories').doc(id);
+      })
+    )
+    return listRef;
+  }
+
   static async create(ProductData: CreateProductDto): Promise<ProductResponseDto> {
     try {
       // Validate input data
       const validatedData = CreateProductSchema.parse(ProductData);
       
       // Convert category_ids to DocumentReferences
-      const categoryRefs = validatedData.category_ids.map(id => 
-        adminDb.collection('categories').doc(id)
-      );
+      const categoryRefs = await this.getListRef(validatedData.category_ids);
       
       const now = Timestamp.now();
       const docData = {
@@ -175,9 +188,7 @@ export class ProductService {
       };
       
       if (validatedData.category_ids) {
-        updateFields.category_refs = validatedData.category_ids.map(id => 
-          adminDb.collection('categories').doc(id)
-        );
+        updateFields.category_refs = await this.getListRef(validatedData.category_ids)
         delete updateFields.category_ids;
       }
    
