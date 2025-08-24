@@ -18,13 +18,3 @@ export type UpdateCategoryDto = z.infer<typeof UpdateCategorySchema>;
 
 // DTO for category response (includes all fields + metadata)
 export type CategoryResponseDto = z.infer<typeof CategorySchema>;
-
-// ========================
-// Export all schemas for validation
-// ========================
-export {
-  CategoryBaseSchema,
-  CreateCategorySchema,
-  UpdateCategorySchema,
-  CategorySchema,
-};

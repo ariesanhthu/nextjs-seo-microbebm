@@ -26,20 +26,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     // Destructure the request body
-    const body = await request.json();
-    const { name } = body as CreateCategoryDto;
-    
-    // Validate required fields
-    if (!name) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        message: 'Name is required'
-      }, { status: 400 });
-    }
+    const body: CreateCategoryDto = await request.json();
 
     // Create category using the service
-    const newCategory = await CategoryService.create({ name });
+    const newCategory = await CategoryService.create(body);
     
     return NextResponse.json({
       success: true,

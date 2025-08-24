@@ -4,7 +4,7 @@ import { z } from 'zod'
 // Base schema - core category data without metadata
 export const CategoryBaseSchema = z.object({
   name: z.string().min(1, 'Category name is required').max(100, 'Name too long'),
-})
+}).strict()
 
 // Schema for creating categories (no id, no timestamps)
 export const CreateCategorySchema = CategoryBaseSchema
@@ -15,6 +15,7 @@ export const UpdateCategorySchema = CategoryBaseSchema.partial()
 // Complete schema for documents in Firestore (includes id + timestamps)
 export const CategorySchema = CategoryBaseSchema.extend({
   id: z.string(),
+  slug: z.string().min(1).max(100),
   created_at: z.instanceof(Timestamp),
   updated_at: z.instanceof(Timestamp),
 })

@@ -5,10 +5,9 @@ import {
   CreateCategoryDto, 
   UpdateCategoryDto, 
   CategoryResponseDto,
-  CreateCategorySchema,
-  UpdateCategorySchema,
-  CategorySchema
 } from '@/lib/dto/category.dto';
+import { CategorySchema, CreateCategorySchema, UpdateCategorySchema } from '@/lib/schemas/category.schema';
+import { generateSlug } from '@/utils/generate-slug';
 
 export class CategoryService {
   private static readonly COLLECTION = 'categories';
@@ -31,6 +30,7 @@ export class CategoryService {
       const now = Timestamp.now();
       const docData = {
         ...validatedData,
+        slug: generateSlug([validatedData.name]),
         created_at: now,
         updated_at: now,
       };
@@ -77,14 +77,17 @@ export class CategoryService {
       const validatedData = UpdateCategorySchema.parse(updateData);
 
       // Check if category exists
-      const existingCategory = await this.getDocRef(id).get();
-      if (!existingCategory) {
+      const existing = await this.getDocRef(id).get();
+      if (!existing) {
         throw new Error(`Category with id '${id}' not found`);
       }
 
+      const slug = validatedData.name ? generateSlug([validatedData.name]) : existing.data()?.slug;
+   
       // Update document
       await adminDb.collection(this.COLLECTION).doc(id).update({
         ...validatedData,
+        slug: slug,
         updated_at: Timestamp.now(),
       });
 

@@ -59,19 +59,9 @@ export async function PUT(
 
     // Destructure the request body
     const body = await request.json();
-    const updateData = body as UpdateCategoryDto;
-    
-    // Validate that there's at least one field to update
-    if (!updateData.name) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        message: 'At least one field (name) must be provided for update'
-      }, { status: 400 });
-    }
 
     // Update category using the service
-    const updatedCategory = await CategoryService.update(id, updateData);
+    const updatedCategory = await CategoryService.update(id, body);
     
     return NextResponse.json({
       success: true,
