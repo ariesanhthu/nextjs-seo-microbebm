@@ -6,11 +6,10 @@ import {
   UpdateProductDto, 
   ProductResponseDto,
 } from '@/lib/dto/product.dto';
-import { ProductSchema, CreateProductSchema, UpdateProductSchema } from '@/lib/schemas/product.schema';
+import { ProductSchema } from '@/lib/schemas/product.schema';
 import { generateSlug } from '@/utils/generate-slug';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
-import { CategoryService } from '../category/category.service';
 
 export class ProductService {
   private static readonly COLLECTION = 'products';
@@ -66,22 +65,19 @@ export class ProductService {
     return listRef;
   }
 
-  static async create(ProductData: CreateProductDto): Promise<ProductResponseDto> {
+  static async create(body: CreateProductDto): Promise<ProductResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateProductSchema.parse(ProductData);
-      
       // Convert category_ids to DocumentReferences
-      const categoryRefs = await this.getListRef(validatedData.category_ids);
+      const categoryRefs = await this.getListRef(body.category_ids);
       
       const now = Timestamp.now();
       const docData = {
-        name: validatedData.name,
-        description: validatedData.description,
-        main_img: validatedData.main_img,
-        sub_img: validatedData.sub_img,
+        name: body.name,
+        description: body.description,
+        main_img: body.main_img,
+        sub_img: body.sub_img,
         category_refs: categoryRefs,
-        slug: generateSlug([validatedData.name]),
+        slug: generateSlug([body.name]),
         created_at: now,
         updated_at: now,
       };
@@ -166,11 +162,8 @@ export class ProductService {
     }
   }
 
-  static async update(id: string, updateData: UpdateProductDto): Promise<ProductResponseDto> {
+  static async update(id: string, body: UpdateProductDto): Promise<ProductResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateProductSchema.parse(updateData);
-
       // Check if Product exists
       const existing = await this.getDocRef(id).get();
       if (!existing.exists) {
@@ -178,17 +171,17 @@ export class ProductService {
       }
 
       const existingData = existing.data();
-      const slug = validatedData.name ? generateSlug([validatedData.name]) : existingData?.slug;
+      const slug = body.name ? generateSlug([body.name]) : existingData?.slug;
       
       // Convert category_ids to DocumentReferences if provided
       let updateFields: any = {
-        ...validatedData,
+        ...body,
         slug: slug,
         updated_at: Timestamp.now(),
       };
       
-      if (validatedData.category_ids) {
-        updateFields.category_refs = await this.getListRef(validatedData.category_ids)
+      if (body.category_ids) {
+        updateFields.category_refs = await this.getListRef(body.category_ids)
         delete updateFields.category_ids;
       }
    

@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { ProductService } from "@/services/firebase/product/product.service";
-import { CreateProductDto } from "@/lib/dto/product.dto";
 import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
 import { ESort } from "@/lib/enums/sort.enum";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { CreateProductSchema } from "@/lib/schemas/product.schema";
 
 // GET /api/product - Get all products with pagination
 export async function GET(request: Request) {
@@ -26,22 +29,30 @@ export async function GET(request: Request) {
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching products:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch products',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch products');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch products');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 // POST /api/product - Create a new product
 export async function POST(request: Request) {
   try {
-    // Destructure the request body
-    const body: CreateProductDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, CreateProductSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Create product using the service
-    const newProduct = await ProductService.create(body);
+    const newProduct = await ProductService.create(validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -50,10 +61,15 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create product',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to create product');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to create product');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { BlogService } from "@/services/firebase/blog/blog.service";
-import { CreateBlogDto } from "@/lib/dto/blog.dto";
 import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
 import { ESort } from "@/lib/enums/sort.enum";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { CreateBlogSchema } from "@/lib/schemas/blog.schema";
 
 // GET /api/blog - Get all blogs with pagination
 export async function GET(request: Request) {
@@ -26,22 +29,30 @@ export async function GET(request: Request) {
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching blogs:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch blogs',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch blogs');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch blogs');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 // POST /api/blog - Create a new blog
 export async function POST(request: Request) {
   try {
-    // Destructure the request body
-    const body: CreateBlogDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, CreateBlogSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Create blog using the service
-    const newBlog = await BlogService.create(body);
+    const newBlog = await BlogService.create(validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -50,10 +61,15 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating blog:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create blog',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to create blog');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to create blog');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

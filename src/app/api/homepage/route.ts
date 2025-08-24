@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { HomepageService } from "@/services/firebase/homepage/homepage.service";
 import { CreateHomepageDto } from "@/lib/dto/homepage.dto";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { CreateHomepageSchema } from "@/lib/schemas/homepage.schema";
 
 export async function GET() {
   try {
@@ -13,19 +17,28 @@ export async function GET() {
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching homepages:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch homepages',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch homepages');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch homepages');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body: CreateHomepageDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, CreateHomepageSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
-    const newHomepage = await HomepageService.create(body);
+    const newHomepage = await HomepageService.create(validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -35,19 +48,20 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating homepage:', error);
     
-    // Handle specific validation errors
-    if (error instanceof Error && error.message.includes('Product with id')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        message: error.message
-      }, { status: 400 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to create homepage');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create homepage',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific validation errors
+    if (error instanceof Error && error.message.includes('Product with id')) {
+      const errorResponse = formatErrorResponse(error, 'Product validation failed');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to create homepage');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

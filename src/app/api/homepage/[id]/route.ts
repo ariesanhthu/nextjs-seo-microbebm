@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { HomepageService } from "@/services/firebase/homepage/homepage.service";
 import { UpdateHomepageDto } from "@/lib/dto/homepage.dto";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { UpdateHomepageSchema } from "@/lib/schemas/homepage.schema";
 
 export async function GET(
   request: Request,
@@ -33,11 +37,16 @@ export async function GET(
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching homepage:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch homepage',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch homepage');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch homepage');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -55,10 +64,13 @@ export async function PUT(
         message: 'Homepage ID is required'
       }, { status: 400 });
     }
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, UpdateHomepageSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
-    const body: UpdateHomepageDto = await request.json();
-
-    const updatedHomepage = await HomepageService.update(id, body);
+    const updatedHomepage = await HomepageService.update(id, validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -68,28 +80,26 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating homepage:', error);
     
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to update homepage');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
     if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+      const errorResponse = formatErrorResponse(error, 'Homepage not found');
+      return NextResponse.json(errorResponse, { status: 404 });
     }
 
     // Handle specific validation errors
     if (error instanceof Error && error.message.includes('Product with id')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Validation failed',
-        message: error.message
-      }, { status: 400 });
+      const errorResponse = formatErrorResponse(error, 'Product validation failed');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update homepage',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to update homepage');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -117,18 +127,19 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting homepage:', error);
     
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to delete homepage');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to delete homepage',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Homepage not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to delete homepage');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

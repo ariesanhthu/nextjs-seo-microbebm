@@ -6,7 +6,7 @@ import {
   UpdateTagDto, 
   TagResponseDto,
 } from '@/lib/dto/tag.dto';
-import { TagSchema, CreateTagSchema, UpdateTagSchema } from '@/lib/schemas/tag.schema';
+import { TagSchema } from '@/lib/schemas/tag.schema';
 import { generateSlug } from '@/utils/generate-slug';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
@@ -29,15 +29,12 @@ export class TagService {
     }
 
 
-  static async create(tagData: CreateTagDto): Promise<TagResponseDto> {
+  static async create(body: CreateTagDto): Promise<TagResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateTagSchema.parse(tagData);
-      
       const now = Timestamp.now();
       const docData = {
-        ...validatedData,
-        slug: generateSlug([validatedData.name]),
+        ...body,
+        slug: generateSlug([body.name]),
         created_at: now,
         updated_at: now,
       };
@@ -112,22 +109,19 @@ export class TagService {
     }
   }
 
-  static async update(id: string, updateData: UpdateTagDto): Promise<TagResponseDto> {
+  static async update(id: string, body: UpdateTagDto): Promise<TagResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateTagSchema.parse(updateData);
-
       // Check if tag exists
       const existing = await this.getDocRef(id).get();
       if (!existing) {
         throw new Error(`Tag with id '${id}' not found`);
       }
 
-      const slug = validatedData.name ? generateSlug([validatedData.name]) : existing.data()?.slug;
+      const slug = body.name ? generateSlug([body.name]) : existing.data()?.slug;
    
       // Update document
       await this.getWriteCollectionRef().doc(id).update({
-        ...validatedData,
+        ...body,
         slug: slug,
         updated_at: Timestamp.now(),
       });

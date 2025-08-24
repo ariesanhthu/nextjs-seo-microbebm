@@ -6,7 +6,7 @@ import {
   UpdateHomepageDto, 
   HomepageResponseDto,
 } from '@/lib/dto/homepage.dto';
-import { HomepageSchema, CreateHomepageSchema, UpdateHomepageSchema } from '@/lib/schemas/homepage.schema';
+import { HomepageSchema } from '@/lib/schemas/homepage.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
 
 export class HomepageService {
@@ -38,19 +38,16 @@ export class HomepageService {
     );
   }
 
-  static async create(homepageData: CreateHomepageDto): Promise<HomepageResponseDto> {
+  static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateHomepageSchema.parse(homepageData);
-      
       // Fetch full product data from product_ids
-      const products = await this.populateProducts(validatedData.product_ids);
+      const products = await this.populateProducts(body.product_ids);
       
       const now = Timestamp.now();
       const docData = {
-        navigation_bar: validatedData.navigation_bar,
-        footer: validatedData.footer,
-        slider: validatedData.slider,
+        navigation_bar: body.navigation_bar,
+        footer: body.footer,
+        slider: body.slider,
         products: products,
         created_at: now,
         updated_at: now,
@@ -96,11 +93,8 @@ export class HomepageService {
     }
   }
 
-  static async update(id: string, updateData: UpdateHomepageDto): Promise<HomepageResponseDto> {
+  static async update(id: string, body: UpdateHomepageDto): Promise<HomepageResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateHomepageSchema.parse(updateData);
-
       // Check if Homepage exists
       const existing = await this.getDocRef(id).get();
       if (!existing.exists) {
@@ -109,13 +103,13 @@ export class HomepageService {
 
       // Prepare update fields
       let updateFields: any = {
-        ...validatedData,
+        ...body,
         updated_at: Timestamp.now(),
       };
 
       // If product_ids is provided, fetch full product data
-      if (validatedData.product_ids !== undefined) {
-        const products = this.populateProducts(validatedData.product_ids);
+      if (body.product_ids !== undefined) {
+        const products = this.populateProducts(body.product_ids);
         updateFields.products = products;
 
         delete updateFields.product_ids;

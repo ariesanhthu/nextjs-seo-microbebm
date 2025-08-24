@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { BlogService } from "@/services/firebase/blog/blog.service";
-import { UpdateBlogDto } from "@/lib/dto/blog.dto";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { UpdateBlogSchema } from "@/lib/schemas/blog.schema";
 
 export async function GET(
   request: Request,
@@ -33,11 +36,16 @@ export async function GET(
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching blog:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch blog',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch blog');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch blog');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -57,11 +65,14 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Destructure the request body
-    const body: UpdateBlogDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, UpdateBlogSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Update blog using the service
-    const updatedBlog = await BlogService.update(id, body);
+    const updatedBlog = await BlogService.update(id, validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -71,20 +82,21 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating blog:', error);
     
-    // Handle specific error cases
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to update blog');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update blog',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific error cases
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Blog not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to update blog');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -114,19 +126,20 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting blog:', error);
     
-    // Handle specific error cases
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to delete blog');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to delete blog',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific error cases
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Blog not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to delete blog');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

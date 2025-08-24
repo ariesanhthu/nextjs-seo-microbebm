@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { ContactService } from "@/services/firebase/contact/contact.service";
-import { UpdateContactDto } from "@/lib/dto/contact.dto";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { UpdateContactSchema } from "@/lib/schemas/contact.schema";
 
 export async function GET(
   request: Request,
@@ -33,11 +36,8 @@ export async function GET(
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching contact:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch contact',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch contact');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -57,11 +57,14 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Destructure the request body
-    const body: UpdateContactDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, UpdateContactSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Update contact using the service
-    const updatedContact = await ContactService.update(id, body);
+    const updatedContact = await ContactService.update(id, validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -71,20 +74,21 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating contact:', error);
     
-    // Handle specific error cases
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to update contact');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update contact',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific error cases
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Contact not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to update contact');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -116,17 +120,12 @@ export async function DELETE(
     
     // Handle specific error cases
     if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+      const errorResponse = formatErrorResponse(error, 'Contact not found');
+      return NextResponse.json(errorResponse, { status: 404 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to delete contact',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to delete contact');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

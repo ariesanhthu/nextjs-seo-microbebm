@@ -2,9 +2,15 @@ import { DocumentReference, Timestamp } from "firebase-admin/firestore";
 import { z } from "zod";
 
 export const GeneralSchema = z.object({
-  id: z.string(),
-  created_at: z.instanceof(Timestamp),
-  updated_at: z.instanceof(Timestamp),
+  id: z.string({
+    message: "ID must be a string"
+  }),
+  created_at: z.instanceof(Timestamp, {
+    message: "Created date must be a valid Timestamp"
+  }),
+  updated_at: z.instanceof(Timestamp, {
+    message: "Updated date must be a valid Timestamp"
+  }),
 })
 
 export const DocumentReferenceSchema = z.custom<DocumentReference>(

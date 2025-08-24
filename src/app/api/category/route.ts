@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { CategoryService } from "@/services/firebase/category/category.service";
-import { CreateCategoryDto } from "@/lib/dto/category.dto";
 import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
 import { ESort } from "@/lib/enums/sort.enum";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { CreateCategorySchema } from "@/lib/schemas/category.schema";
 
 // GET /api/category - Get all categories with pagination
 export async function GET(request: Request) {
@@ -26,22 +29,22 @@ export async function GET(request: Request) {
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching categories:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch categories',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch categories');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 // POST /api/category - Create a new category
 export async function POST(request: Request) {
   try {
-    // Destructure the request body
-    const body: CreateCategoryDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, CreateCategorySchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Create category using the service
-    const newCategory = await CategoryService.create(body);
+    const newCategory = await CategoryService.create(validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -50,10 +53,15 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating category:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create category',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to create category');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to create category');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

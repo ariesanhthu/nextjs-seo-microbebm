@@ -6,7 +6,7 @@ import {
   UpdateContactDto, 
   ContactResponseDto,
 } from '@/lib/dto/contact.dto';
-import { ContactSchema, CreateContactSchema, UpdateContactSchema } from '@/lib/schemas/contact.schema';
+import { ContactSchema } from '@/lib/schemas/contact.schema';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
 
@@ -28,18 +28,15 @@ export class ContactService {
     }
 
 
-  static async create(contactData: CreateContactDto): Promise<ContactResponseDto> {
+  static async create(body: CreateContactDto): Promise<ContactResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateContactSchema.parse(contactData);
-      
-      if (!validatedData.email && !validatedData.phone) {
+      if (!body.email && !body.phone) {
         throw new Error('Must include email or phone');
       }
 
       const now = Timestamp.now();
       const docData: Partial<ContactResponseDto> = {
-        ...validatedData,
+        ...body,
         is_check: false,
         created_at: now,
         updated_at: now,
@@ -115,10 +112,8 @@ export class ContactService {
     }
   }
 
-  static async update(id: string, updateData: UpdateContactDto): Promise<ContactResponseDto> {
+  static async update(id: string, body: UpdateContactDto): Promise<ContactResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateContactSchema.parse(updateData);
       // Check if contact exists
       const existing = await this.getDocRef(id).get();
       if (!existing) {
@@ -127,7 +122,7 @@ export class ContactService {
 
       // Update document
       await this.getWriteCollectionRef().doc(id).update({
-        ...validatedData,
+        ...body,
         updated_at: Timestamp.now(),
       });
 

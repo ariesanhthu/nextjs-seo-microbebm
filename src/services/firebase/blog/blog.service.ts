@@ -6,7 +6,7 @@ import {
   UpdateBlogDto, 
   BlogResponseDto,
 } from '@/lib/dto/blog.dto';
-import { BlogSchema, CreateBlogSchema, UpdateBlogSchema } from '@/lib/schemas/blog.schema';
+import { BlogSchema } from '@/lib/schemas/blog.schema';
 import { generateSlug } from '@/utils/generate-slug';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
@@ -66,20 +66,17 @@ export class BlogService {
   }
 
 
-  static async create(BlogData: CreateBlogDto): Promise<BlogResponseDto> {
+  static async create(body: CreateBlogDto): Promise<BlogResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateBlogSchema.parse(BlogData);
-      
       // Convert tag_ids to DocumentReferences
-      const tagRefs = await this.getListRef(validatedData.tag_ids);
+      const tagRefs = await this.getListRef(body.tag_ids);
       
       const now = Timestamp.now();
       const docData = {
-        title: validatedData.title,
-        content: validatedData.content,
+        title: body.title,
+        content: body.content,
         tag_refs: tagRefs,
-        slug: generateSlug([validatedData.title]),
+        slug: generateSlug([body.title]),
         created_at: now,
         updated_at: now,
       };
@@ -162,11 +159,8 @@ export class BlogService {
     }
   }
 
-  static async update(id: string, updateData: UpdateBlogDto): Promise<BlogResponseDto> {
+  static async update(id: string, body: UpdateBlogDto): Promise<BlogResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateBlogSchema.parse(updateData);
-
       // Check if Blog exists
       const existing = await this.getDocRef(id).get();
       if (!existing.exists) {
@@ -174,17 +168,17 @@ export class BlogService {
       }
 
       const existingData = existing.data();
-      const slug = validatedData.title ? generateSlug([validatedData.title]) : existingData?.slug;
+      const slug = body.title ? generateSlug([body.title]) : existingData?.slug;
       
       // Convert tag_ids to DocumentReferences if provided
       let updateFields: any = {
-        ...validatedData,
+        ...body,
         slug: slug,
         updated_at: Timestamp.now(),
       };
       
-      if (validatedData.tag_ids) {
-        updateFields.tag_refs = await this.getListRef(validatedData.tag_ids);
+      if (body.tag_ids) {
+        updateFields.tag_refs = await this.getListRef(body.tag_ids);
         delete updateFields.tag_ids;
       }
    

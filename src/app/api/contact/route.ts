@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { ContactService } from "@/services/firebase/contact/contact.service";
-import { CreateContactDto } from "@/lib/dto/contact.dto";
 import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
 import { ESort } from "@/lib/enums/sort.enum";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { CreateContactSchema } from "@/lib/schemas/contact.schema";
 
 // GET /api/contact - Get all contacts with pagination
 export async function GET(request: Request) {
@@ -26,22 +29,20 @@ export async function GET(request: Request) {
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching contacts:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch contacts',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch contacts');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
 // POST /api/contact - Create a new contact
 export async function POST(request: Request) {
   try {
-    // Destructure the request body
-    const body: CreateContactDto = await request.json();
+    const validatedBody = await ZodRequestValidation(request, CreateContactSchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
-    // Create contact using the service
-    const newContact = await ContactService.create(body);
+    const newContact = await ContactService.create(validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -50,10 +51,15 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating contact:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create contact',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to create contact');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to create contact');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

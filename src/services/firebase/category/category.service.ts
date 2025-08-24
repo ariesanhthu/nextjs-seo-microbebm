@@ -6,11 +6,10 @@ import {
   UpdateCategoryDto, 
   CategoryResponseDto,
 } from '@/lib/dto/category.dto';
-import { CategorySchema, CreateCategorySchema, UpdateCategorySchema } from '@/lib/schemas/category.schema';
+import { CategorySchema } from '@/lib/schemas/category.schema';
 import { generateSlug } from '@/utils/generate-slug';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
-import { number } from 'zod';
 
 export class CategoryService {
   private static readonly COLLECTION = 'categories';
@@ -30,15 +29,12 @@ export class CategoryService {
     }
 
 
-  static async create(categoryData: CreateCategoryDto): Promise<CategoryResponseDto> {
+  static async create(body: CreateCategoryDto): Promise<CategoryResponseDto> {
     try {
-      // Validate input data
-      const validatedData = CreateCategorySchema.parse(categoryData);
-      
       const now = Timestamp.now();
       const docData = {
-        ...validatedData,
-        slug: generateSlug([validatedData.name]),
+        ...body,
+        slug: generateSlug([body.name]),
         created_at: now,
         updated_at: now,
       };
@@ -113,22 +109,19 @@ export class CategoryService {
     }
   }
 
-  static async update(id: string, updateData: UpdateCategoryDto): Promise<CategoryResponseDto> {
+  static async update(id: string, body: UpdateCategoryDto): Promise<CategoryResponseDto> {
     try {
-      // Validate update data
-      const validatedData = UpdateCategorySchema.parse(updateData);
-
       // Check if category exists
       const existing = await this.getDocRef(id).get();
       if (!existing) {
         throw new Error(`Category with id '${id}' not found`);
       }
 
-      const slug = validatedData.name ? generateSlug([validatedData.name]) : existing.data()?.slug;
+      const slug = body.name ? generateSlug([body.name]) : existing.data()?.slug;
    
       // Update document
       await this.getWriteCollectionRef().doc(id).update({
-        ...validatedData,
+        ...body,
         slug: slug,
         updated_at: Timestamp.now(),
       });

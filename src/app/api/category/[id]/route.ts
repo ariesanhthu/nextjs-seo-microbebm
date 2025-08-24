@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { CategoryService } from "@/services/firebase/category/category.service";
-import { UpdateCategoryDto } from "@/lib/dto/category.dto";
+import { formatErrorResponse } from "@/lib/format-error-response";
+import { ZodError } from "zod";
+import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
+import { UpdateCategorySchema } from "@/lib/schemas/category.schema";
 
 export async function GET(
   request: Request,
@@ -33,11 +36,16 @@ export async function GET(
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching category:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch category',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to fetch category');
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to fetch category');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -56,12 +64,14 @@ export async function PUT(
         message: 'Category ID is required'
       }, { status: 400 });
     }
-
-    // Destructure the request body
-    const body: UpdateCategoryDto = await request.json();
+    // Validate request body
+    const validatedBody = await ZodRequestValidation(request, UpdateCategorySchema);
+    if (validatedBody.success === false) {
+      throw validatedBody.error;
+    }
 
     // Update category using the service
-    const updatedCategory = await CategoryService.update(id, body);
+    const updatedCategory = await CategoryService.update(id, validatedBody.data);
     
     return NextResponse.json({
       success: true,
@@ -71,20 +81,21 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating category:', error);
     
-    // Handle specific error cases
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to update category');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update category',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific error cases
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Category not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to update category');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 
@@ -114,19 +125,20 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting category:', error);
     
-    // Handle specific error cases
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json({
-        success: false,
-        error: 'Not found',
-        message: error.message
-      }, { status: 404 });
+    // Handle validation errors with 400 status
+    if (error instanceof ZodError) {
+      const errorResponse = formatErrorResponse(error, 'Failed to delete category');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
     
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to delete category',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    // Handle specific error cases
+    if (error instanceof Error && error.message.includes('not found')) {
+      const errorResponse = formatErrorResponse(error, 'Category not found');
+      return NextResponse.json(errorResponse, { status: 404 });
+    }
+    
+    // Handle other errors with 500 status
+    const errorResponse = formatErrorResponse(error, 'Failed to delete category');
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
