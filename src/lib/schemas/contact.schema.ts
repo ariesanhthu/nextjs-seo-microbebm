@@ -41,8 +41,7 @@ export const UpdateContactSchema = z.object({
 
   phone: z.string()
     .regex(/^\d{10}$/, 'Contact phone must be exactly 10 digits')
-    .length(10, "Contact phone must be exactly 10 digits")
-    .nullable(),
+    .length(10, "Contact phone must be exactly 10 digits"),
 
   description: z.string({
     message: "Contact description must be a string"
