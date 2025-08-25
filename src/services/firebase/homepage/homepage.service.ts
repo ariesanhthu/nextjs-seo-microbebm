@@ -8,6 +8,7 @@ import {
 } from '@/lib/dto/homepage.dto';
 import { HomepageSchema } from '@/lib/schemas/homepage.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
+import { ESort } from '@/lib/enums/sort.enum';
 
 export class HomepageService {
   private static readonly COLLECTION = 'homepage';
@@ -40,6 +41,10 @@ export class HomepageService {
 
   static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {
     try {
+      const existing = await this.getReadCollectionRef().get();
+      if (!existing.empty) {
+        throw new Error('Homepage is existed. Can not create new one.');
+      }
       // Fetch full product data from product_ids
       const products = await this.populateProducts(body.product_ids);
       
@@ -66,6 +71,16 @@ export class HomepageService {
     } catch (error) {
       console.error('Error creating Homepage:', error);
       throw new Error(`Failed to create Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  static async get(): Promise<HomepageResponseDto | null> {
+    try {
+      const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
+      return snapshot.docs.map(doc => doc.data()!)[0];
+    } catch (error) {
+      console.error('Error getting all homepages:', error);
+      throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

@@ -10,23 +10,11 @@ import { CreateCommonInformationSchema } from "@/lib/schemas/common-information.
 // GET /api/common-information - Get all common-informations with pagination
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    
-    const query: PaginationCursorDto = {
-      cursor: searchParams.get('cursor') || undefined,
-      limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
-      sort: (searchParams.get('sort') as ESort) || ESort.DESC
-    };
-
-    const result = await CommonInformationService.getAll(query);
-    
+    const commonInformation = await CommonInformationService.get();
     return NextResponse.json({
       success: true,
-      data: result.data,
-      nextCursor: result.nextCursor,
-      hasNextPage: result.hasNextPage,
-      count: result.data.length
-    }, { status: 200 });
+      data: commonInformation,
+    })
   } catch (error) {
     console.error('Error fetching common-informations:', error);
     

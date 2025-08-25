@@ -27,9 +27,13 @@ export class CommonInformationService {
     return adminDb.collection(this.COLLECTION) 
     }
 
-
   static async create(body: CreateCommonInformationDto): Promise<CommonInformationResponseDto> {
     try {
+      const existing = await this.getReadCollectionRef().get();
+      if (!existing.empty) {
+        throw new Error('Common information is existed. Can not create new one.');
+      }
+
       const now = Timestamp.now();
       const docData = {
         ...body,
@@ -50,6 +54,16 @@ export class CommonInformationService {
     } catch (error) {
       console.error('Error creating common-information:', error);
       throw new Error(`Failed to create common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  static async get(): Promise<CommonInformationResponseDto | null> {
+    try {
+      const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
+      return snapshot.docs.map(doc => doc.data()!)[0];
+    } catch (error) {
+      console.error('Error getting common-information:', error);
+      throw new Error(`Failed to get common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
