@@ -331,9 +331,8 @@ All endpoints follow RESTful conventions and return structured responses:
 ## 6. Homepage
 
 ### Endpoints
-- `GET /api/homepage` - Get all homepage configs
-- `POST /api/homepage` - Create new homepage config
-- `GET /api/homepage/[id]` - Get homepage config by ID
+- `GET /api/homepage` - Get one homepage configs
+- `POST /api/homepage` - Create new homepage config (only allow one homepage document exists in database)
 - `PUT /api/homepage/[id]` - Update homepage config
 - `DELETE /api/homepage/[id]` - Delete homepage config
 
@@ -444,7 +443,12 @@ All endpoints follow RESTful conventions and return structured responses:
 ---
 
 ## 7. Common Information
-
+### Endpoints
+- `GET /api/common-information` - Get one common-information configs
+- `POST /api/common-information` - Create new common-information config (only allow one common-information document exists in database)
+- `PUT /api/common-information/[id]` - Update common-information config
+- `DELETE /api/common-information/[id]` - Delete common-information config
+  
 ### Schema Fields
 ```typescript
 {
@@ -492,7 +496,13 @@ All endpoints follow RESTful conventions and return structured responses:
 ---
 
 ## 8. Image Metadata
-
+### Endpoints
+- `GET /api/image-metadata` - Get all image-metadata (paginated)
+- `POST /api/image-metadata` - Create new image-metadata
+- `GET /api/image-metadata/[id]` - Get image-metadata by ID
+- `PUT /api/image-metadata/[id]` - Update image-metadata
+- `DELETE /api/image-metadata/[id]` - Delete image-metadata
+- 
 ### Schema Fields
 ```typescript
 {
@@ -546,7 +556,7 @@ All endpoints follow RESTful conventions and return structured responses:
 {
   cursor?: string,        // Cursor for pagination (document ID)
   limit?: number,        // Number of items per page (default: 10)
-  sort?: "ASC" | "DESC"  // Sort order (default: "DESC")
+  sort?: "asc" | "desc"  // Sort order (default: "desc")
 }
 ```
 
