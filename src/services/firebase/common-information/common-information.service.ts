@@ -77,7 +77,7 @@ export class CommonInformationService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<CommonInformationResponseDto>>> {
     try {
       const {
         cursor,

@@ -111,7 +111,7 @@ export class ProductService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ProductResponseDto>>> {
     try {
       const {
         cursor,

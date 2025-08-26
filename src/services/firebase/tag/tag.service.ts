@@ -65,7 +65,7 @@ export class TagService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<TagResponseDto>>> {
     try {
       const {
         cursor,

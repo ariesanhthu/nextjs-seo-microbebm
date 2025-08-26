@@ -63,7 +63,7 @@ export class ImageMetadataService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ImageMetadataResponseDto>>> {
     try {
       const {
         cursor,
