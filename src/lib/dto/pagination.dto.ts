@@ -7,8 +7,10 @@ export interface PaginationCursorDto {
   sort?: ESort
 }
 
-export interface PaginationCursorResponseDto {
-  nextCursor: string | null,
-  data: any[],
-  hasNextPage: boolean
+export interface PaginationCursorResponseDto<T> {
+  success: boolean;
+  data: T[];
+  nextCursor?: string | null;
+  hasNextPage: boolean;
+  count: number;
 }

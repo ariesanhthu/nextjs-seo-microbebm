@@ -6,43 +6,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Eye, Edit, FileText } from "lucide-react"
 
-export default function ContentEditor() {
-  const [editorContent, setEditorContent] = useState<string>("")
+interface ContentEditorProps {
+  value: string;
+  onChange: (html: string) => void;
+}
+
+export default function ContentEditor({ value, onChange }: ContentEditorProps) {
+  const [editorContent, setEditorContent] = useState<string>(value)
   const [activeTab, setActiveTab] = useState<string>("editor")
+
+  // Sync with external value prop changes (when blog is selected)
+  useEffect(() => {
+    if (value !== editorContent) {
+      setEditorContent(value)
+    }
+  }, [value])
 
   // Handle content changes from editor
   const handleContentChange = (html: string) => {
-    console.log("📝 Content received from editor:", {
-      htmlLength: html.length,
-      wordCount: html.replace(/<[^>]*>/g, '').split(/\s+/).filter(word => word.length > 0).length,
-      timestamp: new Date().toISOString(),
-      preview: html.substring(0, 100) + (html.length > 100 ? '...' : '')
-    })
-    
+    onChange(html)
     setEditorContent(html)
-    // Here you could also save to your backend/database
-    // saveToDatabase(html)
   }
 
-  // Optional: Save to localStorage as backup
+  // Optional: Save to localStorage as backup (but don't override props)
   useEffect(() => {
-    if (editorContent) {
+    if (editorContent && editorContent !== value) {
       localStorage.setItem('blog-draft', editorContent)
-      console.log("💾 Content saved to localStorage")
     }
-  }, [editorContent])
+  }, [editorContent, value])
 
-  // Load from localStorage on mount
+  // Load from localStorage ONLY if no value prop is provided
   useEffect(() => {
-    const savedContent = localStorage.getItem('blog-draft')
-    if (savedContent) {
-      setEditorContent(savedContent)
-      console.log("🔄 Loaded content from localStorage")
+    if (!value || value === "") {
+      const savedContent = localStorage.getItem('blog-draft')
+      if (savedContent) {
+        setEditorContent(savedContent)
+      }
     }
-  }, [])
+  }, []) // Remove value dependency to prevent override
 
   return (
-    <div className="flex flex-col justify-center items-center max-w-6xl mx-auto p-4 space-y-6">
+    <div className="flex flex-col w-full justify-center items-center mx-auto p-4 space-y-6">
       {/* Tabbed Editor and Preview */}
       <Card className="w-full">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

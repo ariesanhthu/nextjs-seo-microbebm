@@ -50,7 +50,6 @@ export async function POST(request: Request) {
     if (validatedBody.success === false) {
       throw validatedBody.error;
     }
-
     // Create blog using the service
     const newBlog = await BlogService.create(validatedBody.data);
     
