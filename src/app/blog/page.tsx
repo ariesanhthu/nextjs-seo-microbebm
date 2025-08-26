@@ -1,11 +1,11 @@
-import Blog from "@/features/blog/components/blog";
+import ContentEditor from "@/features/blog/components/content-editor";
 
 export default function Page() {
 
 
   return (
     <div>
-      <Blog/>
+      <ContentEditor/>
     </div>
   )
 }

@@ -96,7 +96,7 @@ const MainToolbarContent = ({
   isMobile: boolean
 }) => {
   return (
-    <>
+    <div className="flex flex-row justify-between items-center gap-2 w-full overflow-auto">
       <Spacer />
 
       <ToolbarGroup>
@@ -163,7 +163,7 @@ const MainToolbarContent = ({
       {/* <ToolbarGroup>
         <ThemeToggle />
       </ToolbarGroup> */}
-    </>
+    </div>
   )
 }
 
@@ -312,8 +312,20 @@ export function SimpleEditor({
     }
   }, [editor, initialContent, onContentChange])
 
+  // Update editor content when initialContent prop changes
+  React.useEffect(() => {
+    if (editor && initialContent !== undefined) {
+      const currentContent = editor.getHTML()
+      // Only update if the content is actually different
+      if (currentContent !== initialContent) {
+        editor.commands.setContent(initialContent)
+        setLastSavedContent(initialContent)
+      }
+    }
+  }, [editor, initialContent])
+  
   return (
-    <div className="simple-editor-wrapper border-10 rounded-2xl">
+    <div className="w-full h-200 overflow-auto border-10 rounded-2xl">
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}
