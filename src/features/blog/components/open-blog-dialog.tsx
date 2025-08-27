@@ -72,6 +72,9 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
           <CardTitle className="flex items-center gap-2">
             Thư viện bài viết
             <div className="ml-auto">
+              <Button variant="ghost" onClick={clearCache}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" onClick={closeDialog}>
                 <X className="h-4 w-4" />
               </Button>
@@ -79,7 +82,7 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
           </CardTitle>
 
         </CardHeader>
-        <CardContent className="max-h-2/3 min-h-2/3 overflow-y-auto">
+        <CardContent className="max-h-2/3 min-h-2/3 overflow-x-auto overflow-y-auto">
           {loading ? (
             <div className="text-center py-8">Loading...</div>
           ) : (
@@ -110,7 +113,7 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
                           className="rounded-lg object-cover"
                         />
                     }
-                    <div className="font-medium text-black">{blog.title}</div>
+                    <div className="truncate font-medium text-black overflow-auto">{blog.title}</div>
                   </Button>
                 ))}
               </div>

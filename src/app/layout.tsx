@@ -16,6 +16,7 @@ import Navbar from "@/components/Navbar";
 import {
   ClerkProvider
 } from '@clerk/nextjs'
+import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,14 +32,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="vi">
-        <body
-          className={inter.className}
-          suppressHydrationWarning
-        >
-              {children}
-        </body>
-      </html>
+      <AlertDialogProvider>
+        <html lang="vi">
+          <body
+            className={inter.className}
+            suppressHydrationWarning
+            >
+                {children}
+          </body>
+        </html>
+      </AlertDialogProvider>
     </ClerkProvider>
   );
 }
