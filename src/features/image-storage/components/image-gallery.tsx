@@ -5,12 +5,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
-import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
+import { useImageGallery } from '../context/image-gallery-context';
 
 export default function ImageGallery() {
   const {
-    data: images,
+    imageMetadatas: images,
     loading,
     error,
     hasNextPage,
@@ -19,14 +19,10 @@ export default function ImageGallery() {
     goToPrevPage,
     refresh,
     cacheSize
-  } = usePaginatedFetch<ImageMetadataResponseDto>('/api/image-metadata', {
-    limit: 10,
-    sort: ESort.DESC,
-    autoFetch: true
-  });
+  } = useImageGallery();
 
   const clearCache = () => {
-    refresh(); // This will clear cache and refetch current page
+    refresh(); // Clear cache and refetch current page
   };
 
   if (error) {

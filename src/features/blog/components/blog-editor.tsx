@@ -13,8 +13,8 @@ import { ApiResponseDto } from "@/lib/dto/api-response.dto";
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context";
 import { CldImage } from "next-cloudinary";
 import Image from "next/image";
-import OpenImageMetadataDialog from "@/features/image-storage/components/open-image-diaglog";
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
+import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
 
 
 export default function BlogEditor() {
@@ -24,10 +24,10 @@ export default function BlogEditor() {
   const [content, setContent] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
   const [isOpenBlogDialog, setIsOpenBlogDialog] = React.useState(false);
-  const [isOpenImageDialog, setIsOpenImageDialog] = React.useState(false);
-
+  
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
+  const imageGallery = useImageGallery();
 
   const handlePostBlog = async () => {
     if (id) {
@@ -73,10 +73,11 @@ export default function BlogEditor() {
     }
   };
 
-  const handleOpenImage = async (imageMetadata: ImageMetadataResponseDto) => {
-    setThumbnailUrl(imageMetadata.url);
-    // setIsOpenImageDialog(true);
-  };
+  const handleSelectedThumbnailUrl = () => {
+    imageGallery.openDialog((image: ImageMetadataResponseDto) => {
+      setThumbnailUrl(image.url);
+    });
+  }
 
   const handleOpenBlog = async (blog: BlogResponseDto) => {
     const choice = await alertDialog.showAlert({
@@ -96,11 +97,6 @@ export default function BlogEditor() {
     setContent(blog.content);
     setThumbnailUrl(blog.thumbnail_url || "");
     // setIsOpenBlogDialog(true);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handlePostBlog();
   };
 
   const handleNewBlog = async () => {
@@ -166,80 +162,64 @@ export default function BlogEditor() {
         />
       </div>
 
-      {/* Always render dialog but hide with CSS */}
-      <div 
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
-          isOpenImageDialog ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <OpenImageMetadataDialog
-          onSelect={(image) => {
-            handleOpenImage(image);
-          }}
-          closeDialog={() => setIsOpenImageDialog(false)}
-          isOpen={isOpenImageDialog}
-        />
-      </div>
-
       <Card className="mx-5 my-10 mt-4">
-        <form onSubmit={handleSubmit}>
-          <CardHeader className="flex flex-row">
-            <div className="flex flex-col">
-              <CardTitle>Thông tin bài viết</CardTitle>
-              <CardDescription>Điền thông tin chi tiết bên dưới</CardDescription>
-            </div>
-            <div className="ml-auto flex flex-row gap-2">
-              <Button type="button" onClick={() => setIsOpenBlogDialog(true)}>Mở bài viết</Button>
-              <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
-              <Button type="submit">Đăng</Button>
-              <Button type="button" onClick={handleSaveBlog} disabled={!id}>Lưu</Button>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col space-y-4">
-            <Label htmlFor="title">Tiêu đề</Label>
-            <Input
-              placeholder="Tiêu đề"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)} />
+        <CardHeader className="flex flex-row">
+          <div className="flex flex-col">
+            <CardTitle>Thông tin bài viết</CardTitle>
+            <CardDescription>Điền thông tin chi tiết bên dưới</CardDescription>
+          </div>
+          <div className="ml-auto flex flex-row gap-2">
+            <Button type="button" onClick={() => setIsOpenBlogDialog(true)}>Mở bài viết</Button>
+            <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
+            <Button type="button" onClick={handlePostBlog}>Đăng</Button>
+            <Button type="button" onClick={handleSaveBlog} disabled={!id}>Lưu</Button>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col space-y-4">
+          <Label htmlFor="title">Tiêu đề</Label>
+          <Input
+            placeholder="Tiêu đề"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)} />
 
-            <Label htmlFor="author">Tác giả</Label>
-            <Input
-              placeholder="Tác giả"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)} />
-            {/* i want when open a blog, if it has thumbnail, show it here 
-              i need it re render the image 
-            */}
-            <div className="flex flex-row items-center gap-4">
-              {
-                thumbnailUrl ? (
-                  <CldImage
-                    src={thumbnailUrl}
-                    alt="Thumbnail"
-                    width={50}
-                    height={50}
-                    className="rounded-md"
-                  />
-                ) : (
-                  <Image
-                    src="/images/no-image.jpg"
-                    alt="Thumbnail"
-                    width={50}
-                    height={50}
-                    className="rounded-md"
-                  />
-                )
-              }
-              <Button
-                type="button"
-                onClick={() => setIsOpenImageDialog(true)}
-              >
-                Chọn Thumbnail
-              </Button>
-            </div>
-            <ContentEditor value={content} onChange={setContent} />
-          </CardContent>
-        </form>
+          <Label htmlFor="author">Tác giả</Label>
+          <Input
+            placeholder="Tác giả"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)} />
+          {/* i want when open a blog, if it has thumbnail, show it here 
+            i need it re render the image 
+          */}
+          <div className="flex flex-row items-center gap-4">
+            {
+              thumbnailUrl ? (
+                <CldImage
+                  src={thumbnailUrl}
+                  alt="Thumbnail"
+                  width={50}
+                  height={50}
+                  className="rounded-md"
+                />
+              ) : (
+                <Image
+                  src="/images/no-image.jpg"
+                  alt="Thumbnail"
+                  width={50}
+                  height={50}
+                  className="rounded-md"
+                />
+              )
+            }
+            <Button
+              type="button"
+              // onClick={() => setIsOpenImageDialog(true)}
+              onClick={handleSelectedThumbnailUrl}
+            >
+              Chọn Thumbnail
+            </Button>
+          </div>
+          <ContentEditor value={content} onChange={setContent} />
+        </CardContent>
       </Card>
 
     </div>
