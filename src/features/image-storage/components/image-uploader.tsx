@@ -78,7 +78,7 @@ export default function ImageUploader() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="border-4 rounded-2xl">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
