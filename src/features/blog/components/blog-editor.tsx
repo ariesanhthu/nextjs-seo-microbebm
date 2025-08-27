@@ -6,11 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import React from "react";
+import React, { useEffect } from "react";
 import OpenBlogDialog from "./open-blog-dialog";
 import { BlogResponseDto } from "@/lib/dto/blog.dto";
 import { ApiResponseDto } from "@/lib/dto/api-response.dto";
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context";
+import { CldImage } from "next-cloudinary";
+import Image from "next/image";
+import OpenImageMetadataDialog from "@/features/image-storage/components/open-image-diaglog";
+import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 
 
 export default function BlogEditor() {
@@ -18,8 +22,10 @@ export default function BlogEditor() {
   const [author, setAuthor] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
+  const [thumbnailUrl, setThumbnailUrl] = React.useState("");
   const [isOpenBlogDialog, setIsOpenBlogDialog] = React.useState(false);
-  
+  const [isOpenImageDialog, setIsOpenImageDialog] = React.useState(false);
+
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
 
@@ -38,7 +44,7 @@ export default function BlogEditor() {
       }
     }
     
-    const body = JSON.stringify({ title, author, content });
+    const body = JSON.stringify({ title, author, content, thumbnail_url: thumbnailUrl });
     console.log("Storing to database...", body);
     
     try { 
@@ -67,6 +73,11 @@ export default function BlogEditor() {
     }
   };
 
+  const handleOpenImage = async (imageMetadata: ImageMetadataResponseDto) => {
+    setThumbnailUrl(imageMetadata.url);
+    // setIsOpenImageDialog(true);
+  };
+
   const handleOpenBlog = async (blog: BlogResponseDto) => {
     const choice = await alertDialog.showAlert({
       title: "Mở bài viết",
@@ -83,7 +94,8 @@ export default function BlogEditor() {
     setTitle(blog.title);
     setAuthor(blog.author);
     setContent(blog.content);
-    setIsOpenBlogDialog(true);
+    setThumbnailUrl(blog.thumbnail_url || "");
+    // setIsOpenBlogDialog(true);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -106,13 +118,14 @@ export default function BlogEditor() {
     setTitle("");
     setAuthor("");
     setContent("");
+    setThumbnailUrl("");
     toast.success("Đã tạo bài viết mới");
   };
 
   const handleSaveBlog = async () => {
     if (id) {
       try {
-        const body = JSON.stringify({ title, author, content });
+        const body = JSON.stringify({ title, author, content, thumbnail_url: thumbnailUrl });
         console.log("Updating blog...", body);
         
         const response = await fetch(`/api/blog/${id}`, {
@@ -146,11 +159,25 @@ export default function BlogEditor() {
       >
         <OpenBlogDialog 
           onSelect={(blog) => {
-            console.log("Selected blog:", blog);
             handleOpenBlog(blog);
           }}
           closeDialog={() => setIsOpenBlogDialog(false)}
           isOpen={isOpenBlogDialog}
+        />
+      </div>
+
+      {/* Always render dialog but hide with CSS */}
+      <div 
+        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
+          isOpenImageDialog ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <OpenImageMetadataDialog
+          onSelect={(image) => {
+            handleOpenImage(image);
+          }}
+          closeDialog={() => setIsOpenImageDialog(false)}
+          isOpen={isOpenImageDialog}
         />
       </div>
 
@@ -180,6 +207,36 @@ export default function BlogEditor() {
               placeholder="Tác giả"
               value={author}
               onChange={(e) => setAuthor(e.target.value)} />
+            {/* i want when open a blog, if it has thumbnail, show it here 
+              i need it re render the image 
+            */}
+            <div className="flex flex-row items-center gap-4">
+              {
+                thumbnailUrl ? (
+                  <CldImage
+                    src={thumbnailUrl}
+                    alt="Thumbnail"
+                    width={50}
+                    height={50}
+                    className="rounded-md"
+                  />
+                ) : (
+                  <Image
+                    src="/images/no-image.jpg"
+                    alt="Thumbnail"
+                    width={50}
+                    height={50}
+                    className="rounded-md"
+                  />
+                )
+              }
+              <Button
+                type="button"
+                onClick={() => setIsOpenImageDialog(true)}
+              >
+                Chọn Thumbnail
+              </Button>
+            </div>
             <ContentEditor value={content} onChange={setContent} />
           </CardContent>
         </form>
