@@ -79,6 +79,7 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 
 import content from "@/components/tiptap-templates/simple/data/content.json"
+import { ImageLinkButton } from "@/components/tiptap-ui/image-link-button"
 
 interface SimpleEditorProps {
   content?: string;
@@ -151,7 +152,7 @@ const MainToolbarContent = ({
       <ToolbarSeparator />
 
       <ToolbarGroup>
-        <ImageUploadButton text="Add" />
+        <ImageLinkButton text="Add" />
         <TableDropdownMenu portal={isMobile} />
       </ToolbarGroup>
 
@@ -251,13 +252,13 @@ export function SimpleEditor({
       TableRow,
       TableHeader,
       TableCell,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
-      }),
+      // ImageUploadNode.configure({
+      //   accept: "image/*",
+      //   maxSize: MAX_FILE_SIZE,
+      //   limit: 3,
+      //   upload: handleImageUpload,
+      //   onError: (error) => console.error("Upload failed:", error),
+      // }),
     ],
     content,
     onUpdate: ({ editor }) => {
