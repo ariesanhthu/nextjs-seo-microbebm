@@ -70,7 +70,7 @@ export function usePaginatedFetch<T>(
   const [hasNextPage, setHasNextPage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [isInitialFetch, setIsInitialFetch] = useState(true);
   // Navigation history
   const [cursorsHistory, setCursorsHistory] = useState<string[]>([]);
   

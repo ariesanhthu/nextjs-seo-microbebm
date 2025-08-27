@@ -17,7 +17,8 @@ import {
   ClerkProvider
 } from '@clerk/nextjs'
 import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
-
+import { ImageGalleryProvider } from "@/features/image-storage/context/image-gallery-context";
+import { BlogGalleryProvider } from "@/features/blog/context/blog-gallery-context";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -33,14 +34,18 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <AlertDialogProvider>
-        <html lang="vi">
-          <body
-            className={inter.className}
-            suppressHydrationWarning
-            >
+        <ImageGalleryProvider>
+          <BlogGalleryProvider>
+            <html lang="vi">
+              <body
+                className={inter.className}
+                suppressHydrationWarning
+              >
                 {children}
-          </body>
-        </html>
+              </body>
+            </html>
+          </BlogGalleryProvider>
+        </ImageGalleryProvider>
       </AlertDialogProvider>
     </ClerkProvider>
   );

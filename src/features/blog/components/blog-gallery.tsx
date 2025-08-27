@@ -12,6 +12,7 @@ import { ApiResponseDto } from '@/lib/dto/api-response.dto';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
+import { useEffect } from 'react';
 
 export default function BlogGallery() {
   const {
@@ -29,6 +30,10 @@ export default function BlogGallery() {
   const clearCache = () => {
     refresh(); // Clear cache and refetch current page
   };
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   if (error) {
     return (
