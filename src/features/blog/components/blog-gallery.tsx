@@ -31,10 +31,6 @@ export default function BlogGallery() {
     refresh(); // Clear cache and refetch current page
   };
 
-  useEffect(() => {
-    refresh();
-  }, []);
-
   if (error) {
     return (
       <div className="space-y-6">
@@ -94,11 +90,11 @@ export default function BlogGallery() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           Thư viện Blog
-          {/* <div className="ml-auto">
+          <div className="ml-auto">
             <Button variant="ghost" onClick={clearCache}>
               <RefreshCw className="h-4 w-4" />
             </Button>
-          </div> */}
+          </div>
         </CardTitle>
 
       </CardHeader>
@@ -129,7 +125,7 @@ export default function BlogGallery() {
                         className="rounded-lg object-cover"
                       />
                   }
-                  <div className="">
+                  <div className="w-2/3">
                     <div className="truncate">Title: {blog.title}</div>
                   </div>
                   <Button 
