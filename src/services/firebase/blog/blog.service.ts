@@ -75,10 +75,12 @@ export class BlogService {
       const docData = {
         title: body.title,
         content: body.content,
+        author: body.author,
         tag_refs: tagRefs,
         slug: generateSlug([body.title]),
         created_at: now,
         updated_at: now,
+        thumbnail_url: body.thumbnail_url || null,
       };
 
       const docRef = await this.getWriteCollectionRef().add(docData);
@@ -110,7 +112,7 @@ export class BlogService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<BlogResponseDto>>> {
     try {
       const {
         cursor,

@@ -1,0 +1,299 @@
+/* Table styles for Tiptap editor */
+
+/* High specificity table styles to override any CSS framework resets */
+.simple-editor-wrapper .simple-editor .ProseMirror table,
+.simple-editor .ProseMirror table,
+table[data-type="table"] {
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  width: 100% !important;
+  margin: 1rem 0 !important;
+  overflow: hidden !important;
+  border: 2px solid #ddd !important;
+  background-color: white !important;
+  box-sizing: border-box !important;
+}
+
+.simple-editor-wrapper .simple-editor .ProseMirror table td,
+.simple-editor-wrapper .simple-editor .ProseMirror table th,
+.simple-editor .ProseMirror table td,
+.simple-editor .ProseMirror table th,
+table[data-type="table"] td,
+table[data-type="table"] th {
+  min-width: 1rem !important;
+  border: 1px solid #ddd !important;
+  padding: 8px 12px !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  background-color: white !important;
+  border-style: solid !important;
+  border-width: 1px !important;
+  border-color: #ddd !important;
+}
+
+.simple-editor-wrapper .simple-editor .ProseMirror table th,
+.simple-editor .ProseMirror table th,
+table[data-type="table"] th {
+  font-weight: bold !important;
+  text-align: left !important;
+  background-color: #f8f9fa !important;
+  border-bottom: 2px solid #ddd !important;
+}
+
+/* Text formatting styles within tables */
+.simple-editor .ProseMirror table td strong,
+.simple-editor .ProseMirror table th strong,
+.simple-editor .ProseMirror table td [data-type="bold"],
+.simple-editor .ProseMirror table th [data-type="bold"],
+.simple-editor .ProseMirror table td .bold,
+.simple-editor .ProseMirror table th .bold {
+  font-weight: bold !important;
+  color: #1a202c !important;
+}
+
+.simple-editor .ProseMirror table td em,
+.simple-editor .ProseMirror table th em,
+.simple-editor .ProseMirror table td [data-type="italic"],
+.simple-editor .ProseMirror table th [data-type="italic"],
+.simple-editor .ProseMirror table td .italic,
+.simple-editor .ProseMirror table th .italic {
+  font-style: italic !important;
+  color: #2d3748 !important;
+}
+
+.simple-editor .ProseMirror table td u,
+.simple-editor .ProseMirror table th u,
+.simple-editor .ProseMirror table td [data-type="underline"],
+.simple-editor .ProseMirror table th [data-type="underline"],
+.simple-editor .ProseMirror table td .underline,
+.simple-editor .ProseMirror table th .underline {
+  text-decoration: underline !important;
+  color: #2b6cb0 !important;
+}
+
+.simple-editor .ProseMirror table td s,
+.simple-editor .ProseMirror table th s,
+.simple-editor .ProseMirror table td [data-type="strike"],
+.simple-editor .ProseMirror table th [data-type="strike"],
+.simple-editor .ProseMirror table td .strike,
+.simple-editor .ProseMirror table th .strike {
+  text-decoration: line-through !important;
+  color: #718096 !important;
+}
+
+.simple-editor .ProseMirror table td code,
+.simple-editor .ProseMirror table th code,
+.simple-editor .ProseMirror table td [data-type="code"],
+.simple-editor .ProseMirror table th [data-type="code"],
+.simple-editor .ProseMirror table td .code,
+.simple-editor .ProseMirror table th .code {
+  background-color: #f7fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 0.875em !important;
+  color: #d53f8c !important;
+}
+
+.simple-editor .ProseMirror table td [data-type="highlight"],
+.simple-editor .ProseMirror table th [data-type="highlight"],
+.simple-editor .ProseMirror table td .highlight,
+.simple-editor .ProseMirror table th .highlight {
+  background-color: #fef5e7 !important;
+  padding: 1px 2px !important;
+  border-radius: 2px !important;
+}
+
+.simple-editor .ProseMirror table td sub,
+.simple-editor .ProseMirror table th sub,
+.simple-editor .ProseMirror table td [data-type="subscript"],
+.simple-editor .ProseMirror table th [data-type="subscript"] {
+  font-size: 0.75em !important;
+  vertical-align: sub !important;
+}
+
+.simple-editor .ProseMirror table td sup,
+.simple-editor .ProseMirror table th sup,
+.simple-editor .ProseMirror table td [data-type="superscript"],
+.simple-editor .ProseMirror table th [data-type="superscript"] {
+  font-size: 0.75em !important;
+  vertical-align: super !important;
+}
+
+.simple-editor .ProseMirror table td a,
+.simple-editor .ProseMirror table th a {
+  color: #2b6cb0 !important;
+  text-decoration: underline !important;
+}
+
+.simple-editor .ProseMirror table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+.simple-editor .ProseMirror table .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: #adf;
+  pointer-events: none;
+}
+
+.simple-editor .ProseMirror table p {
+  margin: 0;
+}
+
+/* Dark mode table styles with high specificity */
+@media (prefers-color-scheme: dark) {
+  .simple-editor-wrapper .simple-editor .ProseMirror table,
+  .simple-editor .ProseMirror table,
+  .dark .simple-editor .ProseMirror table,
+  table[data-type="table"] {
+    border-color: #555 !important;
+    background-color: #1a202c !important;
+  }
+
+  .simple-editor-wrapper .simple-editor .ProseMirror table td,
+  .simple-editor-wrapper .simple-editor .ProseMirror table th,
+  .simple-editor .ProseMirror table td,
+  .simple-editor .ProseMirror table th,
+  .dark .simple-editor .ProseMirror table td,
+  .dark .simple-editor .ProseMirror table th,
+  table[data-type="table"] td,
+  table[data-type="table"] th {
+    border-color: #555 !important;
+    background-color: #1a202c !important;
+  }
+
+  .simple-editor-wrapper .simple-editor .ProseMirror table th,
+  .simple-editor .ProseMirror table th,
+  .dark .simple-editor .ProseMirror table th,
+  table[data-type="table"] th {
+    background-color: #2d3748 !important;
+    border-bottom-color: #555 !important;
+  }
+
+  /* Dark mode text formatting in tables */
+  .simple-editor .ProseMirror table td strong,
+  .simple-editor .ProseMirror table th strong,
+  .simple-editor .ProseMirror table td [data-type="bold"],
+  .simple-editor .ProseMirror table th [data-type="bold"],
+  .simple-editor .ProseMirror table td .bold,
+  .simple-editor .ProseMirror table th .bold {
+    color: #f7fafc !important;
+  }
+
+  .simple-editor .ProseMirror table td em,
+  .simple-editor .ProseMirror table th em,
+  .simple-editor .ProseMirror table td [data-type="italic"],
+  .simple-editor .ProseMirror table th [data-type="italic"],
+  .simple-editor .ProseMirror table td .italic,
+  .simple-editor .ProseMirror table th .italic {
+    color: #e2e8f0 !important;
+  }
+
+  .simple-editor .ProseMirror table td u,
+  .simple-editor .ProseMirror table th u,
+  .simple-editor .ProseMirror table td [data-type="underline"],
+  .simple-editor .ProseMirror table th [data-type="underline"],
+  .simple-editor .ProseMirror table td .underline,
+  .simple-editor .ProseMirror table th .underline {
+    color: #63b3ed !important;
+  }
+
+  .simple-editor .ProseMirror table td s,
+  .simple-editor .ProseMirror table th s,
+  .simple-editor .ProseMirror table td [data-type="strike"],
+  .simple-editor .ProseMirror table th [data-type="strike"],
+  .simple-editor .ProseMirror table td .strike,
+  .simple-editor .ProseMirror table th .strike {
+    color: #a0aec0 !important;
+  }
+
+  .simple-editor .ProseMirror table td code,
+  .simple-editor .ProseMirror table th code,
+  .simple-editor .ProseMirror table td [data-type="code"],
+  .simple-editor .ProseMirror table th [data-type="code"],
+  .simple-editor .ProseMirror table td .code,
+  .simple-editor .ProseMirror table th .code {
+    background-color: #2d3748 !important;
+    border-color: #4a5568 !important;
+    color: #ed8936 !important;
+  }
+
+  .simple-editor .ProseMirror table td [data-type="highlight"],
+  .simple-editor .ProseMirror table th [data-type="highlight"],
+  .simple-editor .ProseMirror table td .highlight,
+  .simple-editor .ProseMirror table th .highlight {
+    background-color: #744210 !important;
+  }
+
+  .simple-editor .ProseMirror table td a,
+  .simple-editor .ProseMirror table th a {
+    color: #63b3ed !important;
+  }
+}
+
+/* Alternative CSS classes for themes that might override */
+.tiptap-table {
+  border-collapse: collapse !important;
+  border: 2px solid #ddd !important;
+  width: 100% !important;
+}
+
+.tiptap-table td,
+.tiptap-table th {
+  border: 1px solid #ddd !important;
+  padding: 8px 12px !important;
+}
+
+.tiptap-table th {
+  background-color: #f8f9fa !important;
+  font-weight: bold !important;
+}
+
+/* Force borders using pseudo-elements as a fallback */
+.simple-editor .ProseMirror table::before,
+.simple-editor .ProseMirror table::after {
+  content: '';
+  position: absolute;
+  border: 1px solid #ddd;
+  pointer-events: none;
+}
+
+/* Inline style fallback - this will be added via JavaScript if needed */
+.force-table-borders table {
+  border: 2px solid #ddd !important;
+  border-collapse: collapse !important;
+}
+
+.force-table-borders table td,
+.force-table-borders table th {
+  border: 1px solid #ddd !important;
+  padding: 8px 12px !important;
+}
+
+/* CSS reset override - target common reset patterns */
+table, 
+table td, 
+table th {
+  border-collapse: separate !important;
+}
+
+.simple-editor table,
+.simple-editor table td,
+.simple-editor table th {
+  border-collapse: collapse !important;
+  border: 1px solid #ddd !important;
+}

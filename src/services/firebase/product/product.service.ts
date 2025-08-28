@@ -111,7 +111,7 @@ export class ProductService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ProductResponseDto>>> {
     try {
       const {
         cursor,
@@ -124,14 +124,12 @@ export class ProductService {
         .limit(Number(limit) + 1); // +1 to check if there's a next page
 
       // If cursor exists, get the document and use it for startAfter
-      console.log("Run1");
       if (cursor) {
         const cursorDoc = await this.getDocRef(cursor).get();
         if (cursorDoc.exists) {
           queryRef = queryRef.startAfter(cursorDoc);
         }
       }
-      console.log("Run2");
 
       const snapshot = await queryRef.get();
       const allDocs = await Promise.all(

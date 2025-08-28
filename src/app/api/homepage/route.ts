@@ -8,13 +8,11 @@ import { CreateHomepageSchema } from "@/lib/schemas/homepage.schema";
 
 export async function GET() {
   try {
-    const homepages = await HomepageService.getAll();
-    
+    const homepage = await HomepageService.get();
     return NextResponse.json({
       success: true,
-      data: homepages,
-      count: homepages.length
-    }, { status: 200 });
+      data: homepage,
+    })
   } catch (error) {
     console.error('Error fetching homepages:', error);
     

@@ -36,6 +36,16 @@ export default function AdminSidebar() {
       title: "Tổng quan",
       href: "/admin",
       icon: <LayoutDashboard className="h-5 w-5" />,
+      submenu: [
+        { title: "Khách hàng liên hệ", href: "/admin/contact" },
+        { title: "Đơn hàng", href: "/admin/orders" },
+        { title: "Dự án", href: "/admin/project"},
+      ],
+    },
+    {
+      title: "Trang chủ",
+      href: "/admin/homepage",
+      icon: <Leaf className="h-5 w-5" />,
     },
     {
       title: "Sản phẩm",
@@ -43,8 +53,8 @@ export default function AdminSidebar() {
       icon: <Package className="h-5 w-5" />,
       submenu: [
         { title: "Tất cả sản phẩm", href: "/admin/product" },
-        { title: "Thêm sản phẩm", href: "/admin/products/new" },
-        { title: "Danh mục", href: "/admin/products/categories" },
+        { title: "Thêm sản phẩm", href: "/admin/product/new" },
+        { title: "Danh mục", href: "/admin/product/categories" },
       ],
     },
     {
@@ -58,40 +68,46 @@ export default function AdminSidebar() {
       ],
     },
     {
-      title: "Dự án",
-      href: "/admin/project",
-      icon: <Package className="h-5 w-5" />,
-    },
-    {
-      title: "Đơn hàng",
-      href: "/admin/orders",
-      icon: <ShoppingCart className="h-5 w-5" />,
-    },
-    {
-      title: "Khách hàng",
-      href: "/admin/customers",
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      title: "Thống kê",
-      href: "/admin/analytics",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-    {
       title: "Bài viết",
       href: "/admin/blog",
       icon: <FileText className="h-5 w-5" />,
+      submenu: [
+        { title: "Tất cả bài viết", href: "/admin/blog" },
+        { title: "Thêm bài viết", href: "/admin/blog/new" },
+        { title: "Thẻ", href: "/admin/blog/tag"},
+      ],
     },
     {
-      title: "Tin nhắn",
-      href: "/admin/messages",
-      icon: <MessageSquare className="h-5 w-5" />,
+      title: "Khách hàng liên hệ",
+      href: "/admin/contact",
+      icon: <Users className="h-5 w-5" />,
     },
-    {
-      title: "Cài đặt",
-      href: "/admin/settings",
-      icon: <Settings className="h-5 w-5" />,
-    },
+    // {
+    //   title: "Đơn hàng",
+    //   href: "/admin/orders",
+    //   icon: <ShoppingCart className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Thống kê",
+    //   href: "/admin/analytics",
+    //   icon: <BarChart3 className="h-5 w-5" />,
+    // },
+   
+    // {
+    //   title: "Dự án",
+    //   href: "/admin/project",
+    //   icon: <Package className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Tin nhắn",
+    //   href: "/admin/messages",
+    //   icon: <MessageSquare className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Cài đặt",
+    //   href: "/admin/settings",
+    //   icon: <Settings className="h-5 w-5" />,
+    // },
   ]
 
   const toggleSubmenu = (title: string) => {
@@ -104,6 +120,10 @@ export default function AdminSidebar() {
 
   const isActive = (href: string) => {
     return pathname === href || pathname?.startsWith(`${href}/`)
+  }
+
+  const hasActiveChild = (item: SidebarItem) => {
+    return item.submenu?.some((subitem) => isActive(subitem.href)) ?? false
   }
 
   return (
@@ -169,27 +189,35 @@ export default function AdminSidebar() {
                       onClick={() => toggleSubmenu(item.title)}
                       className={cn(
                         "flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                        isActive(item.href)
+                        (pathname === item.href || hasActiveChild(item))
                           ? "bg-green-50 text-green-600"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
                       )}
                     >
                       <span className="flex items-center">
                         {item.icon}
-                        {!collapsed && <span className="ml-3">{item.title}</span>}
+                        {!collapsed && (
+                          <Link
+                            href={item.href}
+                            className="ml-3"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {item.title}
+                          </Link>
+                        )}
                       </span>
                       {!collapsed && (
                         <ChevronRight
                           className={cn(
                             "ml-auto h-4 w-4 transition-transform",
-                            openSubmenu === item.title && "rotate-90"
+                            (openSubmenu === item.title || hasActiveChild(item)) && "rotate-90",
                           )}
                         />
                       )}
                     </button>
-                    {(openSubmenu === item.title || isActive(item.href)) && !collapsed && (
+                    {(openSubmenu === item.title || hasActiveChild(item)) && !collapsed && (
                       <ul className="mt-1 space-y-1 pl-10">
-                        {item.submenu.map((subitem) => (
+                        {item.submenu?.map((subitem) => (
                           <li key={subitem.title}>
                             <Link
                               href={subitem.href}
@@ -197,7 +225,7 @@ export default function AdminSidebar() {
                                 "block rounded-md px-3 py-2 text-sm font-medium transition-colors",
                                 isActive(subitem.href)
                                   ? "bg-green-50 text-green-600"
-                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
                               )}
                             >
                               {subitem.title}
@@ -238,20 +266,6 @@ export default function AdminSidebar() {
                 </div>
               </div>
             )}
-            <div className={cn("flex", collapsed ? "w-full justify-center" : "")}>
-              <button
-                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-              </button>
-              <button
-                className="ml-1 rounded-md p-1.5 text-gray-500 hover:bg-gray-100"
-                aria-label="Logout"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </div>
           </div>
         </div>
       </aside>

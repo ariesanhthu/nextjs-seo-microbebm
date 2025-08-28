@@ -15,7 +15,9 @@ import {
   
 import { checkRole } from '@/utils/roles'
 
-export default function Navbar() {
+type NavItem = { title: string; url: string }
+
+export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isProductsOpen, setIsProductsOpen] = useState(false)
@@ -89,22 +91,17 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-1 lg:flex">
-            <Link
-              href="/"
-              className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
-                isScrolled ? "text-gray-700" : "text-white"
-              }`}
-            >
-              Trang chủ
-            </Link>
-            <Link
-              href="/about"
-              className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
-                isScrolled ? "text-gray-700" : "text-white"
-              }`}
-            >
-              Giới thiệu
-            </Link>
+            {nav.map((item) => (
+              <Link
+                key={`${item.title}-${item.url}`}
+                href={item.url || "#"}
+                className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
+                  isScrolled ? "text-gray-700" : "text-white"
+                }`}
+              >
+                {item.title}
+              </Link>
+            ))}
             <div className="relative">
               <button
                 onClick={() => setIsProductsOpen(!isProductsOpen)}
@@ -138,30 +135,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            {/* <Link
-              href="#Services"
-              className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
-                isScrolled ? "text-gray-700" : "text-white"
-              }`}
-            >
-              Dịch vụ
-            </Link> */}
-            {/* <Link
-              href="#Projects"
-              className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
-                isScrolled ? "text-gray-700" : "text-white"
-              }`}
-            >
-              Dự án
-            </Link> */}
-            <Link
-              href="/blog"
-              className={`px-3 py-2 text-sm font-medium transition-colors hover:text-green-600 ${
-                isScrolled ? "text-gray-700" : "text-white"
-              }`}
-            >
-              Tin tức
-            </Link>
+            {/* Có thể giữ dropdown sản phẩm như một mục tĩnh bổ sung */}
             
           </nav>
 
@@ -216,20 +190,16 @@ export default function Navbar() {
         <div className="lg:hidden">
           <div className="container mx-auto px-4 pb-4">
             <nav className="flex flex-col space-y-2 bg-white py-4">
-              <Link
-                href="/"
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Trang chủ
-              </Link>
-              <Link
-                href="/about"
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Giới thiệu
-              </Link>
+              {nav.map((item) => (
+                <Link
+                  key={`${item.title}-${item.url}`}
+                  href={item.url || "#"}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.title}
+                </Link>
+              ))}
               <div>
                 <button
                   onClick={() => setIsProductsOpen(!isProductsOpen)}
@@ -264,27 +234,6 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              <Link
-                href="#Services"
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dịch vụ
-              </Link>
-              <Link
-                href="#Projects"
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dự án
-              </Link>
-              <Link
-                href="/blog"
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Blog
-              </Link>
               <Link
                 href="/contact"
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100"

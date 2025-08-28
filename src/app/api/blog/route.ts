@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       data: result.data,
       nextCursor: result.nextCursor,
       hasNextPage: result.hasNextPage,
-      count: result.data.length
+      count: result.data?.length
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching blogs:', error);
@@ -50,7 +50,6 @@ export async function POST(request: Request) {
     if (validatedBody.success === false) {
       throw validatedBody.error;
     }
-
     // Create blog using the service
     const newBlog = await BlogService.create(validatedBody.data);
     

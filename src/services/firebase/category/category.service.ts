@@ -65,7 +65,7 @@ export class CategoryService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<CategoryResponseDto>>> {
     try {
       const {
         cursor,

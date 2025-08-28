@@ -68,7 +68,7 @@ export class ContactService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<PaginationCursorResponseDto> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ContactResponseDto>>> {
     try {
       const {
         cursor,

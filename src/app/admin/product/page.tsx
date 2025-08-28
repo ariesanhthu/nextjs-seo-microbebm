@@ -63,7 +63,7 @@ export default function AdminProducts() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch('/api/product');
       const data = await res.json();
       if (data.success) {
         setProducts(data.data);
@@ -266,7 +266,7 @@ const openEdit = (product: IProduct) => {
                   <TableHead>ID</TableHead>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
+                  {/* <TableHead>Price</TableHead> */}
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -274,7 +274,7 @@ const openEdit = (product: IProduct) => {
                 {products.map((product) => (
                   <TableRow key={product._id}>
                     <TableCell className="font-mono text-xs">
-                      {product._id.substring(0, 8)}...
+                      {product._id}...
                     </TableCell>
                     <TableCell>
                       {product.image && (
@@ -292,7 +292,7 @@ const openEdit = (product: IProduct) => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{formatCurrency(product.price)}</TableCell>
+                    {/* <TableCell>product.price)</TableCell> */}
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button

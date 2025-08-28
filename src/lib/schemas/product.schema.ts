@@ -24,6 +24,10 @@ export const ProductSchema = GeneralSchema.extend({
     message: "Product sub_img must be an array"
   }).default([]),
   
+  content: z.string({
+    message: "Product description must be a string"
+  }).default(""),
+  
   category_refs: z.array(DocumentReferenceSchema, {
     message: "Product category_refs must be an array"
   }).default([]),

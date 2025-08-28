@@ -8,6 +8,8 @@ import {
 } from '@/lib/dto/homepage.dto';
 import { HomepageSchema } from '@/lib/schemas/homepage.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
+import { ESort } from '@/lib/enums/sort.enum';
+import { PaginationCursorDto, PaginationCursorResponseDto } from '@/hooks/use-paginated-fetch';
 
 export class HomepageService {
   private static readonly COLLECTION = 'homepage';
@@ -40,6 +42,10 @@ export class HomepageService {
 
   static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {
     try {
+      const existing = await this.getReadCollectionRef().get();
+      if (!existing.empty) {
+        throw new Error('Homepage is existed. Can not create new one.');
+      }
       // Fetch full product data from product_ids
       const products = await this.populateProducts(body.product_ids);
       
@@ -69,6 +75,16 @@ export class HomepageService {
     }
   }
 
+  static async get(): Promise<HomepageResponseDto | null> {
+    try {
+      const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
+      return snapshot.docs.map(doc => doc.data()!)[0];
+    } catch (error) {
+      console.error('Error getting all homepages:', error);
+      throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   static async getById(id: string): Promise<HomepageResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
@@ -83,10 +99,45 @@ export class HomepageService {
     }
   }
 
-  static async getAll(): Promise<HomepageResponseDto[]> {
+  // fix the getAll with pagination like other service
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<HomepageResponseDto>>> {
     try {
-      const snapshot = await this.getReadCollectionRef().get();
-      return snapshot.docs.map(doc => doc.data()!);
+      const {
+        cursor,
+        limit = 10,
+        sort = ESort.DESC
+      } = query;
+
+      let queryRef = this.getReadCollectionRef()
+        .orderBy("created_at", sort)
+        .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      // If cursor exists, get the document and use it for startAfter
+      if (cursor) {
+        const cursorDoc = await this.getDocRef(cursor).get();
+        if (cursorDoc.exists) {
+          queryRef = queryRef.startAfter(cursorDoc);
+        }
+      }
+
+      const snapshot = await queryRef.get();
+      const allDocs = snapshot.docs.map(doc => doc.data()!);
+
+      // Check if there's a next page
+      const hasNextPage = allDocs.length > limit;
+
+      // Remove the extra document if it exists
+      const data = hasNextPage ? allDocs.slice(0, limit) : allDocs;
+
+      // Set nextCursor to the last document's ID
+      const nextCursor = data.length > 0 ? data[data.length - 1].id : null;
+
+      return {
+        nextCursor,
+        data,
+        hasNextPage
+      };
+
     } catch (error) {
       console.error('Error getting all homepages:', error);
       throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
