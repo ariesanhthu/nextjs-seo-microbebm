@@ -17,7 +17,11 @@ import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
 
 
-export default function BlogEditor() {
+type BlogEditorProps = {
+  blogId?: string | null
+}
+
+export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const [id, setId] = React.useState<string | null>(null);
   const [author, setAuthor] = React.useState("");
   const [title, setTitle] = React.useState("");
@@ -28,6 +32,30 @@ export default function BlogEditor() {
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
+
+  // Load existing blog when blogId provided
+  useEffect(() => {
+    const fetchBlog = async (targetId: string) => {
+      try {
+        const res = await fetch(`/api/blog/${targetId}`);
+        const data: ApiResponseDto<BlogResponseDto> = await res.json();
+        if (data?.success && data.data) {
+          const blog = data.data;
+          setId(blog.id);
+          setTitle(blog.title);
+          setAuthor(blog.author);
+          setContent(blog.content);
+          setThumbnailUrl(blog.thumbnail_url || "");
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    if (blogId) {
+      fetchBlog(blogId);
+    }
+  }, [blogId]);
 
   const handlePostBlog = async () => {
     if (id) {

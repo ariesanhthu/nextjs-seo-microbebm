@@ -4,6 +4,11 @@ import type { Roles } from "@/types/globals";
 
 export const checkRole = async (role: Roles) =>
 {
-    const { sessionClaims } = await auth();
-    return sessionClaims?.metadata?.role === role;
+    try {
+        const { sessionClaims } = await auth();
+        return sessionClaims?.metadata?.role === role;
+    } catch (_) {
+        // Clerk not configured or auth threw -> treat as unauthorized
+        return false;
+    }
 };

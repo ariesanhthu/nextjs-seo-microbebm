@@ -14,8 +14,16 @@ function getImageUrl(url?: string): string {
   // Nếu không, giả sử đó là đường dẫn tương đối và thêm '/' ở đầu
   return `/${url}`;
 }
+export interface FeaturedProductItem {
+  _id: string | number;
+  name: string;
+  description?: string;
+  image?: string;
+  price?: string | number | null;
+}
+
 // Sample product data
-const products = [
+const sampleProducts: FeaturedProductItem[] = [
   {
     _id: 1,
     name: "Túi vải tự nhiên",
@@ -40,7 +48,7 @@ const products = [
   },
 ]
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ products: inputProducts }: { products?: FeaturedProductItem[] }) {
   const [isVisible, setIsVisible] = useState(false);
   // const [products, setProducts] = useState<IProduct[]>([]);
   // const [loading, setLoading] = useState(true);
@@ -83,6 +91,14 @@ export default function FeaturedProducts() {
   //   return <p className="text-center text-red-500">{error}</p>;
   // }
 
+  const products: FeaturedProductItem[] = (inputProducts?.length ? inputProducts : sampleProducts).map((p) => ({
+    _id: p._id,
+    name: p.name ?? "Sản phẩm",
+    description: p.description ?? "",
+    image: p.image ?? "/placeholder.svg",
+    price: p.price ?? "Liên hệ",
+  }));
+
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {products.map((product, index) => (
@@ -108,8 +124,7 @@ export default function FeaturedProducts() {
             <p className="mb-4 text-gray-600">{product.description}</p>
             <div className="flex item-center justify-between">
               <span className="text-lg font-bold text-green-600">
-                {/* {formatCurrency(product.price)} */}
-                {product.price}
+                {typeof product.price === "number" ? formatCurrency(product.price as number) : product.price}
               </span>
               <Link
                 href="#"
