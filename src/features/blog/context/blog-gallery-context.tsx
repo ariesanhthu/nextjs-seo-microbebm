@@ -46,7 +46,7 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
   } = usePaginatedFetch<BlogResponseDto>('/api/blog', {
     limit: 10,
     sort: ESort.DESC,
-    autoFetch: false // Auto-fetch on mount so data is ready when dialog opens
+    autoFetch: true // Auto-fetch on mount so data is ready when dialog opens
   });
 
   const openDialog = useCallback((onSelect: (image: BlogResponseDto) => void) => {

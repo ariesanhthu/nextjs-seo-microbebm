@@ -26,10 +26,6 @@ export default function ImageGallery() {
     refresh(); // Clear cache and refetch current page
   };
 
-  useEffect(() => {
-      refresh();
-  }, []);
-
   if (error) {
     return (
       <div className="space-y-6">
@@ -54,11 +50,11 @@ export default function ImageGallery() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Thư viện ảnh
-            {/* <div className="ml-auto">
+            <div className="ml-auto">
               <Button variant="ghost" onClick={clearCache}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
-            </div> */}
+            </div>
           </CardTitle>
 
         </CardHeader>
