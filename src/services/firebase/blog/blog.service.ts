@@ -80,6 +80,7 @@ export class BlogService {
         slug: generateSlug([body.title]),
         created_at: now,
         updated_at: now,
+        thumbnail_url: body.thumbnail_url || null,
       };
 
       const docRef = await this.getWriteCollectionRef().add(docData);

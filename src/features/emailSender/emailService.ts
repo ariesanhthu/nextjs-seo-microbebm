@@ -47,8 +47,7 @@ export class MailerService {
       data: normalized, // giữ nguyên data dạng object, có email
       ts,
       sig: signatures.base64,
-      sig_b64url: signatures.base64url,
-      sig_hex: signatures.hex,
+      // Không cần gửi thêm nhiều biến thể chữ ký để tránh header/body chứa ký tự lạ
       v: 1,
       dataJson, // Gửi kèm chuỗi đã dùng để ký để Apps Script verify trực tiếp
     };
@@ -57,19 +56,20 @@ export class MailerService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Nhiều Apps Script mẫu đọc chữ ký qua header
+        "Accept": "application/json",
+        // Chỉ để chữ ký ở header dạng base64 chuẩn (ASCII-safe)
         "X-Timestamp": ts,
         "X-Signature": signatures.base64,
-        "X-Signature-B64Url": signatures.base64url,
-        "X-Signature-Hex": signatures.hex,
-        "X-Data-Json": dataJson,
       },
       body: JSON.stringify(body),
     });
 
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok || !json?.ok) {
-      throw new Error(`Mailer failed: ${json?.error || res.statusText}`);
+    const text = await res.text().catch(() => "");
+    let json: any = {};
+    try { json = text ? JSON.parse(text) : {}; } catch {}
+    if (!res.ok || json?.ok === false) {
+      const reason = json?.error || json?.message || res.statusText || "Unknown";
+      throw new Error(`Mailer failed: ${reason}`);
     }
     return json;
   }
@@ -90,7 +90,8 @@ export class MailerService {
     if (!contact.email) throw new Error("Contact email missing");
     return this.send({
       to: contact.email,
-      subject: `✅ ${this.brand} đã nhận thông tin của bạn`,
+      // Tránh emoji trong tiêu đề để tránh lỗi ByteString phía Apps Script
+      subject: `${this.brand} đã nhận thông tin của bạn`,
       plainBody: `Chào ${contact.name || "bạn"},\n\nCảm ơn bạn đã liên hệ ${this.brand}.`,
       htmlBody: renderClientHtml(contact, this.brand),
       replyTo: this.admin
