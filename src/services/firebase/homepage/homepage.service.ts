@@ -10,6 +10,7 @@ import { HomepageSchema } from '@/lib/schemas/homepage.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
 import { ESort } from '@/lib/enums/sort.enum';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/hooks/use-paginated-fetch';
+import { title } from 'process';
 
 export class HomepageService {
   private static readonly COLLECTION = 'homepage';
@@ -51,6 +52,9 @@ export class HomepageService {
       
       const now = Timestamp.now();
       const docData = {
+        title: body.title,
+        subtitle: body.subtitle,
+        banner: body.banner,
         navigation_bar: body.navigation_bar,
         footer: body.footer,
         slider: body.slider,

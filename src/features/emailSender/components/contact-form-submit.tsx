@@ -3,9 +3,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Send, CheckCircle, AlertTriangle } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
 import { CreateContactFormData } from "../schemas/contact.schema";
+import { CreateContactDto } from "@/lib/dto/contact.dto";
 
 interface ContactFormSubmitProps {
-  form: UseFormReturn<CreateContactFormData>
+  form: UseFormReturn<CreateContactDto>
   isSubmitting: boolean
 }
 

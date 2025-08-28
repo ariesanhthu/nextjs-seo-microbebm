@@ -1,3 +1,4 @@
+import { CreateContactDto } from "@/lib/dto/contact.dto";
 import { CreateContactFormData } from "../schemas/contact.schema";
 
 // Service mỏng - chỉ để gom fetch và xử lý lỗi
@@ -10,7 +11,7 @@ export class ContactService {
     return response.json();
   }
 
-  static async createContact(data: CreateContactFormData) {
+  static async createContact(data: CreateContactDto) {
     const response = await fetch('/api/contact', {
       method: 'POST',
       headers: {
