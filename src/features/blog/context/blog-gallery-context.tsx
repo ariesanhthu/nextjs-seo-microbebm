@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
 import OpenBlogDialog from '../components/open-blog-dialog';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
@@ -46,7 +46,7 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
   } = usePaginatedFetch<BlogResponseDto>('/api/blog', {
     limit: 10,
     sort: ESort.DESC,
-    autoFetch: true // Auto-fetch on mount so data is ready when dialog opens
+    autoFetch: false // Auto-fetch on mount so data is ready when dialog opens
   });
 
   const openDialog = useCallback((onSelect: (image: BlogResponseDto) => void) => {

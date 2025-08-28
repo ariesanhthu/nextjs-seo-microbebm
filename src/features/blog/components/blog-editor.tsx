@@ -15,6 +15,7 @@ import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
+import { useBlogGallery } from "../context/blog-gallery-context";
 
 
 type BlogEditorProps = {
@@ -32,6 +33,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
+  const blogGallery = useBlogGallery();
 
   // Load existing blog when blogId provided
   useEffect(() => {
@@ -101,11 +103,17 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
     }
   };
 
-  const handleSelectedThumbnailUrl = () => {
+  const handleSelectThumbnailUrl = () => {
     imageGallery.openDialog((image: ImageMetadataResponseDto) => {
       setThumbnailUrl(image.url);
     });
   }
+
+  const handleSelectBlog = () => {
+    blogGallery.openDialog((blog: BlogResponseDto) => {
+      handleOpenBlog(blog);
+    });
+  };
 
   const handleOpenBlog = async (blog: BlogResponseDto) => {
     const choice = await alertDialog.showAlert({
@@ -175,21 +183,6 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
     <div>
       <Toaster richColors position="top-center"/>
 
-      {/* Always render dialog but hide with CSS */}
-      <div 
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
-          isOpenBlogDialog ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <OpenBlogDialog 
-          onSelect={(blog) => {
-            handleOpenBlog(blog);
-          }}
-          closeDialog={() => setIsOpenBlogDialog(false)}
-          isOpen={isOpenBlogDialog}
-        />
-      </div>
-
       <Card className="mx-5 my-10 mt-4">
         <CardHeader className="flex flex-row">
           <div className="flex flex-col">
@@ -197,7 +190,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
             <CardDescription>Điền thông tin chi tiết bên dưới</CardDescription>
           </div>
           <div className="ml-auto flex flex-row gap-2">
-            <Button type="button" onClick={() => setIsOpenBlogDialog(true)}>Mở bài viết</Button>
+            <Button type="button" onClick={handleSelectBlog}>Mở bài viết</Button>
             <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
             <Button type="button" onClick={handlePostBlog}>Đăng</Button>
             <Button type="button" onClick={handleSaveBlog} disabled={!id}>Lưu</Button>
@@ -241,7 +234,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
             <Button
               type="button"
               // onClick={() => setIsOpenImageDialog(true)}
-              onClick={handleSelectedThumbnailUrl}
+              onClick={handleSelectThumbnailUrl}
             >
               Chọn Thumbnail
             </Button>

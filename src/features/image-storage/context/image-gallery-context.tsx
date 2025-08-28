@@ -47,7 +47,7 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
   } = usePaginatedFetch<ImageMetadataResponseDto>('/api/image-metadata', {
     limit: 10,
     sort: ESort.DESC,
-    autoFetch: true // Auto-fetch on mount so data is ready when dialog opens
+    autoFetch: false // Auto-fetch on mount so data is ready when dialog opens
   });
 
   const openDialog = useCallback((onSelect: (image: ImageMetadataResponseDto) => void) => {

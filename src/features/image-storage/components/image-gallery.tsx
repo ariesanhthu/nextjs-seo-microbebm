@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
 import { useImageGallery } from '../context/image-gallery-context';
+import { useEffect } from 'react';
 
 export default function ImageGallery() {
   const {
@@ -24,6 +25,10 @@ export default function ImageGallery() {
   const clearCache = () => {
     refresh(); // Clear cache and refetch current page
   };
+
+  useEffect(() => {
+      refresh();
+  }, []);
 
   if (error) {
     return (
