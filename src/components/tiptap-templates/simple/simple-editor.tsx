@@ -10,7 +10,7 @@ import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
 import { Typography } from "@tiptap/extension-typography"
 import { Highlight } from "@tiptap/extension-highlight"
-import { Subscript } from "@tiptap/extension-subscript"
+// import { Subscript } from "@tiptap/extension-subscript" // Disabled due to Vietnamese input conflicts
 import { Superscript } from "@tiptap/extension-superscript"
 import { Selection } from "@tiptap/extensions"
 import { Table } from "@tiptap/extension-table"
@@ -137,7 +137,7 @@ const MainToolbarContent = ({
 
       <ToolbarGroup>
         <MarkButton type="superscript" />
-        <MarkButton type="subscript" />
+        {/* <MarkButton type="subscript" /> */} {/* Disabled due to Vietnamese input conflicts */}
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -239,9 +239,8 @@ export function SimpleEditor({
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
       Image,
-      Typography,
       Superscript,
-      Subscript,
+      // Subscript,
       Selection,
       Table.configure({
         resizable: true,
