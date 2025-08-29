@@ -7,16 +7,18 @@ import { ZodError } from "zod";
 import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
 import { CreateContactSchema } from "@/lib/schemas/contact.schema";
 import { MailerService } from "@/features/emailSender/emailService";
+import { PaginationCursorContactDto } from "@/lib/dto/about.dto";
 
 // GET /api/contact - Get all contacts with pagination
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const query: PaginationCursorDto = {
+    const query: PaginationCursorContactDto = {
       cursor: searchParams.get('cursor') || undefined,
       limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
-      sort: (searchParams.get('sort') as ESort) || ESort.DESC
+      sort: (searchParams.get('sort') as ESort) || ESort.DESC,
+      is_check: searchParams.get('is_check') === 'true' ? true : searchParams.get('is_check') === 'false' ? false : undefined,
     };
 
     const result = await ContactService.getAll(query);

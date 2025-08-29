@@ -7,60 +7,60 @@ import { EStyleSection } from "@/lib/enums/style-section.enum"
 import { Timestamp } from "firebase-admin/firestore"
 
 // Example 
-const s: SubsectionDto = [
-  {
-    name: "",
-    description: "",
-    ref: "",
-    image_url: "",
-    icon: ""
-  },
-  {
-    name: "",
-    description: "",
-    ref: null,
-    image_url: null,
-    icon: null
-  },
-]
+// const s: SubsectionDto = [
+//   {
+//     name: "",
+//     description: "",
+//     ref: "",
+//     image_url: "",
+//     icon: ""
+//   },
+//   {
+//     name: "",
+//     description: "",
+//     ref: null,
+//     image_url: null,
+//     icon: null
+//   },
+// ]
 
-const about: AboutResponseDto = {
-  id: "1",
-  created_at: Timestamp.fromDate(new Date("2023-01-01")),
-  // {
-  //   seconds: 1620000000,
-  //   nanoseconds: 0
-  // },
-  updated_at: Timestamp.fromDate(new Date()),
-  // {
-  //   seconds: 1620000000,
-  //   nanoseconds: 0
-  // }
-  //},
-  section: [
-    {
-      title: "About Us",
-      subtitle: "This is the about us page content.",
-      subsection: [
-        {
-          name: "Our Mission",
-          description: "To provide the best service possible.",
-          ref: "our-mission",
-          image_url: "https://example.com/mission.jpg",
-          icon: "mission-icon"
-        },
-        {
-          name: "Our Vision",
-          description: "To be the leading company in our industry.",
-          ref: "our-vision",
-          image_url: "https://example.com/vision.jpg",
-          icon: "vision-icon"
-        }
-      ],
-      style: EStyleSection.NOIMAGE
-    }
-  ]
-}
+// const about: AboutResponseDto = {
+//   id: "1",
+//   created_at: Timestamp.fromDate(new Date("2023-01-01")),
+//   // {
+//   //   seconds: 1620000000,
+//   //   nanoseconds: 0
+//   // },
+//   updated_at: Timestamp.fromDate(new Date()),
+//   // {
+//   //   seconds: 1620000000,
+//   //   nanoseconds: 0
+//   // }
+//   //},
+//   section: [
+//     {
+//       title: "About Us",
+//       subtitle: "This is the about us page content.",
+//       subsection: [
+//         {
+//           name: "Our Mission",
+//           description: "To provide the best service possible.",
+//           ref: "our-mission",
+//           image_url: "https://example.com/mission.jpg",
+//           icon: "mission-icon"
+//         },
+//         {
+//           name: "Our Vision",
+//           description: "To be the leading company in our industry.",
+//           ref: "our-vision",
+//           image_url: "https://example.com/vision.jpg",
+//           icon: "vision-icon"
+//         }
+//       ],
+//       style: EStyleSection.NOIMAGE
+//     }
+//   ]
+// }
 
 export default function AdminHomepagePage() {
   const [loading, setLoading] = useState<boolean>(true)
