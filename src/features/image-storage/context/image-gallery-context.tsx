@@ -105,6 +105,16 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
           onSelect={handleSelect}
           closeDialog={closeDialog}
           isOpen={isOpen}
+          data={imageMetadatas}
+          loading={loading}
+          error={error}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          goToNextPage={goToNextPage}
+          goToPrevPage={goToPrevPage}
+          goToFirstPage={goToFirstPage}
+          refresh={refresh}
+          cacheSize={cacheSize}
         />
       </div>
     </ImageGalleryContext.Provider>
