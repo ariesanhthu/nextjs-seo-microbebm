@@ -134,7 +134,7 @@ export const TableDropdownMenu = React.forwardRef<
             {...props}
           >
             <Icon className="tiptap-button-icon" />
-            <span className="tiptap-button-text">Table</span>
+            {/* <span className="tiptap-button-text"></span> */}
           </Button>
         </DropdownMenuTrigger>
 
@@ -163,13 +163,12 @@ export const TableDropdownMenu = React.forwardRef<
           <Button 
             data-style="ghost" 
             data-state={isDropdownOpen ? "open" : "closed"}
-            className="px-2"
           >
             <ChevronDownIcon className="tiptap-button-icon" />
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="tiptap-card p-2" align="start" portal={true}>
+        <DropdownMenuContent className="tiptap-card" align="start" portal={true}>
           {/* Cell Operations */}
 
           <DropdownMenuItem

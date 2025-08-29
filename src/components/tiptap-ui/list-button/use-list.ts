@@ -140,7 +140,8 @@ export function toggleList(editor: Editor | null, type: ListType): boolean {
     let tr = state.tr
 
     // No selection, find the the cursor position
-    if (state.selection.empty || state.selection instanceof TextSelection) {
+    // if (state.selection.empty || state.selection instanceof TextSelection) {
+    if (state.selection.empty) {
       const pos = findNodePosition({
         editor,
         node: state.selection.$anchor.node(1),
