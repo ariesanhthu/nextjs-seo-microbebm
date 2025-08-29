@@ -5,7 +5,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
-import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
 import { useImageGallery } from '../context/image-gallery-context';
 import { useEffect } from 'react';
 
@@ -43,6 +42,12 @@ export default function ImageGallery() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (images.length === 0 && !loading) {
+      refresh();
+    }
+  }, []);
 
   return (
     // <div className="">
@@ -95,12 +100,12 @@ export default function ImageGallery() {
             disabled={!hasPrevPage || loading}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous
+            Trước đó
           </Button>
           
           <div className="flex items-center">
             <Badge variant="outline">
-              {images.length} images
+              {images.length} ảnh
             </Badge>
           </div>
           
@@ -109,7 +114,7 @@ export default function ImageGallery() {
             onClick={goToNextPage}
             disabled={!hasNextPage || loading}
           >
-            Next
+            Kế tiếp
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
 

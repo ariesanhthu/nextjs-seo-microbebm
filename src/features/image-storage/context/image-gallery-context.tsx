@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
 import OpenImageMetadataDialog from '../components/open-image-diaglog';
@@ -17,6 +17,7 @@ interface ImageGalleryContextType {
   error: string | null;
   hasNextPage: boolean;
   hasPrevPage: boolean;
+  goToFirstPage: () => void;
   goToNextPage: () => void;
   goToPrevPage: () => void;
   refresh: () => void;
@@ -42,12 +43,13 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
     hasPrevPage,
     goToNextPage,
     goToPrevPage,
+    goToFirstPage,
     refresh,
     cacheSize
   } = usePaginatedFetch<ImageMetadataResponseDto>('/api/image-metadata', {
     limit: 10,
     sort: ESort.DESC,
-    autoFetch: true // Auto-fetch on mount so data is ready when dialog opens
+    autoFetch: false // Auto-fetch on mount so data is ready when dialog opens
   });
 
   const openDialog = useCallback((onSelect: (image: ImageMetadataResponseDto) => void) => {
@@ -76,11 +78,18 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
     error,
     hasNextPage,
     hasPrevPage,
+    goToFirstPage,
     goToNextPage,
     goToPrevPage,
     refresh,
     cacheSize
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      goToFirstPage();
+    }
+  }, [isOpen]);
 
   return (
     <ImageGalleryContext.Provider value={contextValue}>

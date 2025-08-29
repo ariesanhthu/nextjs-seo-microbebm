@@ -41,12 +41,13 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     hasPrevPage,
     goToNextPage,
     goToPrevPage,
+    goToFirstPage,
     refresh,
     cacheSize
   } = usePaginatedFetch<BlogResponseDto>('/api/blog', {
     limit: 10,
     sort: ESort.DESC,
-    autoFetch: true // Auto-fetch on mount so data is ready when dialog opens
+    autoFetch: false
   });
 
   const openDialog = useCallback((onSelect: (image: BlogResponseDto) => void) => {
@@ -81,6 +82,12 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     cacheSize
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      goToFirstPage();
+    }
+  }, [isOpen]);
+
   return (
     <BlogGalleryContext.Provider value={contextValue}>
       {children}
@@ -95,6 +102,16 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
           onSelect={handleSelect}
           closeDialog={closeDialog}
           isOpen={isOpen}
+          data={blogs}
+          loading={loading}
+          error={error}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          goToNextPage={goToNextPage}
+          goToPrevPage={goToPrevPage}
+          goToFirstPage={goToFirstPage}
+          refresh={refresh}
+          cacheSize={cacheSize}
         />
       </div>
     </BlogGalleryContext.Provider>
