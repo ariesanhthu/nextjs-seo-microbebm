@@ -120,10 +120,10 @@ export default function AdminCreateProductPage() {
             <Label>Tên sản phẩm</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
-          <div>
-            <Label>Slug</Label>
-            <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
-          </div>
+          {/* <div> */}
+            {/* <Label>Slug</Label>
+            <Input value={slug} onChange={(e) => setSlug(e.target.value)} /> */}
+          {/* </div> */}
           <div className="md:col-span-2">
             <Label>Mô tả</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />

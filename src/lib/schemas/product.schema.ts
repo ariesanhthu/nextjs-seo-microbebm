@@ -33,12 +33,29 @@ export const ProductSchema = GeneralSchema.extend({
   }).default([]),
 }).strict()
 
-export const CreateProductSchema = ProductSchema.pick({
-  name: true,
-  description: true,
-  main_img: true,
-  sub_img: true
-}).extend({
+export const CreateProductSchema = z.object({
+  name: z.string({
+    message: "Product name must be a string"
+  }).min(1, 'Product name is required').max(100, 'Product name is too long'),
+  
+  description: z.string({
+    message: "Product description must be a string"
+  }).default(""),
+  
+  main_img: z.string({
+    message: "Product main_img must be a string"
+  }).default(""),
+  
+  content: z.string({
+    message: "Product content must be a string"
+  }).default(""),
+  
+  sub_img: z.array(z.string({
+    message: "Product sub_img item must be a string"
+  }), {
+    message: "Product sub_img must be an array"
+  }).default([]),
+  
   category_ids: z.array(z.string({
     message: "Product category_ids item must be a string"
   }), {
@@ -46,7 +63,11 @@ export const CreateProductSchema = ProductSchema.pick({
   }).default([])
 })
 
-export const UpdateProductSchema = CreateProductSchema.partial()
+export const UpdateProductSchema = CreateProductSchema.partial().extend({
+  slug: z.string({
+    message: "Product slug must be a string"
+  }).min(1, 'Product slug is required').max(100, 'Product slug is too long').optional(),
+})
 
 export const ProductResponseSchema = ProductSchema
   .omit({ category_refs: true })

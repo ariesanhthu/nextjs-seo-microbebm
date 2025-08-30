@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { IProduct } from "@/utils/interface";
-import { formatCurrency } from "@/utils/currency";
+import { ProductResponseDto } from "@/lib/dto/product.dto";
+
 // Hàm helper để đảm bảo URL hợp lệ cho component Image
 function getImageUrl(url?: string): string {
   if (!url) return "/placeholder.svg";
@@ -14,37 +14,46 @@ function getImageUrl(url?: string): string {
   // Nếu không, giả sử đó là đường dẫn tương đối và thêm '/' ở đầu
   return `/${url}`;
 }
-export interface FeaturedProductItem {
-  _id: string | number;
-  name: string;
-  description?: string;
-  image?: string;
-  price?: string | number | null;
-}
+
+export type FeaturedProductItem = ProductResponseDto;
 
 // Sample product data
 const sampleProducts: FeaturedProductItem[] = [
   {
-    _id: 1,
+    id: "1",
+    created_at: new Date() as any,
+    updated_at: new Date() as any,
     name: "Túi vải tự nhiên",
+    slug: "tui-vai-tu-nhien",
     description: "Túi vải được làm từ bông hữu cơ 100%, thân thiện với môi trường và có thể tái sử dụng nhiều lần.",
-    image: "/images/product-1.jpg",
-    price: "Liên hệ",
+    main_img: "/images/product-1.jpg",
+    sub_img: [],
+    content: "Túi vải được làm từ bông hữu cơ 100%, thân thiện với môi trường và có thể tái sử dụng nhiều lần.",
+    categories: []
   },
   {
-    _id: 2,
+    id: "2",
+    created_at: new Date() as any,
+    updated_at: new Date() as any,
     name: "Bình nước thủy tinh",
+    slug: "binh-nuoc-thuy-tinh",
     description: "Bình nước thủy tinh cao cấp, không chứa BPA, an toàn cho sức khỏe và thân thiện với môi trường.",
-    image: "/images/product-2.jpg",
-    price: "Liên hệ",
-    
+    main_img: "/images/product-2.jpg",
+    sub_img: [],
+    content: "Bình nước thủy tinh cao cấp, không chứa BPA, an toàn cho sức khỏe và thân thiện với môi trường.",
+    categories: []
   },
   {
-    _id: 3,
+    id: "3",
+    created_at: new Date() as any,
+    updated_at: new Date() as any,
     name: "Ống hút tre tự nhiên",
+    slug: "ong-hut-tre-tu-nhien",
     description: "Ống hút làm từ tre tự nhiên, thay thế hoàn hảo cho ống hút nhựa, có thể phân hủy sinh học.",
-    image: "/images/product-3.jpg",
-    price: "Liên hệ",
+    main_img: "/images/product-3.jpg",
+    sub_img: [],
+    content: "Ống hút làm từ tre tự nhiên, thay thế hoàn hảo cho ống hút nhựa, có thể phân hủy sinh học.",
+    categories: []
   },
 ]
 
@@ -92,30 +101,35 @@ export default function FeaturedProducts({ products: inputProducts }: { products
   // }
 
   const products: FeaturedProductItem[] = (inputProducts?.length ? inputProducts : sampleProducts).map((p) => ({
-    _id: p._id,
+    id: p.id,
+    created_at: p.created_at,
+    updated_at: p.updated_at,
     name: p.name ?? "Sản phẩm",
+    slug: p.slug ?? p.name.toLowerCase().replace(/\s+/g, '-'),
     description: p.description ?? "",
-    image: p.image ?? "/placeholder.svg",
-    price: p.price ?? "Liên hệ",
+    main_img: p.main_img ?? "/placeholder.svg",
+    sub_img: p.sub_img ?? [],
+    content: p.content ?? "",
+    categories: p.categories ?? []
   }));
 
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {products.map((product, index) => (
-        <div
-          key={product._id}
-          className={`transform rounded-lg bg-white shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-xl ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
-          style={{ transitionDelay: `${index * 100}ms` }}
-        >
+                 <div
+           key={product.id}
+           className={`transform rounded-lg bg-white shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-xl ${
+             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+           }`}
+           style={{ transitionDelay: `${index * 100}ms` }}
+         >
           <div className="relative h-64 w-full overflow-hidden rounded-t-lg">
-            <Image
-              src={getImageUrl(product.image)}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
-            />
+                         <Image
+               src={getImageUrl(product.main_img)}
+               alt={product.name}
+               fill
+               className="object-cover transition-transform duration-300 hover:scale-105"
+             />
           </div>
           <div className="p-6">
             <h3 className="mb-2 text-xl font-semibold text-gray-800">
@@ -123,11 +137,11 @@ export default function FeaturedProducts({ products: inputProducts }: { products
             </h3>
             <p className="mb-4 text-gray-600">{product.description}</p>
             <div className="flex item-center justify-between">
-              <span className="text-lg font-bold text-green-600">
-                {typeof product.price === "number" ? formatCurrency(product.price as number) : product.price}
-              </span>
+                             <span className="text-lg font-bold text-green-600">
+                 Liên hệ
+               </span>
               <Link
-                href="#"
+                href={`/product/${product.slug}`}
                 className="group flex items-center text-sm font-medium text-green-600 hover:text-green-700"
               >
                 Chi tiết

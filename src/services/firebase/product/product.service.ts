@@ -75,6 +75,7 @@ export class ProductService {
         name: body.name,
         description: body.description,
         main_img: body.main_img,
+        content: body.content,
         sub_img: body.sub_img,
         category_refs: categoryRefs,
         slug: generateSlug([body.name]),
