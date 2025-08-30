@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, FileText, Settings, MessageSquare, Bell, LogOut, ChevronLeft, ChevronRight, Leaf } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, FileText, Settings, MessageSquare, Bell, LogOut, ChevronLeft, ChevronRight, Leaf, Image } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 type SidebarItem = {
@@ -81,6 +81,11 @@ export default function AdminSidebar() {
       title: "Khách hàng liên hệ",
       href: "/admin/contact",
       icon: <Users className="h-5 w-5" />,
+    },
+    {
+      title: "Kho ảnh",
+      href: "/admin/image-storage",
+      icon: <Image className="h-5 w-5" />,
     },
     // {
     //   title: "Đơn hàng",

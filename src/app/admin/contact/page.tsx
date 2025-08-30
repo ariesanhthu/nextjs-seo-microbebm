@@ -33,6 +33,8 @@ type UpdateResponse = {
 
 export default function AdminContactPage() {
 	const [contacts, setContacts] = useState<Contact[]>([]);
+  const [checkedContacts, setCheckedContacts] = useState<Contact[]>([]);
+  const [unCheckedContacts, setUnCheckedContacts] = useState<Contact[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [updatingId, setUpdatingId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -42,13 +44,22 @@ export default function AdminContactPage() {
 		try {
 			setLoading(true);
 			setError(null);
-			const res = await fetch("/api/contact?limit=100&sort=DESC", { cache: "no-store" });
+			const res = await fetch("/api/contact?limit=100&sort=DESC&is_check=true", { cache: "no-store" });
 			if (!res.ok) {
 				const e = await res.json().catch(() => ({}));
 				throw new Error(e?.message || `HTTP ${res.status}`);
 			}
 			const json: GetContactsResponse = await res.json();
-			setContacts(Array.isArray(json.data) ? json.data : []);
+			setCheckedContacts(Array.isArray(json.data) ? json.data : []);
+
+			const resUnChecked = await fetch("/api/contact?limit=100&sort=DESC&is_check=false", { cache: "no-store" });
+			if (!resUnChecked.ok) {
+				const e = await resUnChecked.json().catch(() => ({}));
+				throw new Error(e?.message || `HTTP ${resUnChecked.status}`);
+			}
+			const jsonUnChecked: GetContactsResponse = await resUnChecked.json();
+			setUnCheckedContacts(Array.isArray(jsonUnChecked.data) ? jsonUnChecked.data : []);
+
 		} catch (err) {
 			setError((err as Error).message);
 		} finally {
@@ -60,8 +71,8 @@ export default function AdminContactPage() {
 		fetchContacts();
 	}, [fetchContacts]);
 
-	const unchecked = useMemo(() => contacts.filter((c) => !c.is_check), [contacts]);
-	const checked = useMemo(() => contacts.filter((c) => c.is_check), [contacts]);
+	// const unchecked = useMemo(() => contacts.filter((c) => !c.is_check), [contacts]);
+	// const checked = useMemo(() => contacts.filter((c) => c.is_check), [contacts]);
 
 	const toggleCheck = useCallback(
 		async (contact: Contact) => {
@@ -168,14 +179,14 @@ export default function AdminContactPage() {
 
 			<Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "new" | "done")}> 
 				<TabsList>
-					<TabsTrigger value="new">Khách hàng mới ({unchecked.length})</TabsTrigger>
-					<TabsTrigger value="done">Đã liên hệ ({checked.length})</TabsTrigger>
+					<TabsTrigger value="new">Khách hàng mới ({unCheckedContacts.length})</TabsTrigger>
+					<TabsTrigger value="done">Đã liên hệ ({checkedContacts.length})</TabsTrigger>
 				</TabsList>
 				<TabsContent value="new">
-					<List data={unchecked} />
+					<List data={unCheckedContacts} />
 				</TabsContent>
 				<TabsContent value="done">
-					<List data={checked} />
+					<List data={checkedContacts} />
 				</TabsContent>
 			</Tabs>
 		</div>

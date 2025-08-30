@@ -5,35 +5,35 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
-import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
+import { UsePaginatedFetchReturn } from '@/hooks/use-paginated-fetch';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
 
 
-interface OpenImageMetadataDialogProps {
+interface OpenImageMetadataDialogProps extends Partial<UsePaginatedFetchReturn<ImageMetadataResponseDto>> {
   onSelect: (imageMetadata: ImageMetadataResponseDto) => void;
   closeDialog: () => void;
   isOpen?: boolean;
 }
 
-export default function OpenImageMetadataDialog({ onSelect, closeDialog, isOpen = true }: OpenImageMetadataDialogProps) {
-  const {
-    data: imageMetadatas,
-    loading,
-    error,
-    hasNextPage,
-    hasPrevPage,
-    goToNextPage,
-    goToPrevPage,
-    refresh,
-    cacheSize
-  } = usePaginatedFetch<ImageMetadataResponseDto>('/api/image-metadata', {
-    limit: 10,
-    sort: ESort.DESC,
-    autoFetch: true
-  });
+export default function OpenImageMetadataDialog({ 
+  onSelect, 
+  closeDialog, 
+  isOpen = true,
+  data: imageMetadatas,
+  loading,
+  error,
+  hasNextPage,
+  hasPrevPage,
+  goToNextPage,
+  goToPrevPage,
+  refresh,
+  cacheSize
+}: OpenImageMetadataDialogProps) {
 
   const clearCache = () => {
-    refresh(); // This will clear cache and refetch current page
+    if (refresh) {
+      refresh();
+    }
   };
 
   const handleSelect = (imageMetadata: ImageMetadataResponseDto) => {
@@ -87,7 +87,7 @@ export default function OpenImageMetadataDialog({ onSelect, closeDialog, isOpen 
           ) : (
             <>
               <div className="flex flex-col gap-4 w-full">
-                {imageMetadatas.map((imageMetadata) => (
+                {imageMetadatas?.map((imageMetadata) => (
                   <Button 
                     key={imageMetadata.id} 
                     className="flex flex-row gap-5 justify-start bg-transparent hover:bg-muted"
@@ -105,7 +105,7 @@ export default function OpenImageMetadataDialog({ onSelect, closeDialog, isOpen 
                 ))}
               </div>
               
-              {imageMetadatas.length === 0 && (
+              {imageMetadatas?.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   No images found
                 </div>
@@ -125,7 +125,7 @@ export default function OpenImageMetadataDialog({ onSelect, closeDialog, isOpen 
           
           <div className="flex items-center">
             <Badge variant="outline">
-              {imageMetadatas.length} images
+              {imageMetadatas?.length} images
             </Badge>
             {/* {cacheSize > 1 && (
               <Button 

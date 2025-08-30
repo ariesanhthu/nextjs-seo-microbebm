@@ -6,35 +6,37 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
-import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
+import { UsePaginatedFetchReturn } from '@/hooks/use-paginated-fetch';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 
-interface OpenBlogDialogProps {
+interface OpenBlogDialogProps extends Partial<UsePaginatedFetchReturn<BlogResponseDto>> {
   onSelect: (blog: BlogResponseDto) => void;
   closeDialog: () => void;
   isOpen?: boolean;
 }
 
-export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }: OpenBlogDialogProps) {
-  const {
-    data: blogs,
-    loading,
-    error,
-    hasNextPage,
-    hasPrevPage,
-    goToNextPage,
-    goToPrevPage,
-    refresh,
-    cacheSize
-  } = usePaginatedFetch<BlogResponseDto>('/api/blog', {
-    limit: 10,
-    sort: ESort.DESC,
-    autoFetch: true
-  });
+export default function OpenBlogDialog({ 
+  onSelect, 
+  closeDialog, 
+  isOpen = true,
+  data: blogs,
+  loading,
+  error,
+  hasNextPage,
+  hasPrevPage,
+  goToFirstPage,
+  goToNextPage,
+  goToPrevPage,
+  refresh,
+  cacheSize
+}: OpenBlogDialogProps) {
 
   const clearCache = () => {
-    refresh(); // This will clear cache and refetch current page
+    if (refresh) {
+      refresh(); // This will clear cache and refetch current page
+    }
   };
 
   const handleSelect = (blog: BlogResponseDto) => {
@@ -88,7 +90,7 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
           ) : (
             <>
               <div className="flex flex-col gap-4 w-full">
-                {blogs.map((blog) => (
+                {blogs?.map((blog) => (
                   <Button 
                     key={blog.id} 
                     className="flex flex-row gap-5 justify-start bg-transparent hover:bg-muted"
@@ -117,8 +119,8 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
                   </Button>
                 ))}
               </div>
-              
-              {blogs.length === 0 && (
+
+              {blogs?.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   No blogs found
                 </div>
@@ -138,19 +140,8 @@ export default function OpenBlogDialog({ onSelect, closeDialog, isOpen = true }:
           
           <div className="flex items-center">
             <Badge variant="outline">
-              {blogs.length} blogs
+              {blogs?.length} blogs
             </Badge>
-            {/* {cacheSize > 1 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearCache}
-                className="text-xs"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Refresh
-              </Button>
-            )} */}
           </div>
           
           <Button

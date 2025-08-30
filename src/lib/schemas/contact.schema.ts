@@ -7,14 +7,15 @@ export const ContactSchema = GeneralSchema.extend({
     message: "Họ và tên phải là chuỗi"
   }).min(1, "Vui lòng nhập họ và tên").max(100, "Họ và tên quá dài"),
   
-  email: z.string().email("Email không hợp lệ").nullable().default(null),
+  email: z.email("Email không hợp lệ").nullable().default(null),
   
   phone: z.string({
     message: "Số điện thoại phải là chuỗi"
   })
     .regex(/^\d{10}$/, 'Số điện thoại phải gồm đúng 10 chữ số')
-    .length(10, "Số điện thoại phải gồm đúng 10 chữ số"),
-  
+    .length(10, "Số điện thoại phải gồm đúng 10 chữ số")
+    .nullable().default(null),
+
   description: z.string({
     message: "Nội dung phải là chuỗi"
   }).max(1000, "Nội dung quá dài").default(""),
@@ -30,10 +31,11 @@ export const CreateContactSchema = ContactSchema.pick({
   phone: true,
   description: true
 }).extend({
-  email: z.string().email("Email không hợp lệ").nullable(),
+  email: z.email("Email không hợp lệ").nullable(),
   phone: z.string()
     .regex(/^\d{10}$/, 'Số điện thoại phải gồm đúng 10 chữ số')
-    .length(10, "Số điện thoại phải gồm đúng 10 chữ số"),
+    .length(10, "Số điện thoại phải gồm đúng 10 chữ số")
+    .nullable(),
   description: z.string().max(1000, "Nội dung quá dài")
 });
 

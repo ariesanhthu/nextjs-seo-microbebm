@@ -145,8 +145,9 @@ export function toggleHeading(
     let state = view.state
     let tr = state.tr
 
-    // No selection, find the cursor position
-    if (state.selection.empty || state.selection instanceof TextSelection) {
+    // Only convert to NodeSelection if we have NO selection (empty)
+    // Preserve TextSelection for multi-line operations
+    if (state.selection.empty) {
       const pos = findNodePosition({
         editor,
         node: state.selection.$anchor.node(1),
@@ -161,7 +162,6 @@ export function toggleHeading(
     const selection = state.selection
     let chain = editor.chain().focus()
 
-    // Handle NodeSelection
     if (selection instanceof NodeSelection) {
       const firstChild = selection.node.firstChild?.firstChild
       const lastChild = selection.node.lastChild?.lastChild

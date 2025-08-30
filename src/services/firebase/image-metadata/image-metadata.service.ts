@@ -1,4 +1,5 @@
 import { adminDb } from '@/services/firebase/firebase-admin';
+import { v2 as cloudinary } from 'cloudinary';
 import { zodAdminConverter } from '@/services/zod/zod-admin-converter';
 import { Timestamp } from 'firebase-admin/firestore';
 import { 
@@ -9,6 +10,7 @@ import {
 import { ImageMetadataSchema } from '@/lib/schemas/image-metadata.schema';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
+import { Cloudinary } from '@/services/cloudinary/cloudinary.service';
 
 export class ImageMetadataService {
   private static readonly COLLECTION = 'imagemetadatas';
@@ -141,7 +143,10 @@ export class ImageMetadataService {
       if (!doc) {
         throw new Error(`ImageMetadata with id '${id}' not found`);
       }
-
+      const removeImage = await Cloudinary.destroyImage(doc.data()!.public_id);
+      if (removeImage.result !== "ok") {
+        throw new Error(`Failed to delete image from Cloudinary: ${removeImage.error?.message || 'Unknown error'}`);
+      }
       // Delete the image-metadata
       await this.getDocRef(id).delete();
     } catch (error) {

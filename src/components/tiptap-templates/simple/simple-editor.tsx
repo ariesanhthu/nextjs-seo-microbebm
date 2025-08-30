@@ -10,7 +10,7 @@ import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { TextAlign } from "@tiptap/extension-text-align"
 import { Typography } from "@tiptap/extension-typography"
 import { Highlight } from "@tiptap/extension-highlight"
-import { Subscript } from "@tiptap/extension-subscript"
+// import { Subscript } from "@tiptap/extension-subscript" // Disabled due to Vietnamese input conflicts
 import { Superscript } from "@tiptap/extension-superscript"
 import { Selection } from "@tiptap/extensions"
 import { Table } from "@tiptap/extension-table"
@@ -40,7 +40,6 @@ import "@/components/tiptap-node/table-node/table-node.scss"
 
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu"
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
@@ -79,7 +78,8 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 
 import content from "@/components/tiptap-templates/simple/data/content.json"
-import { ImageLinkButton } from "@/components/tiptap-ui/image-link-button"
+import { ImageLinkButton } from "@/components/tiptap-ui/custom-image-button/image-link-button"
+import { ImageUploadCustomButton } from "@/components/tiptap-ui/custom-image-button/image-upload-custom-button"
 
 interface SimpleEditorProps {
   content?: string;
@@ -114,7 +114,6 @@ const MainToolbarContent = ({
           portal={isMobile}
         />
         <BlockquoteButton />
-        <CodeBlockButton />
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -123,7 +122,6 @@ const MainToolbarContent = ({
         <MarkButton type="bold" />
         <MarkButton type="italic" />
         <MarkButton type="strike" />
-        <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? (
           <ColorHighlightPopover />
@@ -137,7 +135,7 @@ const MainToolbarContent = ({
 
       <ToolbarGroup>
         <MarkButton type="superscript" />
-        <MarkButton type="subscript" />
+        {/* <MarkButton type="subscript" /> */}
       </ToolbarGroup>
 
       <ToolbarSeparator />
@@ -152,7 +150,13 @@ const MainToolbarContent = ({
       <ToolbarSeparator />
 
       <ToolbarGroup>
-        <ImageLinkButton text="Add" />
+        <ImageLinkButton text="" />
+        <ImageUploadCustomButton text="" />
+      </ToolbarGroup>
+
+      <ToolbarSeparator />
+
+      <ToolbarGroup>
         <TableDropdownMenu portal={isMobile} />
       </ToolbarGroup>
 
@@ -239,9 +243,8 @@ export function SimpleEditor({
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
       Image,
-      Typography,
       Superscript,
-      Subscript,
+      // Subscript,
       Selection,
       Table.configure({
         resizable: true,

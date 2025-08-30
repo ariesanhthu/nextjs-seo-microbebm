@@ -1,30 +1,36 @@
 import { useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateContactFormData, CreateContactSchema } from "../schemas/contact.schema";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirmation } from "@/features/alert-dialog/context/alert-dialog-context";
 import { ContactService } from "../services/contactService";
+import { CreateContactDto } from "@/lib/dto/contact.dto";
 
 export function useContactForm(onSuccess?: () => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { confirm } = useConfirmation();
 
-  const form = useForm<CreateContactFormData>({
-    resolver: zodResolver(CreateContactSchema),
+
+  const form = useForm<CreateContactDto>({
     mode: "onChange",
   });
 
-  const onSubmit = async (data: CreateContactFormData) => {
-    // Validation đã do Zod đảm nhiệm: name + phone bắt buộc, email không bắt buộc
-
+  const onSubmit = async (data: CreateContactDto) => {
     const confirmed = await confirm(
       "Xác nhận gửi",
       "Bạn có chắc chắn muốn gửi thông tin liên hệ này?"
     );
 
     if (!confirmed) return;
+
+
+    if (data.email === "") {
+      data.email = null;
+    }
+
+    if (data.phone === "") {
+      data.phone = null;
+    }
 
     setIsSubmitting(true);
     try {

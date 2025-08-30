@@ -37,10 +37,7 @@ interface UploadResult {
 }
 
 export default function ImageUploader() {
-  const [uploadedImages, setUploadedImages] = useState<UploadResult[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [currentUploadStart, setCurrentUploadStart] = useState<number>(0);
-
 
   const createImageMetadata = async (result: UploadResult) => {
     try {
@@ -66,63 +63,40 @@ export default function ImageUploader() {
     }
   } 
 
-  const handleUploadSuccess = (result: any) => {
-    createImageMetadata(result.info as UploadResult);
-    //setUploadedImages(prev => [...prev, result.info]);
+  const handleUploadSuccess = async (result: any) => {
+    await createImageMetadata(result.info as UploadResult);
     setIsUploading(false);
   };
 
   const handleUploadStart = () => {
-    setCurrentUploadStart(Date.now());
     setIsUploading(true);
   };
 
   return (
-    <div className="border-4 rounded-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Cloudinary Image Uploader - Speed Test
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <CldUploadWidget 
-              uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
-              onSuccess={handleUploadSuccess}
-              onOpen={handleUploadStart}
-            >
-              {({ open }) => (
-                <Button 
-                  onClick={() => open()} 
-                  disabled={isUploading}
-                  className="flex items-center gap-2"
-                >
-                  {isUploading ? (
-                    <>
-                      <Clock className="h-4 w-4 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4" />
-                      Upload Image
-                    </>
-                  )}
-                </Button>
-              )}
-            </CldUploadWidget>
-          </div>
-
-          {isUploading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 animate-spin" />
-              Upload in progress...
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="flex gap-4">
+      <CldUploadWidget 
+        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+        onSuccess={handleUploadSuccess}
+        onOpen={handleUploadStart}
+      >
+        {({ open }) => (
+          <Button 
+            onClick={() => open()} 
+            disabled={isUploading}
+            className="flex items-center gap-2"
+          >
+            {isUploading ? (
+              <>
+                <Clock className="h-4 w-4 animate-spin" />
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        )}
+      </CldUploadWidget>
     </div>
   );
 }

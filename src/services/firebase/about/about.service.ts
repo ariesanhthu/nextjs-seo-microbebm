@@ -2,23 +2,22 @@ import { adminDb } from '@/services/firebase/firebase-admin';
 import { zodAdminConverter } from '@/services/zod/zod-admin-converter';
 import { Timestamp } from 'firebase-admin/firestore';
 import { 
-  CreateHomepageDto, 
-  UpdateHomepageDto, 
-  HomepageResponseDto,
-} from '@/lib/dto/homepage.dto';
-import { HomepageSchema } from '@/lib/schemas/homepage.schema';
+  CreateAboutDto, 
+  UpdateAboutDto, 
+  AboutResponseDto,
+} from '@/lib/dto/about.dto';
+import { AboutSchema } from '@/lib/schemas/about.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
 import { ESort } from '@/lib/enums/sort.enum';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/hooks/use-paginated-fetch';
-import { title } from 'process';
 
-export class HomepageService {
-  private static readonly COLLECTION = 'homepage';
+export class AboutService {
+  private static readonly COLLECTION = 'abouts';
 
   private static getReadCollectionRef() {
     return adminDb
       .collection(this.COLLECTION)
-      .withConverter(zodAdminConverter(HomepageSchema));
+      .withConverter(zodAdminConverter(AboutSchema));
   }
 
   private static getWriteCollectionRef() {
@@ -41,24 +40,16 @@ export class HomepageService {
     );
   }
 
-  static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {
+  static async create(body: CreateAboutDto): Promise<AboutResponseDto> {
     try {
       const existing = await this.getReadCollectionRef().get();
       if (!existing.empty) {
-        throw new Error('Homepage is existed. Can not create new one.');
+        throw new Error('About is existed. Can not create new one.');
       }
-      // Fetch full product data from product_ids
-      const products = await this.populateProducts(body.product_ids);
       
       const now = Timestamp.now();
       const docData = {
-        title: body.title,
-        subtitle: body.subtitle,
-        banner: body.banner,
-        navigation_bar: body.navigation_bar,
-        footer: body.footer,
-        slider: body.slider,
-        products: products,
+        ...body,
         created_at: now,
         updated_at: now,
       };
@@ -69,27 +60,27 @@ export class HomepageService {
       // Get the created document with converter for validation
       const createdDoc = await this.getDocRef(docRef.id).get();
       if (!createdDoc.exists) {
-        throw new Error('Failed to retrieve created Homepage');
+        throw new Error('Failed to retrieve created About');
       }
 
       return createdDoc.data()!;
     } catch (error) {
-      console.error('Error creating Homepage:', error);
-      throw new Error(`Failed to create Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error creating About:', error);
+      throw new Error(`Failed to create About: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  static async get(): Promise<HomepageResponseDto | null> {
+  static async get(): Promise<AboutResponseDto | null> {
     try {
       const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
       return snapshot.docs.map(doc => doc.data()!)[0];
     } catch (error) {
-      console.error('Error getting all homepages:', error);
-      throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error getting all abouts:', error);
+      throw new Error(`Failed to get abouts: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  static async getById(id: string): Promise<HomepageResponseDto | null> {
+  static async getById(id: string): Promise<AboutResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
       if (!doc.exists) {
@@ -98,13 +89,13 @@ export class HomepageService {
       
       return doc.data()!;
     } catch (error) {
-      console.error('Error getting Homepage by ID:', error);
-      throw new Error(`Failed to get Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error getting About by ID:', error);
+      throw new Error(`Failed to get About: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   // fix the getAll with pagination like other service
-  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<HomepageResponseDto>>> {
+  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<AboutResponseDto>>> {
     try {
       const {
         cursor,
@@ -143,17 +134,17 @@ export class HomepageService {
       };
 
     } catch (error) {
-      console.error('Error getting all homepages:', error);
-      throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error getting all abouts:', error);
+      throw new Error(`Failed to get abouts: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  static async update(id: string, body: UpdateHomepageDto): Promise<HomepageResponseDto> {
+  static async update(id: string, body: UpdateAboutDto): Promise<AboutResponseDto> {
     try {
-      // Check if Homepage exists
+      // Check if About exists
       const existing = await this.getDocRef(id).get();
       if (!existing.exists) {
-        throw new Error(`Homepage with id '${id}' not found`);
+        throw new Error(`About with id '${id}' not found`);
       }
 
       // Prepare update fields
@@ -162,43 +153,35 @@ export class HomepageService {
         updated_at: Timestamp.now(),
       };
 
-      // If product_ids is provided, fetch full product data
-      if (body.product_ids !== undefined) {
-        const products = this.populateProducts(body.product_ids);
-        updateFields.products = products;
-
-        delete updateFields.product_ids;
-      }
-
       // Update document
       await this.getWriteCollectionRef().doc(id).update(updateFields);
 
       // Get updated document
       const updatedDoc = await this.getDocRef(id).get();
       if (!updatedDoc.exists) {
-        throw new Error('Failed to retrieve updated Homepage');
+        throw new Error('Failed to retrieve updated About');
       }
 
       return updatedDoc.data()!;
     } catch (error) {
-      console.error('Error updating Homepage:', error);
-      throw new Error(`Failed to update Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error updating About:', error);
+      throw new Error(`Failed to update About: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   static async delete(id: string): Promise<void> {
     try {
-      // Check if Homepage exists
+      // Check if About exists
       const doc = await this.getDocRef(id).get();
       if (!doc.exists) {
-        throw new Error(`Homepage with id '${id}' not found`);
+        throw new Error(`About with id '${id}' not found`);
       }
 
-      // Delete the Homepage
+      // Delete the About
       await this.getDocRef(id).delete();
     } catch (error) {
-      console.error('Error deleting Homepage:', error);
-      throw new Error(`Failed to delete Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error deleting About:', error);
+      throw new Error(`Failed to delete About: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

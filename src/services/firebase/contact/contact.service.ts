@@ -9,6 +9,7 @@ import {
 import { ContactSchema } from '@/lib/schemas/contact.schema';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
+import { PaginationCursorContactDto } from '@/lib/dto/about.dto';
 
 export class ContactService {
   private static readonly COLLECTION = 'contacts';
@@ -68,17 +69,22 @@ export class ContactService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ContactResponseDto>>> {
+  static async getAll(query: PaginationCursorContactDto): Promise<Partial<PaginationCursorResponseDto<ContactResponseDto>>> {
     try {
       const {
         cursor,
         limit = 10,
-        sort = ESort.DESC
+        sort = ESort.DESC,
+        is_check
       } = query;
 
       let queryRef = this.getReadCollectionRef()
         .orderBy("created_at", sort)
         .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      if (is_check !== undefined) {
+        queryRef = queryRef.where("is_check", "==", is_check);
+      }
 
       // If cursor exists, get the document and use it for startAfter
       if (cursor) {

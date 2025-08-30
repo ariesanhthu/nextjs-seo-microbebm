@@ -3,9 +3,10 @@ import { CreateContactFormData } from "../schemas/contact.schema";
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { User, Mail, Phone, Leaf } from "lucide-react"
+import { CreateContactDto } from "@/lib/dto/contact.dto";
 
 interface ContactFormFieldsProps {
-  form: UseFormReturn<CreateContactFormData>
+  form: UseFormReturn<CreateContactDto>
 }
 
 export function ContactFormFields({ form }: ContactFormFieldsProps) {

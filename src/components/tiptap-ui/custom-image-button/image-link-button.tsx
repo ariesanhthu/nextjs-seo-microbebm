@@ -1,20 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "../../tiptap-ui-primitive/button"
 import { EditorContext } from "@tiptap/react"
-import { ImageIcon, Link, X } from "lucide-react"
+import { ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
@@ -28,7 +17,7 @@ export function ImageLinkButton({ text = "Image" }: ImageLinkButtonProps) {
 
   const imageGallery = useImageGallery();
 
-  const handleOpenImageGallery = (e: React.MouseEvent) => {
+  const handleOpenImageGallery = React.useCallback((e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation();
     
@@ -47,19 +36,18 @@ export function ImageLinkButton({ text = "Image" }: ImageLinkButtonProps) {
 
       toast.success("Image added successfully!")
     });
-  }
+  }, [editor, imageGallery])
 
   return (
     <Button
       type="button"
-      variant="ghost"
-      size="sm"
-      className="gap-1 min-w-0"
+      data-style="ghost"
+      tabIndex={-1}
       disabled={!editor}
       onClick={handleOpenImageGallery}
     >
-      <ImageIcon className="h-4 w-4" />
-      {text}
+      <ImageIcon className="tiptap-button-icon" />
+      {text && <span className="tiptap-button-text">{text}</span>}
     </Button>
   )
 }
