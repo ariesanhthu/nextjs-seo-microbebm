@@ -1,12 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { Menu, X, Search, ShoppingCart, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
-import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import axios from "axios";
 
 import {
@@ -53,9 +52,9 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
   return (
     <header
       className={cn(
-        "fixed left-0 top-0 z-50 w-full transition-all duration-300",
+        "fixed left-0 top-0 z-50 w-full transition-all duration-300 px-10",
         isScrolled
-          ? "bg-white shadow-md"
+          ? "bg-white/95 backdrop-blur shadow-md"
           : "bg-transparent"
       )}
     >
@@ -242,20 +241,6 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
                 Liên hệ
               </Link>
               <div className="mt-4 flex items-center space-x-4 border-t border-gray-200 pt-4">
-                <button
-                  className="flex items-center justify-center rounded-full bg-gray-100 p-2"
-                  aria-label="Tìm kiếm"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-                <Link
-                  href="/cart"
-                  className="flex items-center justify-center rounded-full bg-gray-100 p-2"
-                  aria-label="Giỏ hàng"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="ml-1 text-xs">0</span>
-                </Link>
                 <Link
                   href="/contact"
                   className="flex-1 rounded-full bg-green-600 px-4 py-2 text-center text-sm font-medium text-white"

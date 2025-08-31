@@ -1,20 +1,21 @@
 import { Card } from "@/components/ui/card"
 import { BarChart3, Users, ShoppingCart, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import NavbarAdmin from "@/components/NavbarAdmin"
 
 export default function AdminDashboard() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Tổng quan</h1>
-        <div className="flex items-center gap-2">
+      <NavbarAdmin 
+        name="Tổng quan"
+        buttonNavigation={
           <select className="rounded-md border border-gray-300 px-3 py-1.5 text-sm">
             <option>7 ngày qua</option>
             <option>30 ngày qua</option>
             <option>Quý này</option>
             <option>Năm nay</option>
           </select>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

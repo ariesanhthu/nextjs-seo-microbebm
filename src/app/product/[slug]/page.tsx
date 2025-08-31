@@ -23,8 +23,8 @@ export default function ProductPage() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Tìm product theo slug (name) thay vì ID
-        const response = await fetch("/api/product");
+        // Fetch tất cả sản phẩm với limit cao để đảm bảo tìm được sản phẩm cần thiết
+        const response = await fetch("/api/product?limit=100");
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
@@ -33,13 +33,29 @@ export default function ProductPage() {
         const products = data.data || data;
         
         // Tìm product theo slug (name)
-        const foundProduct = products.find((p: Product) => 
-          p.name.toLowerCase().replace(/\s+/g, '-') === params.slug
-        );
+        const foundProduct = products.find((p: Product) => {
+          const productSlug = p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+          const urlSlug = params.slug as string;
+          return productSlug === urlSlug;
+        });
         
         if (foundProduct) {
+          console.log('📥 Loaded product:', {
+            id: foundProduct.id,
+            name: foundProduct.name,
+            slug: foundProduct.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+            contentLength: foundProduct.content?.length || 0,
+            contentPreview: foundProduct.content?.substring(0, 100) + '...',
+            hasSubImages: foundProduct.sub_img && foundProduct.sub_img.length > 0,
+            description: foundProduct.description?.substring(0, 50) + '...'
+          });
           setProduct(foundProduct);
         } else {
+          console.log('❌ Product not found for slug:', params.slug);
+          console.log('Available products:', products.map((p: Product) => ({
+            name: p.name,
+            slug: p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+          })));
           setError("Sản phẩm không tồn tại");
         }
       } catch (err: any) {
@@ -112,36 +128,45 @@ export default function ProductPage() {
           {/* Product Image */}
           <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white shadow-lg">
-                             <Image
-                 src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
-                 alt={product.name}
-                 fill
-                 className="object-cover transition-transform duration-300 hover:scale-105"
-                 priority
-               />
+              <Image
+                src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
+                alt={product.name}
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
+                priority
+              />
             </div>
             
-            {/* Thumbnail Gallery (có thể mở rộng sau) */}
-            <div className="flex space-x-2">
-                             <div className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-green-500">
-                 <Image
-                   src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
-                   alt={product.name}
-                   fill
-                   className="object-cover"
-                 />
-               </div>
-            </div>
+            {/* Thumbnail Gallery */}
+            {product.sub_img && product.sub_img.length > 0 && (
+              <div className="flex space-x-2 overflow-x-auto">
+                <div className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-green-500 flex-shrink-0">
+                  <Image
+                    src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {product.sub_img.map((img, index) => (
+                  <div key={index} className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-gray-200 flex-shrink-0">
+                    <Image
+                      src={img.startsWith("/") ? img : `/${img}`}
+                      alt={`${product.name} - Ảnh ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-                {product.name}
-              </h1>
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="text-sm">
+            <div className="flex items-center space-x-2">
+                <Badge variant="outline"  className="text-sm bg-green-500">
                   Sản phẩm mới
                 </Badge>
                                  {product.created_at && (
@@ -150,9 +175,13 @@ export default function ProductPage() {
                    </span>
                  )}
               </div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 mt-2">
+                {product.name}
+              </h1>
+             
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 mt-5">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Mô tả sản phẩm
@@ -182,55 +211,40 @@ export default function ProductPage() {
                 <Link href="/contact" className="w-full">
                   <Button className="w-full" size="lg">
                     <Phone className="mr-2 h-4 w-4" />
-                    Gọi điện
-                  </Button>
-                </Link>
-                
-                <Link href="/contact" className="w-full">
-                  <Button variant="outline" className="w-full" size="lg">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Gửi email
+                    Liên hệ
                   </Button>
                 </Link>
               </div>
 
-              <Link href="/contact" className="w-full">
-                <Button variant="secondary" className="w-full" size="lg">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Đến cửa hàng
-                </Button>
-              </Link>
             </div>
-
-            {/* Additional Info */}
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-green-800 text-lg">
-                  Tại sao chọn sản phẩm này?
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-2 text-green-700">
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
-                    Chất lượng cao, bền bỉ
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
-                    Thân thiện với môi trường
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
-                    Giá cả hợp lý
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-500 mr-2">✓</span>
-                    Dịch vụ hậu mãi tốt
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
+        </div>
+
+        {/* Product Content - Hiển thị bên dưới hình ảnh */}
+        <div className="mt-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                Thông tin chi tiết
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.content ? (
+                <div 
+                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700 prose-blockquote:border-l-green-500 prose-blockquote:bg-green-50 prose-blockquote:text-gray-700 prose-img:rounded-lg prose-img:shadow-md"
+                  dangerouslySetInnerHTML={{ 
+                    __html: product.content 
+                  }} 
+                />
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  <div className="text-6xl mb-4">📝</div>
+                  <p className="text-lg mb-2">Chưa có nội dung chi tiết</p>
+                  <p className="text-sm">Nội dung sẽ được cập nhật sớm nhất</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Related Products Section */}

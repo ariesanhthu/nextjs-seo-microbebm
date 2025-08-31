@@ -164,7 +164,7 @@ export class HomepageService {
 
       // If product_ids is provided, fetch full product data
       if (body.product_ids !== undefined) {
-        const products = this.populateProducts(body.product_ids);
+        const products = await this.populateProducts(body.product_ids);
         updateFields.products = products;
 
         delete updateFields.product_ids;

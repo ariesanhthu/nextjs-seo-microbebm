@@ -1,10 +1,12 @@
 'use client'
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { useEffect, useState } from "react"
+import { Save } from "lucide-react"
 
 import { AboutResponseDto, UpdateAboutDto, SubsectionDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
 import { Timestamp } from "firebase-admin/firestore"
+import NavbarAdmin from "@/components/NavbarAdmin"
 
 // Example 
 // const s: SubsectionDto = [
@@ -123,11 +125,29 @@ export default function AdminHomepagePage() {
   }
 
   return (
-    <div>
-      <Button type={"button"} onClick={() => {console.log(form)}}>
-        Press
-      </Button>
-    <h1>Test</h1>
+    <div className="space-y-6">
+      <NavbarAdmin 
+        name="Quản lý trang Giới thiệu"
+        description="Chỉnh sửa nội dung và cấu trúc trang Giới thiệu"
+        buttonTool={
+          <Button 
+            type="button" 
+            onClick={save}
+            disabled={saving}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? "Đang lưu..." : "Lưu thay đổi"}
+          </Button>
+        }
+      />
+      
+      <div className="px-4">
+        <Button type={"button"} onClick={() => {console.log(form)}}>
+          Press
+        </Button>
+        <h1>Test</h1>
+      </div>
     </div>
   )
 }

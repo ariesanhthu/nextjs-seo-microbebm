@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/alert';
 import { toast } from '@/components/ui/use-toast';
 import { ProductResponseDto } from '@/lib/dto/product.dto';
+import NavbarAdmin from '@/components/NavbarAdmin';
 // import { SingleImageDropzoneUsage } from '@/components/SingleImageDropzoneUsage';
 export default function AdminProducts() {
   const router = useRouter();
@@ -123,81 +124,86 @@ const openEdit = (product: ProductResponseDto) => {
 };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-             <div className="flex justify-between items-center">
-         <h1 className="text-2xl font-bold">Quản lý sản phẩm</h1>
-         <Button onClick={() => router.push('/admin/product/new')} variant="default">
-           <Plus className="mr-2 h-4 w-4" /> Thêm sản phẩm
-         </Button>
-       </div>
+    <div className="space-y-6">
+      <NavbarAdmin 
+        name="Quản lý sản phẩm"
+        description="Xem, chỉnh sửa và quản lý danh sách sản phẩm"
+        buttonTool={
+          <Button onClick={() => router.push('/admin/product/new')} variant="default">
+            <Plus className="mr-2 h-4 w-4" /> Thêm sản phẩm
+          </Button>
+        }
+      />
 
-      {products.length === 0 && !isLoading ? (
-        <Alert>
-          <AlertDescription>
-            No products found. Add your first product to get started.
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Products</CardTitle>
-            <CardDescription>
-              Manage your product catalog with this interface.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                                 <TableRow>
-                   <TableHead>ID</TableHead>
-                   <TableHead>Tên</TableHead>
-                   <TableHead>Mô tả</TableHead>
-                   <TableHead>Thao tác</TableHead>
-                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-mono text-xs truncate max-w-[20px]">
-                      {product.id}
-                    </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.description}</TableCell>
-                                         <TableCell>
-                       <div className="flex space-x-2">
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => router.push(`/product/${product.slug}`)}
-                           title="Xem sản phẩm"
-                         >
-                           <Eye className="h-4 w-4" />
-                         </Button>
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => openEdit(product)}
-                           title="Chỉnh sửa"
-                         >
-                           <Edit className="h-4 w-4" />
-                         </Button>
-                         <Button
-                           variant="destructive"
-                           size="sm"
-                           onClick={() => confirmDelete(product.id)}
-                           title="Xóa"
-                         >
-                           <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                     </TableCell>
+      <div className="px-4">
+        {products.length === 0 && !isLoading ? (
+          <Alert>
+            <AlertDescription>
+              Không tìm thấy sản phẩm nào. Thêm sản phẩm đầu tiên để bắt đầu.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Danh sách sản phẩm</CardTitle>
+              <CardDescription>
+                Quản lý danh mục sản phẩm với giao diện này.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Tên</TableHead>
+                    <TableHead>Mô tả</TableHead>
+                    <TableHead>Thao tác</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-mono text-xs truncate max-w-[20px]">
+                        {product.id}
+                      </TableCell>
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>{product.description}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => router.push(`/product/${product.slug}`)}
+                            title="Xem sản phẩm"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(product)}
+                            title="Chỉnh sửa"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => confirmDelete(product.id)}
+                            title="Xóa"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>

@@ -9,13 +9,14 @@ import { Eye, Edit, FileText } from "lucide-react"
 interface ContentEditorProps {
   value: string;
   onChange: (html: string) => void;
+  storageKey?: string; // Thêm prop để tùy chỉnh localStorage key
 }
 
-export default function ContentEditor({ value, onChange }: ContentEditorProps) {
+export default function ContentEditor({ value, onChange, storageKey = 'content-draft' }: ContentEditorProps) {
   const [editorContent, setEditorContent] = useState<string>(value)
   const [activeTab, setActiveTab] = useState<string>("editor")
 
-  // Sync with external value prop changes (when blog is selected)
+  // Sync with external value prop changes (when product/blog is selected)
   useEffect(() => {
     if (value !== editorContent) {
       setEditorContent(value)
@@ -24,16 +25,22 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
 
   // Handle content changes from editor
   const handleContentChange = (html: string) => {
+    console.log('🔄 ContentEditor onChange:', {
+      htmlLength: html.length,
+      htmlPreview: html.substring(0, 100) + '...',
+      storageKey,
+      timestamp: new Date().toISOString()
+    })
     onChange(html)
     setEditorContent(html)
   }
 
-  // Optional: Save to localStorage as backup (but don't override props)
+  // Save to localStorage as backup (but don't override props)
   useEffect(() => {
     if (editorContent && editorContent !== value) {
-      localStorage.setItem('blog-draft', editorContent)
+      localStorage.setItem(storageKey, editorContent)
     }
-  }, [editorContent, value])
+  }, [editorContent, value, storageKey])
 
   // Function to replace images with alt text placeholders
   const processContentForPreview = (html: string): string => {
@@ -83,10 +90,10 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
         color: #dc2626;
         font-style: italic;
         font-size: 0.875rem;
-        text-align: center;
-        margin: 0.5rem 0;
-        display: inline-block;
-        min-width: 200px;
+          text-align: center;
+          margin: 0.5rem 0;
+          display: inline-block;
+          min-width: 200px;
       ">Ảnh: không có mô tả</div>`
     )
   }
@@ -94,12 +101,12 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
   // Load from localStorage ONLY if no value prop is provided
   useEffect(() => {
     if (!value || value === "") {
-      const savedContent = localStorage.getItem('blog-draft')
+      const savedContent = localStorage.getItem(storageKey)
       if (savedContent) {
         setEditorContent(savedContent)
       }
     }
-  }, []) // Remove value dependency to prevent override
+  }, [value, storageKey]) // Thêm storageKey vào dependency
 
   return (
     <div className="flex flex-col w-full justify-center items-center mx-auto p-4 space-y-6">

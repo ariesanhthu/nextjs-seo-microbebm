@@ -75,7 +75,7 @@ export default function FeaturedProducts({ products: inputProducts }: { products
   // useEffect(() => {
   //   async function fetchProducts() {
   //     try {
-  //       const res = await fetch("/api/products");
+  //       const res = await fetch("/api/product");
   //       if (!res.ok) {
   //         throw new Error("Failed to fetch products");
   //       }

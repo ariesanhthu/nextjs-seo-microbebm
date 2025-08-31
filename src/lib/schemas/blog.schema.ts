@@ -40,7 +40,9 @@ export const CreateBlogSchema = BlogSchema.pick({
   }).default([])
 })
 
-export const UpdateBlogSchema = CreateBlogSchema.partial()
+export const UpdateBlogSchema = CreateBlogSchema.partial().extend({
+  excerpt: z.string().max(200, 'Excerpt too long').optional()
+})
 
 export const BlogResponseSchema = BlogSchema
   .omit({ tag_refs: true })
@@ -57,5 +59,9 @@ export const BlogResponseSchema = BlogSchema
       slug: z.string({
         message: "Blog tag slug must be a string"
       })
-    })).default([])
+    })).default([]),
+    status: z.enum(['draft', 'published', 'archived']).default('draft'),
+    is_featured: z.boolean().default(false),
+    excerpt: z.string().default(""),
+    view_count: z.number().default(0),
   })

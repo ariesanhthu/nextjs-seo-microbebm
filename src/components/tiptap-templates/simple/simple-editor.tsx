@@ -77,7 +77,6 @@ import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils"
 // --- Styles ---
 import "@/components/tiptap-templates/simple/simple-editor.scss"
 
-import content from "@/components/tiptap-templates/simple/data/content.json"
 import { ImageLinkButton } from "@/components/tiptap-ui/custom-image-button/image-link-button"
 import { ImageUploadCustomButton } from "@/components/tiptap-ui/custom-image-button/image-upload-custom-button"
 
@@ -263,7 +262,7 @@ export function SimpleEditor({
       //   onError: (error) => console.error("Upload failed:", error),
       // }),
     ],
-    content,
+    content: initialContent || "", // Sử dụng initialContent thay vì hardcoded content
     onUpdate: ({ editor }) => {
       // Auto-save logic
       const currentContent = editor.getHTML()
@@ -278,6 +277,8 @@ export function SimpleEditor({
         if (currentContent !== lastSavedContent && onContentChange) {
           console.log('🚀 Auto-saving content...', {
             contentLength: currentContent.length,
+            contentPreview: currentContent.substring(0, 100) + '...',
+            lastSavedLength: lastSavedContent.length,
             timestamp: new Date().toISOString()
           })
           onContentChange(currentContent)
@@ -308,25 +309,36 @@ export function SimpleEditor({
     }
   }, [])
 
-  // Force save on initial load if content exists
-  React.useEffect(() => {
-    if (editor && initialContent && onContentChange) {
-      const currentContent = editor.getHTML()
-      setLastSavedContent(currentContent)
-    }
-  }, [editor, initialContent, onContentChange])
-
   // Update editor content when initialContent prop changes
   React.useEffect(() => {
     if (editor && initialContent !== undefined) {
       const currentContent = editor.getHTML()
       // Only update if the content is actually different
       if (currentContent !== initialContent) {
+        console.log('🔄 Syncing editor content with prop:', {
+          currentLength: currentContent.length,
+          newLength: initialContent.length,
+          timestamp: new Date().toISOString()
+        })
         editor.commands.setContent(initialContent)
         setLastSavedContent(initialContent)
       }
     }
   }, [editor, initialContent])
+
+  // Force save on initial load if content exists
+  React.useEffect(() => {
+    if (editor && initialContent && onContentChange) {
+      const currentContent = editor.getHTML()
+      if (currentContent !== initialContent) {
+        console.log('🚀 Initial content sync:', {
+          currentLength: currentContent.length,
+          propLength: initialContent.length
+        })
+        setLastSavedContent(initialContent)
+      }
+    }
+  }, [editor, initialContent, onContentChange])
   
   return (
     <div className="w-full h-200 overflow-auto border-10 rounded-2xl">

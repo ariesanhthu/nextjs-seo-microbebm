@@ -11,10 +11,10 @@ export default function AdminLayout({
   return (
     <ImageGalleryProvider>
       <BlogGalleryProvider>
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen bg-gray-50 px-10">
             <AdminSidebar />
             <div className="lg:pl-64">
-              <main className="p-4 pt-16 lg:p-8 lg:pt-8">{children}</main>
+              <main className="pt-16 lg:pt-8">{children}</main>
             </div>
           </div>
       </BlogGalleryProvider>

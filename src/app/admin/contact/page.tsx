@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import NavbarAdmin from "@/components/NavbarAdmin";
 
 type Contact = {
 	id: string;
@@ -160,35 +161,42 @@ export default function AdminContactPage() {
 	);
 
 	return (
-		<div className="p-4 space-y-4">
-			<Toaster position="bottom-right"/>
-			<div className="flex items-center justify-between">
-				<h1 className="text-xl font-semibold">Liên hệ</h1>
-				<button
-					className="px-3 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200"
-					onClick={fetchContacts}
-					disabled={loading}
-				>
-					{loading ? "Đang tải..." : "Tải lại"}
-				</button>
+		<div className="space-y-6">
+			<NavbarAdmin 
+				name="Quản lý liên hệ"
+				description="Xem và quản lý các thông tin liên hệ từ khách hàng"
+				buttonTool={
+					<button
+						className="px-3 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 flex items-center gap-2"
+						onClick={fetchContacts}
+						disabled={loading}
+					>
+						<RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+						{loading ? "Đang tải..." : "Tải lại"}
+					</button>
+				}
+			/>
+
+			<div className="px-4">
+				<Toaster position="bottom-right"/>
+				
+				{error && (
+					<div className="text-sm text-red-600 mb-4">Lỗi: {error}</div>
+				)}
+
+				<Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "new" | "done")}> 
+					<TabsList>
+						<TabsTrigger value="new">Khách hàng mới ({unCheckedContacts.length})</TabsTrigger>
+						<TabsTrigger value="done">Đã liên hệ ({checkedContacts.length})</TabsTrigger>
+					</TabsList>
+					<TabsContent value="new">
+						<List data={unCheckedContacts} />
+					</TabsContent>
+					<TabsContent value="done">
+						<List data={checkedContacts} />
+					</TabsContent>
+				</Tabs>
 			</div>
-
-			{error && (
-				<div className="text-sm text-red-600">Lỗi: {error}</div>
-			)}
-
-			<Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "new" | "done")}> 
-				<TabsList>
-					<TabsTrigger value="new">Khách hàng mới ({unCheckedContacts.length})</TabsTrigger>
-					<TabsTrigger value="done">Đã liên hệ ({checkedContacts.length})</TabsTrigger>
-				</TabsList>
-				<TabsContent value="new">
-					<List data={unCheckedContacts} />
-				</TabsContent>
-				<TabsContent value="done">
-					<List data={checkedContacts} />
-				</TabsContent>
-			</Tabs>
 		</div>
 	);
 }

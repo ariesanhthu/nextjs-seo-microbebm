@@ -1,6 +1,6 @@
 "use client";
 
-import ContactForm from '../../features/emailSender/components/contactForm';
+import ContactForm from '@/features/emailSender/components/contactForm';
 
 export default function EmailSenderPage() {
   return (

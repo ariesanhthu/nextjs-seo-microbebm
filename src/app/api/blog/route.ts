@@ -12,10 +12,17 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const query: PaginationCursorDto = {
+    const query: PaginationCursorDto & { 
+      search?: string, 
+      tags?: string[], 
+      status?: string 
+    } = {
       cursor: searchParams.get('cursor') || undefined,
       limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
-      sort: (searchParams.get('sort') as ESort) || ESort.DESC
+      sort: (searchParams.get('sort') as ESort) || ESort.DESC,
+      search: searchParams.get('search') || undefined,
+      tags: searchParams.get('tags') ? searchParams.get('tags')!.split(',') : undefined,
+      status: searchParams.get('status') || 'published'
     };
 
     const result = await BlogService.getAll(query);

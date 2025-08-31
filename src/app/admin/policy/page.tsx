@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/alert';
 import { toast } from '@/components/ui/use-toast';
 import { IPolicy } from '@/utils/interface';
+import NavbarAdmin from '@/components/NavbarAdmin';
 
 export default function AdminProlicy() {
   const [policies, setPolicies] = useState<IPolicy[]>([]);
@@ -226,70 +227,76 @@ const openEdit = (policy: IPolicy) => {
 };
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Policy Management</h1>
-        <Button onClick={() => setOpenAddDialog(true)} variant="default">
-          <Plus className="mr-2 h-4 w-4" /> Add Policy
-        </Button>
+    <div className="space-y-6">
+      <NavbarAdmin 
+        name="Quản lý chính sách"
+        description="Tạo, chỉnh sửa và quản lý các chính sách của công ty"
+        buttonTool={
+          <Button onClick={() => setOpenAddDialog(true)} variant="default">
+            <Plus className="mr-2 h-4 w-4" /> Thêm chính sách
+          </Button>
+        }
+      />
+
+      <div className="px-4">
+        {policies.length === 0 && !isLoading ? (
+          <Alert>
+            <AlertDescription>
+              Không tìm thấy chính sách nào. Thêm chính sách đầu tiên để bắt đầu.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Danh sách chính sách</CardTitle>
+              <CardDescription>
+                Quản lý danh mục chính sách với giao diện này.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Tiêu đề</TableHead>
+                    <TableHead>Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {policies.map((policy) => (
+                    <TableRow key={policy._id}>
+                      <TableCell className="font-mono text-xs">
+                        {policy._id.substring(0, 8)}...
+                      </TableCell>
+                     
+                      <TableCell className="font-medium">{policy.title}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(policy)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => confirmDelete(policy._id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {policies.length === 0 && !isLoading ? (
-        <Alert>
-          <AlertDescription>
-            No policies found. Add your first policy to get started.
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Policies</CardTitle>
-            <CardDescription>
-              Manage your policy catalog with this interface.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {policies.map((policy) => (
-                  <TableRow key={policy._id}>
-                    <TableCell className="font-mono text-xs">
-                      {policy._id.substring(0, 8)}...
-                    </TableCell>
-                   
-                    <TableCell className="font-medium">{policy.title}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEdit(policy)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => confirmDelete(policy._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
     {/* Edit Policy Dialog */}
     <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
         <DialogContent className="sm:max-w-md">

@@ -112,17 +112,31 @@ export class BlogService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<BlogResponseDto>>> {
+  static async getAll(query: PaginationCursorDto & { 
+    search?: string, 
+    tags?: string[], 
+    status?: string 
+  }): Promise<Partial<PaginationCursorResponseDto<BlogResponseDto>>> {
     try {
       const {
         cursor,
         limit = 10,
-        sort = ESort.DESC
+        sort = ESort.DESC,
+        search,
+        tags,
+        status
       } = query;
 
       let queryRef = this.getReadCollectionRef()
         .orderBy("created_at", sort)
         .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      // Filter by status if provided
+      if (status && status !== 'all') {
+        // Only filter by status if the field exists in the collection
+        // For now, we'll filter after fetching to avoid index issues
+        // queryRef = queryRef.where('status', '==', status);
+      }
 
       // If cursor exists, get the document and use it for startAfter
       if (cursor) {
@@ -133,12 +147,37 @@ export class BlogService {
       }
       
       const snapshot = await queryRef.get();
-      const allDocs = await Promise.all(
+      let allDocs = await Promise.all(
         snapshot.docs.map(async (doc: any) => {
           const rawData = { id: doc.id, ...doc.data() };
           return await this.populateTag(rawData) as BlogResponseDto;
         })
       );
+
+      // Filter by search term if provided
+      if (search && search.trim()) {
+        const searchLower = search.toLowerCase();
+        allDocs = allDocs.filter(doc => 
+          doc.title.toLowerCase().includes(searchLower) ||
+          doc.content.toLowerCase().includes(searchLower) ||
+          (doc.excerpt && doc.excerpt.toLowerCase().includes(searchLower)) ||
+          doc.author.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Filter by tags if provided
+      if (tags && tags.length > 0) {
+        allDocs = allDocs.filter(doc => 
+          doc.tags.some((tag: any) => tags.includes(tag.id))
+        );
+      }
+
+      // Filter by status if provided (after fetching to avoid index issues)
+      if (status && status !== 'all') {
+        allDocs = allDocs.filter(doc => 
+          doc.status === status || (!doc.status && status === 'published')
+        );
+      }
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -182,6 +221,11 @@ export class BlogService {
       if (body.tag_ids) {
         updateFields.tag_refs = await this.getListRef(body.tag_ids);
         delete updateFields.tag_ids;
+      }
+
+      // Auto-generate excerpt if content changes and excerpt is not provided
+      if (body.content && !body.excerpt) {
+        updateFields.excerpt = body.content.substring(0, 200);
       }
    
       // Update document
