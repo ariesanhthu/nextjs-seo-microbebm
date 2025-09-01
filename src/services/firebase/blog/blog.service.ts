@@ -112,6 +112,25 @@ export class BlogService {
     }
   }
 
+  static async getBySlug(slug: string): Promise<BlogResponseDto | null> {
+    try {
+      const querySnapshot = await this.getReadCollectionRef()
+        .where('slug', '==', slug)
+        .limit(1)
+        .get();
+
+      if (querySnapshot.empty) {
+        return null;
+      }
+
+      const doc = querySnapshot.docs[0];
+      return await this.populateTag(doc.data()) as BlogResponseDto;
+    } catch (error) {
+      console.error('Error getting Blog by slug:', error);
+      throw new Error(`Failed to get Blog by slug: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   static async getAll(query: PaginationCursorDto & { 
     search?: string, 
     tags?: string[], 
