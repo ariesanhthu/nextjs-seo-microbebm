@@ -1,0 +1,1 @@
+export { useSectionStyle } from './useSectionStyle'

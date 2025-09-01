@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { Trash2, Eye, Edit } from "lucide-react"
+import { Trash2, Eye, Edit, ImageIcon } from "lucide-react"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context"
+import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
+import ImageWithMetadata from "@/components/ui/image-with-metadata"
 import StylePreview from "./style-preview"
 
 type AboutSection = AboutResponseDto['section'][0]
@@ -23,6 +25,7 @@ interface SectionFormProps {
 export default function SectionForm({ section, onUpdate, onDelete }: SectionFormProps) {
   const [mode, setMode] = useState<"preview" | "edit">("preview")
   const { showAlert } = useGlobalAlert()
+  const { openDialog } = useImageGallery()
 
   const updateSection = (updates: Partial<AboutSection>) => {
     onUpdate({ ...section, ...updates })
@@ -40,11 +43,17 @@ export default function SectionForm({ section, onUpdate, onDelete }: SectionForm
     }
   }
 
+  const selectSectionImage = () => {
+    openDialog((image) => {
+      updateSection({ image_url: image.url })
+    })
+  }
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Section Editor</CardTitle>
+          <CardTitle>Preview - Style {section.style}</CardTitle>
           <div className="flex items-center gap-2">
             <ToggleGroup type="single" value={mode} onValueChange={(value) => value && setMode(value as "preview" | "edit")}>
               <ToggleGroupItem value="preview" size="sm">
@@ -108,11 +117,39 @@ export default function SectionForm({ section, onUpdate, onDelete }: SectionForm
               </Select>
             </div>
 
-            <div className="pt-4">
-              <Button onClick={() => setMode("preview")}>
-                Xem Preview
-              </Button>
-            </div>
+            {/* Section Image - chỉ hiện khi style là 1 */}
+            {section.style === EStyleSection.ONEIMAGE && (
+              <div>
+                <Label>Ảnh chính của section</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={section.image_url || ""}
+                    placeholder="URL hình ảnh"
+                    readOnly
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={selectSectionImage}
+                    size="sm"
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+                {section.image_url && (
+                  <div className="mt-2">
+                    <ImageWithMetadata
+                      src={section.image_url}
+                      alt="Section preview"
+                      width={200}
+                      height={150}
+                      className="w-48 h-32 object-cover rounded"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         )}
       </CardContent>

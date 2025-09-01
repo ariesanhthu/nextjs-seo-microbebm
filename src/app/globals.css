@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import '../styles/_variables.scss';                                   
-@import '../styles/_keyframe-animations.scss';    
+@import '../styles/_keyframe-animations.scss';                                   
+@import "tw-animate-css";    
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {
@@ -15,7 +16,7 @@
     -webkit-line-clamp: 1;
     line-clamp: 1;
   }
-  
+
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
@@ -23,7 +24,7 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
   }
-  
+
   .line-clamp-3 {
     overflow: hidden;
     display: -webkit-box;
@@ -31,7 +32,7 @@
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
-  
+
   .line-clamp-4 {
     overflow: hidden;
     display: -webkit-box;
@@ -155,8 +156,6 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.98 0.02 140);
-  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -186,6 +185,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 }
 
 .dark {

@@ -7,6 +7,7 @@ import { ExternalLink, ImageIcon } from "lucide-react"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
 import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
 
 type AboutSection = AboutResponseDto['section'][0]
 
@@ -16,6 +17,8 @@ interface LayoutPreviewProps {
 
 export default function LayoutPreview({ data }: LayoutPreviewProps) {
   const renderSubsection = (subsection: AboutSection['subsection'][0], index: number) => {
+    const { IconComponent } = useIconField(subsection.icon || "")
+    
     return (
       <Card key={index} className="mb-4">
         <CardContent className="p-4">
@@ -33,10 +36,10 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
             )}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-semibold">{subsection.name}</h4>
-                {subsection.icon && (
-                  <span className="text-lg">{subsection.icon}</span>
+                {subsection.icon && IconComponent && (
+                  <IconComponent className="w-6 h-6 text-blue-500" />
                 )}
+                <h4 className="font-semibold">{subsection.name}</h4>
               </div>
               <p className="text-muted-foreground mb-2">{subsection.description}</p>
               {subsection.ref && (
@@ -103,31 +106,39 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
 
           {maxImages === 4 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {subsectionsWithImages.slice(0, 4).map((subsection, idx) => (
-                <div key={idx} className="space-y-2">
-                  {subsection.image_url && (
-                    <ImageWithMetadata
-                      src={subsection.image_url}
-                      alt={subsection.name}
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover rounded"
-                    />
-                  )}
-                  <div>
-                    <h4 className="font-semibold">{subsection.name}</h4>
-                    <p className="text-sm text-muted-foreground">{subsection.description}</p>
-                    {subsection.ref && (
-                      <Button variant="outline" size="sm" asChild className="mt-2">
-                        <a href={subsection.ref} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Xem thêm
-                        </a>
-                      </Button>
+              {subsectionsWithImages.slice(0, 4).map((subsection, idx) => {
+                const { IconComponent } = useIconField(subsection.icon || "")
+                return (
+                  <div key={idx} className="space-y-2">
+                    {subsection.image_url && (
+                      <ImageWithMetadata
+                        src={subsection.image_url}
+                        alt={subsection.name}
+                        width={300}
+                        height={200}
+                        className="w-full h-48 object-cover rounded"
+                      />
                     )}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        {subsection.icon && IconComponent && (
+                          <IconComponent className="w-5 h-5 text-blue-500" />
+                        )}
+                        <h4 className="font-semibold">{subsection.name}</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{subsection.description}</p>
+                      {subsection.ref && (
+                        <Button variant="outline" size="sm" asChild className="mt-2">
+                          <a href={subsection.ref} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Xem thêm
+                          </a>
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
               {subsectionsWithoutImages.map((subsection, idx) => renderSubsection(subsection, idx + 4))}
             </div>
           )}
@@ -141,7 +152,7 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Preview Layout</h1>
         <p className="text-muted-foreground">
-          Đây là cách layout sẽ hiển thị trên trang web
+          Giao diện xem trước bố cục nội dung
         </p>
       </div>
 

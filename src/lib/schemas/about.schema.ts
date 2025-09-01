@@ -6,6 +6,7 @@ export const AboutSchema = GeneralSchema.extend({
   section: z.array(z.object({
     title: z.string({ message: "Title is a string" }),
     subtitle: z.string({ message: "Subtitle is a string" }),
+    image_url: z.string({ message: "Image URL is a string" }).nullable().default(null),
     subsection: z.array(z.object({
       name: z.string({ message: "Name is a string" }),
       description: z.string({ message: "Description is a string" }),
@@ -25,6 +26,7 @@ export const UpdateAboutSchema = z.object({
   section: z.array(z.object({
     title: z.string({ message: "Title is a string" }).optional(),
     subtitle: z.string({ message: "Subtitle is a string" }).optional(),
+    image_url: z.string({ message: "Image URL is a string" }).nullable().default(null).optional(),
     subsection: z.array(z.object({
       name: z.string({ message: "Name is a string" }),
       description: z.string({ message: "Description is a string" }),

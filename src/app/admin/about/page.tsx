@@ -125,11 +125,11 @@ export default function AboutManagementPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 mb-4">
-                  <p className="text-sm text-muted-foreground">
+                {/* <div className="space-y-2 mb-4"> */}
+                  {/* <p className="text-sm text-muted-foreground">
                     <strong>Sections:</strong> {about.section?.length || 0}
-                  </p>
-                  {about.section && about.section.length > 0 && (
+                  </p> */}
+                  {/* {about.section && about.section.length > 0 && (
                     <div className="text-sm">
                       <p className="font-medium">Các section:</p>
                       <ul className="list-disc list-inside text-muted-foreground">
@@ -148,8 +148,8 @@ export default function AboutManagementPage() {
                         )}
                       </ul>
                     </div>
-                  )}
-                </div>
+                  )} */}
+                {/* </div> */}
                 
                 <div className="flex gap-2">
                   <Button

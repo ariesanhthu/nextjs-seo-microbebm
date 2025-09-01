@@ -62,8 +62,8 @@ export default function AdminSidebar() {
       href: "/admin/policy",
       icon: <FileText className="h-5 w-5" />,
       submenu: [
-        { title: "Chính sách chất lượng", href: "/admin/policy" },
-        // { title: "Thêm sản phẩm", href: "/admin/products/new" },
+        { title: "Tùy chỉnh giới thiệu", href: "/admin/about" },
+        // { title: "Chính sách chất lượng", href: "/admin/policy" },
         // { title: "Danh mục", href: "/admin/products/categories" },
       ],
     },

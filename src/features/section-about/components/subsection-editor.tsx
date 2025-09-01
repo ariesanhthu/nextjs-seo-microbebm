@@ -7,6 +7,7 @@ import { Trash2, Edit2, Check, X, ImageIcon } from "lucide-react"
 import { SubsectionDto } from "@/lib/dto/about.dto"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import IconField from "@/features/icon-picker/components/icon-picker-custom"
 
 interface SubsectionEditorProps {
   subsection: SubsectionDto[0]
@@ -16,6 +17,7 @@ interface SubsectionEditorProps {
   showImage?: boolean
   canAddImage?: boolean
   className?: string
+  sectionStyle?: number
 }
 
 export default function SubsectionEditor({ 
@@ -25,7 +27,8 @@ export default function SubsectionEditor({
   onDelete, 
   showImage = false,
   canAddImage = true,
-  className = ""
+  className = "",
+  sectionStyle = 0
 }: SubsectionEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
@@ -89,6 +92,14 @@ export default function SubsectionEditor({
       {isEditing ? (
         // Edit mode
         <div className="space-y-3 p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+          <IconField
+            value={editData.icon}
+            onChange={(iconName) => setEditData({ ...editData, icon: iconName || "" })}
+            label="Icon"
+            placeholder="Chọn icon cho subsection"
+            iconSize="w-6 h-6"
+          />
+
           <div>
             <Input
               value={editData.name}
@@ -115,15 +126,8 @@ export default function SubsectionEditor({
             />
           </div>
 
-          <div>
-            <Input
-              value={editData.icon}
-              onChange={(e) => setEditData({ ...editData, icon: e.target.value })}
-              placeholder="Icon class (tùy chọn)"
-            />
-          </div>
-
-          {showImage && (
+          
+          {showImage && sectionStyle !== 1 && (
             <div>
               <div className="flex items-center gap-2">
                 <Input
@@ -171,7 +175,12 @@ export default function SubsectionEditor({
         <div className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
           {subsection.icon && (
             <div className="mb-2">
-              <i className={`${subsection.icon} text-2xl`}></i>
+              <IconField
+                value={subsection.icon}
+                showPicker={false}
+                showPreview={true}
+                iconSize="w-8 h-8"
+              />
             </div>
           )}
           
@@ -190,7 +199,7 @@ export default function SubsectionEditor({
             </a>
           )}
 
-          {showImage && subsection.image_url && (
+          {showImage && sectionStyle !== 1 && subsection.image_url && (
             <div className="mt-3">
               <ImageWithMetadata
                 src={subsection.image_url}

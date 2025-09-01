@@ -31,8 +31,9 @@ export default function LayoutEditor({ initialData, aboutId }: LayoutEditorProps
     const newSection: AboutSection = {
       title: "",
       subtitle: "",
+      image_url: null,
       subsection: [],
-      style: EStyleSection.NOIMAGE,
+      style: EStyleSection.NOIMAGE
     }
     setSections([...sections, newSection])
     toast.success("Đã thêm section mới!")
@@ -106,7 +107,7 @@ export default function LayoutEditor({ initialData, aboutId }: LayoutEditorProps
             </div>
           </CardHeader>
         </Card>
-        <LayoutPreview data={{ section: sections } as AboutResponseDto} />
+        <LayoutPreview data={{ section: sections} as AboutResponseDto} />
       </div>
     )
   }
