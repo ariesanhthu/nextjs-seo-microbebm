@@ -6,7 +6,6 @@ import { formatErrorResponse } from "@/lib/format-error-response";
 import { ZodError } from "zod";
 import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
 import { CreateContactSchema } from "@/lib/schemas/contact.schema";
-import { MailerService } from "@/features/emailSender/emailService";
 import { PaginationCursorContactDto } from "@/lib/dto/about.dto";
 
 // GET /api/contact - Get all contacts with pagination
@@ -44,26 +43,10 @@ export async function POST(request: Request) {
     if (validatedBody.success === false) {
       throw validatedBody.error;
     }
+    
+    console.log("Validated body:", validatedBody.data);
 
     const newContact = await ContactService.create(validatedBody.data);
-    
-    // Gửi email (không làm fail request nếu mailer lỗi)
-    const mailer = new MailerService();
-    const tasks: Promise<unknown>[] = [];
-    if (!newContact?.email) {
-      // Nếu người dùng không nhập email -> chỉ gửi cho admin
-      tasks.push(mailer.sendNotiAdmin(newContact));
-    } else {
-      // Nếu có email -> gửi cho admin và gửi xác nhận cho khách
-      tasks.push(mailer.sendNotiAdmin(newContact));
-      tasks.push(mailer.sendConfirmClient(newContact));
-    }
-    const results = await Promise.allSettled(tasks);
-    results.forEach((r, idx) => {
-      if (r.status === 'rejected') {
-        console.warn(`Mailer task #${idx} failed:`, r.reason);
-      }
-    });
   
     return NextResponse.json({
       success: true,

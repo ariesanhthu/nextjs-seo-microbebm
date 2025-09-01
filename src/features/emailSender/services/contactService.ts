@@ -1,5 +1,4 @@
 import { CreateContactDto } from "@/lib/dto/contact.dto";
-import { CreateContactFormData } from "../schemas/contact.schema";
 
 // Service mỏng - chỉ để gom fetch và xử lý lỗi
 export class ContactService {
@@ -12,6 +11,9 @@ export class ContactService {
   }
 
   static async createContact(data: CreateContactDto) {
+    console.log("=== ContactService.createContact called ===");
+    console.log("Data:", data);
+    
     const response = await fetch('/api/contact', {
       method: 'POST',
       headers: {
@@ -20,6 +22,9 @@ export class ContactService {
       body: JSON.stringify(data),
     });
 
-    return this.handleResponse<{ success: boolean; data: any; message: string }>(response);
+    console.log("Response status:", response.status);
+    const result = await this.handleResponse<{ success: boolean; data: any; message: string }>(response);
+    console.log("ContactService result:", result);
+    return result;
   }
 }

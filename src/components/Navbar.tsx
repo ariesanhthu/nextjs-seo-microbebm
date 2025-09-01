@@ -26,16 +26,23 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
   
   useEffect(() => {
     const fetchRole = async () => {
+      // Chỉ gọi API khi user đã đăng nhập
+      if (!isSignedIn) {
+        setIsAdmin(false);
+        return;
+      }
+
       try {
         const res = await axios.get("/api/check-role");
         setIsAdmin(res.data.isAdmin);
       } catch (error) {
         console.error("Error fetching role:", error);
+        setIsAdmin(false);
       }
     };
 
     fetchRole();
-  }, []);
+  }, [isSignedIn]);
 
   useEffect(() => {
     const handleScroll = () => {

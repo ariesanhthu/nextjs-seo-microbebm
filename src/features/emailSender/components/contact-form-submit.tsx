@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Send, CheckCircle, AlertTriangle } from "lucide-react"
 import type { UseFormReturn } from "react-hook-form"
-import { CreateContactFormData } from "../schemas/contact.schema";
 import { CreateContactDto } from "@/lib/dto/contact.dto";
 
 interface ContactFormSubmitProps {
@@ -12,8 +11,13 @@ interface ContactFormSubmitProps {
 
 export function ContactFormSubmit({ form, isSubmitting }: ContactFormSubmitProps) {
   const {
-    formState: { isValid },
+    formState: { isValid, errors },
   } = form
+  
+  console.log("=== ContactFormSubmit render ===");
+  console.log("isValid:", isValid);
+  console.log("isSubmitting:", isSubmitting);
+  console.log("errors:", errors);
 
   return (
     <div className="space-y-4 pt-2">
@@ -31,6 +35,11 @@ export function ContactFormSubmit({ form, isSubmitting }: ContactFormSubmitProps
       <Button
         type="submit"
         disabled={!isValid || isSubmitting}
+        onClick={() => {
+          console.log("=== BUTTON CLICKED ===");
+          console.log("isValid:", isValid);
+          console.log("isSubmitting:", isSubmitting);
+        }}
         className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 h-12 rounded-lg"
         size="lg"
       >
