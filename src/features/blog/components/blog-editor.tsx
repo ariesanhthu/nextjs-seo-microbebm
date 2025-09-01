@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import React, { useEffect } from "react";
-import OpenBlogDialog from "./open-blog-dialog";
 import { BlogResponseDto } from "@/lib/dto/blog.dto";
 import { ApiResponseDto } from "@/lib/dto/api-response.dto";
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context";
@@ -15,6 +14,12 @@ import Image from "next/image";
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
 import { useBlogGallery } from "../context/blog-gallery-context";
+import { EBlogStatus } from "@/lib/enums/blog-status.enum";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTagGallery } from "@/features/tag/context/tag-galerry-context";
+import { TagResponseDto } from "@/lib/dto/tag.dto";
+import { Badge } from "@/components/tiptap-ui-primitive/badge/badge";
 
 
 type BlogEditorProps = {
@@ -26,12 +31,17 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const [author, setAuthor] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
+  const [tags, setTags] = React.useState<Pick<TagResponseDto, "id" | "name" | "slug">[]>([]);
+  const [isFeatured, setIsFeatured] = React.useState(false);
+  const [status, setStatus] = React.useState(EBlogStatus.DRAFT);
+  const [excerpt, setExcerpt] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
   
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
   const blogGallery = useBlogGallery();
+  const tagGallery = useTagGallery();
 
   // Load existing blog when blogId provided
   useEffect(() => {
@@ -46,6 +56,9 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
           setAuthor(blog.author);
           setContent(blog.content);
           setThumbnailUrl(blog.thumbnail_url || "");
+          setExcerpt(blog.excerpt || "");
+          setIsFeatured(blog.is_featured || false);
+          setStatus(blog.status || EBlogStatus.DRAFT);
         }
       } catch (err) {
         // ignore
@@ -71,8 +84,16 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
       }
     }
     
-    const body = JSON.stringify({ title, author, content, thumbnail_url: thumbnailUrl });
-    console.log("Storing to database...", body);
+    const body = JSON.stringify({ 
+      title, 
+      author, 
+      content, 
+      thumbnail_url: thumbnailUrl,
+      tag_ids: tags.map(tag => tag.id),
+      excerpt,
+      is_featured: isFeatured,
+      status: EBlogStatus.PUBLISHED
+    });
     
     try { 
       const response = await fetch("/api/blog", {
@@ -89,11 +110,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         toast.error(`Failed to save blog post\n${data.message}`);
       } else {
         toast.success("Blog post saved successfully!");
-        const blog: BlogResponseDto = data.data;
-        setId(blog.id);
-        setTitle(blog.title);
-        setAuthor(blog.author);
-        setContent(blog.content);
+        handleOpenBlog(data.data, false);
       }
     } catch (error) {
       toast.error("An error occurred while saving the blog post");
@@ -106,30 +123,48 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
     });
   }
 
+  const handleSelectTags = () => {
+    tagGallery.openDialog((selectedTags: TagResponseDto[]) => {
+      const newTags = selectedTags.filter(tag => !tags.find(t => t.id === tag.id));
+      console.log("Selected tags:", newTags);
+      setTags((prev) => [...prev, ...newTags]);
+    });
+  };
+
+
+  const handleRemoveTag = (tagId: string) => {
+    setTags((prev) => prev.filter(tag => tag.id !== tagId));
+  };
+
   const handleSelectBlog = () => {
     blogGallery.openDialog((blog: BlogResponseDto) => {
       handleOpenBlog(blog);
     });
   };
 
-  const handleOpenBlog = async (blog: BlogResponseDto) => {
-    const choice = await alertDialog.showAlert({
-      title: "Mở bài viết",
-      description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
-      actionText: "Đồng ý",
-      cancelText: "Hủy"
-    });
+  const handleOpenBlog = async (blog: BlogResponseDto, alert: boolean = true) => {
+    if (alert) {
+      const choice = await alertDialog.showAlert({
+        title: "Mở bài viết",
+        description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
+        actionText: "Đồng ý",
+        cancelText: "Hủy"
+      });
 
-    if (!choice) {
-      return;
+      if (!choice) {
+        return;
+      }
     }
-
+    
     setId(blog.id);
     setTitle(blog.title);
     setAuthor(blog.author);
     setContent(blog.content);
     setThumbnailUrl(blog.thumbnail_url || "");
-    // setIsOpenBlogDialog(true);
+    setExcerpt(blog.excerpt || "");
+    setIsFeatured(blog.is_featured || false);
+    setStatus(blog.status || EBlogStatus.DRAFT);
+    setTags(blog.tags || []);
   };
 
   const handleNewBlog = async () => {
@@ -152,27 +187,40 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   };
 
   const handleSaveBlog = async () => {
-    if (id) {
-      try {
-        const body = JSON.stringify({ title, author, content, thumbnail_url: thumbnailUrl });
-        console.log("Updating blog...", body);
-        
-        const response = await fetch(`/api/blog/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        });
+    try {
+      const body = JSON.stringify({ 
+        title, 
+        author, 
+        content, 
+        thumbnail_url: thumbnailUrl,
+        tag_ids: tags.map(tag => tag.id),
+        excerpt,
+        is_featured: isFeatured,
+        status: status
+      });
 
-        if (response.ok) {
-          toast.success("Blog đã được lưu thành công!");
-        } else {
-          toast.error("Có lỗi xảy ra khi lưu blog");
-        }
-      } catch (error) {
-        toast.error("Có lỗi xảy ra khi lưu blog");
+      const url = id ? `/api/blog/${id}` : "/api/blog";
+
+      const response = await fetch(url, {
+        method:  id ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error("");
       }
+      const data: ApiResponseDto<BlogResponseDto> = await response.json();
+      if (data.success) {
+        handleOpenBlog(data.data, false);
+        toast.success("Blog đã được lưu thành công!");
+      } else {
+        toast.error(`Có lỗi xảy ra khi lưu blog: ${data.message}`);
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi lưu blog");
     }
   };
 
@@ -190,52 +238,97 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
             <Button type="button" onClick={handleSelectBlog}>Mở bài viết</Button>
             <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
             <Button type="button" onClick={handlePostBlog}>Đăng</Button>
-            <Button type="button" onClick={handleSaveBlog} disabled={!id}>Lưu</Button>
+            <Button type="button" onClick={handleSaveBlog}> Lưu </Button>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">
-          <Label htmlFor="title">Tiêu đề</Label>
-          <Input
-            placeholder="Tiêu đề"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)} />
+          <div className="flex flex-row gap-5 w-full">
+            <div className="flex flex-col gap-5 w-full">
+              <Label htmlFor="title">Tiêu đề</Label>
+              <Input
+                placeholder="Tiêu đề"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)} />
 
-          <Label htmlFor="author">Tác giả</Label>
-          <Input
-            placeholder="Tác giả"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)} />
-          {/* i want when open a blog, if it has thumbnail, show it here 
-            i need it re render the image 
-          */}
-          <div className="flex flex-row items-center gap-4">
-            {
-              thumbnailUrl ? (
-                <Image
-                  src={thumbnailUrl}
-                  alt="Thumbnail"
-                  width={50}
-                  height={50}
-                  className="rounded-md"
-                />
-              ) : (
-                <Image
-                  src="/images/no-image.jpg"
-                  alt="Thumbnail"
-                  width={50}
-                  height={50}
-                  className="rounded-md"
-                />
-              )
-            }
-            <Button
-              type="button"
-              // onClick={() => setIsOpenImageDialog(true)}
-              onClick={handleSelectThumbnailUrl}
-            >
-              Chọn Thumbnail
-            </Button>
+              <Label htmlFor="author">Tác giả</Label>
+              <Input
+                placeholder="Tác giả"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)} />
+
+              <Label htmlFor="excerpt">Tóm tắt</Label>
+              <Textarea
+                placeholder="Tóm tắt"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)} />
+            </div>
+
+            <div className="flex-2/3 flex flex-col gap-5 w-full">
+              <Label htmlFor="status">Trạng thái</Label>
+              <Select
+                value={status}
+                onValueChange={(value) => setStatus(value as EBlogStatus)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={EBlogStatus.DRAFT}>DRAFT</SelectItem>
+                  <SelectItem value={EBlogStatus.PUBLISHED}>PUBLISHED</SelectItem>
+                  <SelectItem value={EBlogStatus.ARCHIVED}>ARCHIVED</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex flex-row items-center gap-4">
+                {
+                  thumbnailUrl ? (
+                    <Image
+                      src={thumbnailUrl}
+                      alt="Thumbnail"
+                      width={100}
+                      height={100}
+                      className="rounded-md"
+                    />
+                  ) : (
+                    <Image
+                      src="/images/no-image.jpg"
+                      alt="Thumbnail"
+                      width={50}
+                      height={50}
+                      className="rounded-md"
+                    />
+                  )
+                }
+                <Button
+                  type="button"
+                  // onClick={() => setIsOpenImageDialog(true)}
+                  onClick={handleSelectThumbnailUrl}
+                >
+                  Chọn Thumbnail
+                </Button>
+              </div>
+              <Label>Tags</Label>
+              <Button
+                type="button"
+                onClick={handleSelectTags}
+              >
+                Chọn Tags
+              </Button>
+              <div className="flex flex-row flex-wrap ">
+                {tags.map(tag => (
+                  <Button key={tag.id} variant="ghost" className="p-0 mr-2" onClick={() => handleRemoveTag(tag.id)}>
+                    <Badge key={tag.id} variant="green" className="">
+                      {tag.name}  
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+
+              <div></div>
+
+            </div>
           </div>
+          
+
           <ContentEditor value={content} onChange={setContent} />
         </CardContent>
       </Card>

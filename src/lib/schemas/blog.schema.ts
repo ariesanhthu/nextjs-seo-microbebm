@@ -64,7 +64,37 @@ export const CreateBlogSchema = BlogSchema.pick({
   }).default([])
 })
 
-export const UpdateBlogSchema = CreateBlogSchema.partial()
+export const UpdateBlogSchema = CreateBlogSchema.partial().extend({
+   content: z.string({
+    message: "Blog content must be a string"
+  }).optional(),
+
+  thumbnail_url: z.string({
+    message: "Blog thumbnail_url must be a string"
+  }).optional(),
+
+  status: z.enum(EBlogStatus, {
+    message: "Blog status must be one of the following: draft, published, archived"
+  }).optional(),
+
+  is_featured: z.boolean({ 
+    message: "Blog is_featured must be a boolean" 
+  }).optional(),
+
+  excerpt: z.string({
+    message: "Blog excerpt must be a string"
+  }).optional(),
+
+  view_count: z.number({
+    message: "Blog view_count must be a number"
+  }).optional(),
+
+  tag_ids: z.array(z.string({
+    message: "Blog tag_ids item must be a string"
+  }), {
+    message: "Blog tag_ids must be an array"
+  }).optional()
+})
 
 export const BlogResponseSchema = BlogSchema
   .omit({ tag_refs: true })

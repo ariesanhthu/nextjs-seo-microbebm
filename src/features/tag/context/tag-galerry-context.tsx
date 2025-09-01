@@ -2,42 +2,39 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
-import OpenBlogDialog from '../components/open-blog-dialog';
-import { BlogResponseDto } from '@/lib/dto/blog.dto';
-import { EBlogStatus } from '@/lib/enums/blog-status.enum';
-import { toast } from 'sonner';
-interface BlogGalleryContextType {
+import { TagResponseDto } from '@/lib/dto/tag.dto';
+import ChooseTagDialog from '../components/choose-tag-dialog';
+interface TagGalleryContextType {
   // Dialog state
   isOpen: boolean;
-  openDialog: (onSelect: (image: BlogResponseDto) => void) => void;
+  openDialog: (onSelect: (tags: TagResponseDto[]) => void) => void;
   closeDialog: () => void;
   
   // Data from pagination hook
-  blogs: BlogResponseDto[];
+  tags: TagResponseDto[];
   loading: boolean;
   error: string | null;
   hasNextPage: boolean;
   hasPrevPage: boolean;
   goToNextPage: () => void;
   goToPrevPage: () => void;
-  handleUpdateBlogStatus: (id: string, status: EBlogStatus) => Promise<void>;
   refresh: () => void;
   cacheSize: number;
 }
 
-const BlogGalleryContext = createContext<BlogGalleryContextType | undefined>(undefined);
+const TagGalleryContext = createContext<TagGalleryContextType | undefined>(undefined);
 
-interface BlogGalleryProviderProps {
+interface TagGalleryProviderProps {
   children: React.ReactNode;
 }
 
-export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
+export function TagGalleryProvider({ children }: TagGalleryProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentOnSelect, setCurrentOnSelect] = useState<((blog: BlogResponseDto) => void) | null>(null);
+  const [currentOnSelect, setCurrentOnSelect] = useState<((tag: TagResponseDto[]) => void) | null>(null);
 
-  // Use the pagination hook to manage blog data
+  // Use the pagination hook to manage tag data
   const {
-    data: blogs,
+    data: tags,
     loading,
     error,
     hasNextPage,
@@ -47,13 +44,13 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     goToFirstPage,
     refresh,
     cacheSize
-  } = usePaginatedFetch<BlogResponseDto>('/api/blog', {
+  } = usePaginatedFetch<TagResponseDto>('/api/tag', {
     limit: 10,
     sort: ESort.DESC,
     autoFetch: false
   });
 
-  const openDialog = useCallback((onSelect: (image: BlogResponseDto) => void) => {
+  const openDialog = useCallback((onSelect: (tag: TagResponseDto[]) => void) => {
     setCurrentOnSelect(() => onSelect); // Store the callback
     setIsOpen(true);
   }, []);
@@ -63,44 +60,24 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     setCurrentOnSelect(null);
   }, []);
 
-  const handleSelect = useCallback((image: BlogResponseDto) => {
+  const handleSelect = useCallback((tag: TagResponseDto[]) => {
     if (currentOnSelect) {
-      currentOnSelect(image);
+      currentOnSelect(tag);
     }
     closeDialog();
   }, [currentOnSelect, closeDialog]);
 
-  const handleUpdateBlogStatus = useCallback(async (id: string, status: EBlogStatus) => {
-    // Update the blog status
-    const res = await fetch(`/api/blog/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      toast.success('Cập nhật trạng thái blog thành công');
-      refresh();
-    } else {
-      toast.error('Cập nhật trạng thái blog thất bại');
-    }
-  }, []);
-
-  const contextValue: BlogGalleryContextType = {
+  const contextValue: TagGalleryContextType = {
     isOpen,
     openDialog,
     closeDialog,
-    blogs,
+    tags,
     loading,
     error,
     hasNextPage,
     hasPrevPage,
     goToNextPage,
     goToPrevPage,
-    handleUpdateBlogStatus,
     refresh,
     cacheSize
   };
@@ -112,7 +89,7 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
   }, [isOpen]);
 
   return (
-    <BlogGalleryContext.Provider value={contextValue}>
+    <TagGalleryContext.Provider value={contextValue}>
       {children}
 
       {/* Hidden the dialog when close, do not re-render */}
@@ -121,11 +98,11 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <OpenBlogDialog
+        <ChooseTagDialog
           onSelect={handleSelect}
           closeDialog={closeDialog}
           isOpen={isOpen}
-          data={blogs}
+          data={tags}
           loading={loading}
           error={error}
           hasNextPage={hasNextPage}
@@ -137,14 +114,14 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
           cacheSize={cacheSize}
         />
       </div>
-    </BlogGalleryContext.Provider>
+    </TagGalleryContext.Provider>
   );
 }
 
-export function useBlogGallery() {
-  const context = useContext(BlogGalleryContext);
+export function useTagGallery() {
+  const context = useContext(TagGalleryContext);
   if (context === undefined) {
-    throw new Error('useBlogGallery must be used within a BlogGalleryProvider');
+    throw new Error('useTagGallery must be used within a TagGalleryProvider');
   }
   return context;
 }
