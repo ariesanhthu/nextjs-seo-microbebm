@@ -7,15 +7,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Plus, Save, Trash2, Image as ImageIcon, Images, Globe, FileText, Sliders, Package } from "lucide-react"
-import ImageUploader from "@/features/image-storage/components/image-uploader"
+
 import { HomepageFooter, HomepageNavigationBar, HomepageResponseDto, UpdateHomepageDto } from "@/lib/dto/homepage.dto"
+
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
-import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
+
 import ProductSelectionDialog from "@/features/admin/dialog-product/product-selection-dialog"
 import { ProductResponseDto } from "@/lib/dto/product.dto"
+
 import NavbarAdmin from "@/components/NavbarAdmin"
+
 import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import ImageUploader from "@/features/image-storage/components/image-uploader"
+import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
+import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
+
 import { toast } from "sonner"
 
 export default function AdminHomepagePage() {
