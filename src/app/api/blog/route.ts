@@ -1,28 +1,25 @@
 import { NextResponse } from "next/server";
 import { BlogService } from "@/services/firebase/blog/blog.service";
-import { PaginationCursorDto } from "@/lib/dto/pagination.dto";
 import { ESort } from "@/lib/enums/sort.enum";
 import { formatErrorResponse } from "@/lib/format-error-response";
 import { ZodError } from "zod";
 import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
 import { CreateBlogSchema } from "@/lib/schemas/blog.schema";
+import { PaginationCursorBlogDto } from "@/lib/dto/blog.dto";
+import { EBlogStatus } from "@/lib/enums/blog-status.enum";
 
 // GET /api/blog - Get all blogs with pagination
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const query: PaginationCursorDto & { 
-      search?: string, 
-      tags?: string[], 
-      status?: string 
-    } = {
+    const query: PaginationCursorBlogDto  = {
       cursor: searchParams.get('cursor') || undefined,
       limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
       sort: (searchParams.get('sort') as ESort) || ESort.DESC,
       search: searchParams.get('search') || undefined,
       tags: searchParams.get('tags') ? searchParams.get('tags')!.split(',') : undefined,
-      status: searchParams.get('status') || 'published'
+      status: searchParams.get('status') as EBlogStatus
     };
 
     const result = await BlogService.getAll(query);

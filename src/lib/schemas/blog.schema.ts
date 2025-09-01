@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { DocumentReferenceSchema, GeneralSchema } from './general.schema'
+import { EBlogStatus } from '../enums/blog-status.enum'
 
 export const BlogSchema = GeneralSchema.extend({
   title: z.string({
@@ -25,6 +26,26 @@ export const BlogSchema = GeneralSchema.extend({
   thumbnail_url: z.string({
     message: "Blog thumbnail_url must be a string"
   }).default(""),
+
+  status: z.enum(EBlogStatus, {
+    message: "Blog status must be one of the following: draft, published, archived"
+  }).default(EBlogStatus.DRAFT),
+
+  is_featured: z.boolean({ 
+    message: "Blog is_featured must be a boolean" 
+  }).default(false),
+
+  excerpt: z.string({
+    message: "Blog excerpt must be a string"
+  }).default(""),
+
+  view_count: z.number({
+    message: "Blog view_count must be a number"
+  }).default(0),
+
+  search: z.string({
+    message: "Blog search must be a string"
+  })
 }).strict()
 
 export const CreateBlogSchema = BlogSchema.pick({
@@ -32,6 +53,9 @@ export const CreateBlogSchema = BlogSchema.pick({
   content: true,
   author: true,
   thumbnail_url: true,
+  status: true,
+  is_featured: true,
+  excerpt: true,
 }).extend({
   tag_ids: z.array(z.string({
     message: "Blog tag_ids item must be a string"
@@ -40,9 +64,7 @@ export const CreateBlogSchema = BlogSchema.pick({
   }).default([])
 })
 
-export const UpdateBlogSchema = CreateBlogSchema.partial().extend({
-  excerpt: z.string().max(200, 'Excerpt too long').optional()
-})
+export const UpdateBlogSchema = CreateBlogSchema.partial()
 
 export const BlogResponseSchema = BlogSchema
   .omit({ tag_refs: true })
@@ -60,8 +82,4 @@ export const BlogResponseSchema = BlogSchema
         message: "Blog tag slug must be a string"
       })
     })).default([]),
-    status: z.enum(['draft', 'published', 'archived']).default('draft'),
-    is_featured: z.boolean().default(false),
-    excerpt: z.string().default(""),
-    view_count: z.number().default(0),
   })

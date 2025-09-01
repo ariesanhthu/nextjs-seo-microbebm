@@ -27,7 +27,6 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
-  const [isOpenBlogDialog, setIsOpenBlogDialog] = React.useState(false);
   
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
@@ -67,7 +66,6 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         cancelText: "Hủy"
       });
       
-      console.log("User choice:", choice);
       if (!choice) {
         return;
       }
@@ -82,7 +80,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, author, content }),
+        body: body,
       });
 
       const data: ApiResponseDto<BlogResponseDto> = await response.json();

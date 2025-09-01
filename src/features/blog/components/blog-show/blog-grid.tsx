@@ -7,6 +7,7 @@ import { Grid3X3, List, ChevronLeft, ChevronRight, Loader2, TreePine, Leaf } fro
 import BlogCard from "./blog-card"
 import type { BlogResponseDto } from "@/lib/dto/blog.dto"
 import type { BlogFilters } from "./blog-filter"
+import { EBlogStatus } from "@/lib/enums/blog-status.enum"
 
 interface BlogGridProps {
   blogs: BlogResponseDto[]
@@ -60,10 +61,10 @@ export default function BlogGrid({
               ? "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm"
               : "Chưa có bài viết nào được đăng"}
           </p>
-          {(filters.search || filters.tags.length > 0 || filters.status !== 'published') && (
+          {(filters.search || filters.tags.length > 0 || filters.status !== EBlogStatus.PUBLISHED) && (
             <Button
               variant="outline"
-              onClick={() => onFiltersChange({ search: "", tags: [], status: "published" })}
+              onClick={() => onFiltersChange({ search: "", tags: [], status: EBlogStatus.PUBLISHED })}
               className="border-green-200 text-green-700 hover:bg-green-50"
             >
               Xóa bộ lọc
