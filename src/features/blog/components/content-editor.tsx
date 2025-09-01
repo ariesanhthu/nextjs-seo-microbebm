@@ -33,14 +33,21 @@ export default function ContentEditor({ value, onChange, storageKey = 'content-d
     })
     onChange(html)
     setEditorContent(html)
-  }
 
-  // Save to localStorage as backup (but don't override props)
-  useEffect(() => {
-    if (editorContent && editorContent !== value) {
-      localStorage.setItem(storageKey, editorContent)
+    // Persist draft explicitly only when user changes content
+    // - Save when non-empty
+    // - Remove key when empty to avoid resurrecting cleared drafts
+    try {
+      const trimmed = (html || '').trim()
+      if (trimmed.length > 0) {
+        localStorage.setItem(storageKey, html)
+      } else {
+        localStorage.removeItem(storageKey)
+      }
+    } catch (_) {
+      // ignore storage errors
     }
-  }, [editorContent, value, storageKey])
+  }
 
   // Function to replace images with alt text placeholders
   const processContentForPreview = (html: string): string => {

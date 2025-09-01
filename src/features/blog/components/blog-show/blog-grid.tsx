@@ -17,6 +17,7 @@ interface BlogGridProps {
   onPrevPage: () => void
   filters: BlogFilters
   onFiltersChange: (filters: BlogFilters) => void
+  viewMode: "grid" | "list"
 }
 
 export default function BlogGrid({
@@ -28,18 +29,16 @@ export default function BlogGrid({
   onPrevPage,
   filters,
   onFiltersChange,
+  viewMode,
 }: BlogGridProps) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  // Xóa state viewMode local vì giờ nhận từ prop
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
           <div className="relative mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <TreePine className="h-8 w-8 text-white" />
-            </div>
-            <Loader2 className="h-6 w-6 animate-spin absolute -top-1 -right-1 text-green-600" />
+            <Loader2 className="h-16 w-16 animate-spin text-green-600 mx-auto" />
           </div>
           <p className="text-lg text-slate-600 font-medium">Đang tải bài viết về môi trường...</p>
           <p className="text-sm text-slate-500 mt-1">Vui lòng chờ trong giây lát</p>
@@ -77,43 +76,8 @@ export default function BlogGrid({
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 p-1 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border border-green-100">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className={`h-8 px-3 ${
-                viewMode === "grid"
-                  ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
-                  : "text-green-700 hover:bg-green-50"
-              }`}
-            >
-              <Grid3X3 className="h-4 w-4 mr-1" />
-              Lưới
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className={`h-8 px-3 ${
-                viewMode === "list"
-                  ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
-                  : "text-green-700 hover:bg-green-50"
-              }`}
-            >
-              <List className="h-4 w-4 mr-1" />
-              Danh sách
-            </Button>
-          </div>
-          <Badge variant="outline" className="text-sm bg-white/80 backdrop-blur-sm border-green-200 text-green-700">
-            <Leaf className="h-3 w-3 mr-1" />
-            {blogs.length} bài viết
-          </Badge>
-        </div>
-      </div>
-
+      {/* Xóa phần nút lưới/danh sách cũ */}
+      
       {/* Blog Grid/List */}
       <div
         className={

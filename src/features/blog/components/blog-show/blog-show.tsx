@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Filter, X, RefreshCw, Leaf, TreePine, Sprout } from "lucide-react"
+import { Filter, X, RefreshCw, Leaf, TreePine, Sprout, Grid3X3, List } from "lucide-react"
 import { BlogShowProvider, useBlogShow } from "../../context/blog-show-context"
 import BlogFilter, { type BlogFilters } from "./blog-filter"
 import BlogGrid from "./blog-grid"
@@ -25,6 +25,7 @@ function BlogShowContent() {
 
   const [showFilters, setShowFilters] = useState(false)
   const [selectedTags, setSelectedTags] = useState<string[]>(filters.tags)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   // Sync selectedTags with filters.tags
   useEffect(() => {
@@ -71,11 +72,11 @@ function BlogShowContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="container mx-auto px-4 py-8 relative z-10 mt-20">
        
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-row items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <Button
+            {/* <Button
               variant={showFilters ? "default" : "outline"}
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 ${
@@ -86,6 +87,17 @@ function BlogShowContent() {
             >
               <Filter className="h-4 w-4" />
               {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
+            </Button> */}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refresh}
+              disabled={loading}
+              className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50 bg-transparent"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Làm mới
             </Button>
 
             {(filters.search || filters.tags.length > 0 || filters.status !== 'published') && (
@@ -101,16 +113,34 @@ function BlogShowContent() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refresh}
-              disabled={loading}
-              className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50 bg-transparent"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              Làm mới
-            </Button>
+            <div className="flex items-center gap-2 p-1 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border border-green-100">
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+                className={`h-8 px-3 ${
+                  viewMode === "grid"
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
+                    : "text-green-700 hover:bg-green-50"
+                }`}
+              >
+                <Grid3X3 className="h-4 w-4 mr-1" />
+                Lưới
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+                className={`h-8 px-3 ${
+                  viewMode === "list"
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-md"
+                    : "text-green-700 hover:bg-green-50"
+                }`}
+              >
+                <List className="h-4 w-4 mr-1" />
+                Danh sách
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -145,34 +175,8 @@ function BlogShowContent() {
           onPrevPage={goToPrevPage}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          viewMode={viewMode}
         />
-
-        {!loading && blogs.length === 0 && (
-          <Card className="text-center py-20 border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-            <CardContent>
-              <div className="max-w-md mx-auto">
-                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
-                  <TreePine className="h-12 w-12 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-green-800">Không tìm thấy bài viết</h3>
-                <p className="text-slate-600 mb-6">
-                  {filters.search || filters.tags.length > 0 || filters.status !== 'published'
-                    ? "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm"
-                    : "Chưa có bài viết nào được đăng"}
-                </p>
-                {(filters.search || filters.tags.length > 0 || filters.status !== 'published') && (
-                  <Button
-                    onClick={handleClearFilters}
-                    variant="outline"
-                    className="border-green-200 text-green-700 hover:bg-green-50 bg-transparent"
-                  >
-                    Xóa bộ lọc
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   )

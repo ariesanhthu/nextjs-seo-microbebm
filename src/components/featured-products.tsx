@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import ImageWithMetadata from "@/components/ui/image-with-metadata";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
 
-// Hàm helper để đảm bảo URL hợp lệ cho component Image
+// Hàm helper để xử lý image URL
 function getImageUrl(url?: string): string {
   if (!url) return "/placeholder.svg";
-  // Nếu URL đã bắt đầu bằng '/' hoặc 'http', trả về luôn
-  if (url.startsWith("/") || url.startsWith("http")) return url;
-  // Nếu không, giả sử đó là đường dẫn tương đối và thêm '/' ở đầu
-  return `/${url}`;
+  return url;
 }
 
 export type FeaturedProductItem = ProductResponseDto;
@@ -123,13 +120,13 @@ export default function FeaturedProducts({ products: inputProducts }: { products
            }`}
            style={{ transitionDelay: `${index * 100}ms` }}
          >
-          <div className="relative h-64 w-full overflow-hidden rounded-t-lg">
-                         <Image
-               src={getImageUrl(product.main_img)}
-               alt={product.name}
-               fill
-               className="object-cover transition-transform duration-300 hover:scale-105"
-             />
+                     <div className="relative h-64 w-full overflow-hidden rounded-t-lg">
+                          <ImageWithMetadata
+                src={product.main_img}
+                alt={product.name}
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
+              />
           </div>
           <div className="p-6">
             <h3 className="mb-2 text-xl font-semibold text-gray-800">

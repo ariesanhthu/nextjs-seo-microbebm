@@ -2,6 +2,7 @@ import type React from "react"
 import AdminSidebar from "@/components/SideBar"
 import { BlogGalleryProvider } from "@/features/blog/context/blog-gallery-context";
 import { ImageGalleryProvider } from "@/features/image-storage/context/image-gallery-context";
+import { Toaster } from "sonner"
 
 export default function AdminLayout({
   children,
@@ -17,6 +18,7 @@ export default function AdminLayout({
               <main className="pt-16 lg:pt-8">{children}</main>
             </div>
           </div>
+          <Toaster />
       </BlogGalleryProvider>
     </ImageGalleryProvider>
   )

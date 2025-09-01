@@ -34,7 +34,7 @@ export default async function UserLayout({
   return (
     <>
       <Navbar nav={data?.navigation_bar ?? []} />
-      {children}
+        {children}
       <Footer footer={data?.footer} />
     </>
   );

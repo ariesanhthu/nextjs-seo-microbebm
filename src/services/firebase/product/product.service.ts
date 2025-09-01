@@ -112,6 +112,24 @@ export class ProductService {
     }
   }
 
+  static async getBySlug(slug: string): Promise<ProductResponseDto | null> {
+    try {
+      const productsRef = this.getReadCollectionRef();
+      const snapshot = await productsRef.where('slug', '==', slug).limit(1).get();
+      
+      if (snapshot.empty) {
+        return null;
+      }
+      
+      const doc = snapshot.docs[0];
+      const rawData = { ...doc.data(), id: doc.id };
+      return await this.populateCategory(rawData) as ProductResponseDto;
+    } catch (error) {
+      console.error('Error getting Product by slug:', error);
+      throw new Error(`Failed to get Product by slug: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ProductResponseDto>>> {
     try {
       const {

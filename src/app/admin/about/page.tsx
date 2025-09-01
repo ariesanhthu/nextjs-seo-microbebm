@@ -2,6 +2,7 @@
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { useEffect, useState } from "react"
 import { Save } from "lucide-react"
+import { toast } from "sonner"
 
 import { AboutResponseDto, UpdateAboutDto, SubsectionDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
@@ -114,11 +115,14 @@ export default function AdminHomepagePage() {
         if (!form?.id && data?.data?.id) {
           setForm(data.data);
         }
+        toast.success(form?.id ? "Cập nhật trang Giới thiệu thành công" : "Tạo trang Giới thiệu thành công");
       } else {
+        toast.error(data?.message || "Lưu trang Giới thiệu thất bại");
         throw new Error(data?.message || "Save failed");
       }
     } catch (e) {
       console.error(e);
+      toast.error("Có lỗi xảy ra khi lưu trang Giới thiệu");
     } finally {
       setSaving(false);
     }

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Edit3, Plus, Save, Trash2, X } from "lucide-react"
 import { useConfirmation } from "@/features/alert-dialog/context/alert-dialog-context"
+import { toast } from "sonner"
 
 type Category = { id: string; name: string; slug: string }
 
@@ -53,8 +54,10 @@ export default function AdminCategoriesPage() {
       if (!data?.success) throw new Error(data?.message || "Create failed")
       setNewName("")
       fetchCategories()
+      toast.success("Danh mục đã được tạo thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Tạo danh mục thất bại!")
     } finally {
       setSaving(false)
     }
@@ -82,8 +85,10 @@ export default function AdminCategoriesPage() {
       if (!data?.success) throw new Error(data?.message || "Update failed")
       cancelEdit()
       fetchCategories()
+      toast.success("Danh mục đã được cập nhật thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Cập nhật danh mục thất bại!")
     } finally {
       setSaving(false)
     }
@@ -98,8 +103,10 @@ export default function AdminCategoriesPage() {
       const data = await res.json()
       if (!data?.success) throw new Error(data?.message || "Delete failed")
       fetchCategories()
+      toast.success("Danh mục đã được xóa thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Xóa danh mục thất bại!")
     } finally {
       setSaving(false)
     }

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Edit3, Plus, Save, Trash2, X } from "lucide-react"
 import { useConfirmation } from "@/features/alert-dialog/context/alert-dialog-context"
+import { toast } from "sonner"
 
 type Tag = { id: string; name: string; slug: string }
 
@@ -53,8 +54,10 @@ export default function AdminTagsPage() {
       if (!data?.success) throw new Error(data?.message || "Create failed")
       setNewName("")
       fetchTags()
+      toast.success("Thẻ đã được tạo thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Tạo thẻ thất bại!")
     } finally {
       setSaving(false)
     }
@@ -82,8 +85,10 @@ export default function AdminTagsPage() {
       if (!data?.success) throw new Error(data?.message || "Update failed")
       cancelEdit()
       fetchTags()
+      toast.success("Thẻ đã được cập nhật thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Cập nhật thẻ thất bại!")
     } finally {
       setSaving(false)
     }
@@ -98,8 +103,10 @@ export default function AdminTagsPage() {
       const data = await res.json()
       if (!data?.success) throw new Error(data?.message || "Delete failed")
       fetchTags()
+      toast.success("Thẻ đã được xóa thành công!")
     } catch (e) {
       console.error(e)
+      toast.error("Xóa thẻ thất bại!")
     } finally {
       setSaving(false)
     }

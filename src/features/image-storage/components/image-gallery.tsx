@@ -125,9 +125,9 @@ export default function ImageGallery() {
                       <TableCell className="font-mono text-xs">{imageMetadata.id}</TableCell>
                       <TableCell>
                       {
-                        imageMetadata.url !== "" && imageMetadata.url
+                        imageMetadata.url
                         ?
-                          <CldImage
+                          <Image
                             src={imageMetadata.url}
                             width={50}
                             height={50}

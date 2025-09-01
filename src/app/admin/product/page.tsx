@@ -87,7 +87,7 @@ export default function AdminProducts() {
     
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/product/${productToDelete}`, { 
+      const res = await fetch(`/api/product/id/${productToDelete}`, { 
         method: 'DELETE' 
       });
       

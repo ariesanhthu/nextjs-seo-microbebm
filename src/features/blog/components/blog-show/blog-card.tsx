@@ -1,6 +1,6 @@
 "use client"
 
-import { CldImage } from "next-cloudinary"
+import ImageWithMetadata from "@/components/ui/image-with-metadata"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -57,7 +57,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
         <div className="flex gap-4 p-4">
           <div className="flex-shrink-0 relative">
             {blog.thumbnail_url ? (
-              <CldImage
+              <ImageWithMetadata
                 src={blog.thumbnail_url}
                 width={80}
                 height={80}
@@ -69,9 +69,6 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
                 <Leaf className="h-8 w-8 text-white" />
               </div>
             )}
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-              <TreePine className="h-2 w-2 text-white" />
-            </div>
           </div>
           <div className="flex-1 min-w-0">
             <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-green-700 transition-colors text-balance">
@@ -102,7 +99,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-emerald-500/5 to-teal-500/5" />
         <div className="relative">
           {blog.thumbnail_url ? (
-            <CldImage
+            <ImageWithMetadata
               src={blog.thumbnail_url}
               width={800}
               height={400}
@@ -167,7 +164,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm h-full flex flex-col hover:from-green-50/50 hover:to-emerald-50/50">
       <div className="relative overflow-hidden">
         {blog.thumbnail_url ? (
-          <CldImage
+          <ImageWithMetadata
             src={blog.thumbnail_url}
             width={400}
             height={250}
@@ -176,7 +173,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
           />
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center">
-            <TreePine className="h-12 w-12 text-white/80" />
+            <TreePine className="h-12 w-12 text-white/80"/>
           </div>
         )}
         <div className="absolute top-3 left-3">
@@ -194,9 +191,6 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
         </div>
         <div className="absolute top-3 right-3">
           <div className="flex flex-col gap-1">
-            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md">
-              <Leaf className="h-4 w-4 text-green-600" />
-            </div>
             {blog.status && blog.status !== 'published' && (
               <Badge
                 variant="secondary"

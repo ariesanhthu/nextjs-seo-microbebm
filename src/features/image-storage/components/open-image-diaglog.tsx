@@ -1,6 +1,6 @@
 "use client";
 
-import { CldImage } from 'next-cloudinary';
+import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -93,8 +93,8 @@ export default function OpenImageMetadataDialog({
                     className="flex flex-row gap-5 justify-start bg-transparent hover:bg-muted"
                     onClick={() => handleSelect(imageMetadata)}
                   >
-                    <CldImage
-                      src={imageMetadata.public_id}
+                    <Image
+                      src={imageMetadata.url}
                       width={50}
                       height={50}
                       alt={`ImageMetadata ${imageMetadata.public_id}`}

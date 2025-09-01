@@ -11,7 +11,6 @@ import OpenBlogDialog from "./open-blog-dialog";
 import { BlogResponseDto } from "@/lib/dto/blog.dto";
 import { ApiResponseDto } from "@/lib/dto/api-response.dto";
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context";
-import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
@@ -214,7 +213,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
           <div className="flex flex-row items-center gap-4">
             {
               thumbnailUrl ? (
-                <CldImage
+                <Image
                   src={thumbnailUrl}
                   alt="Thumbnail"
                   width={50}

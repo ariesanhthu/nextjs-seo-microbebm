@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Plus, Save, Trash2, Image as ImageIcon, Images, Globe, FileText, Sliders, Package } from "lucide-react"
 import ImageUploader from "@/features/image-storage/components/image-uploader"
-import { CldImage } from "next-cloudinary"
 import { HomepageFooter, HomepageNavigationBar, HomepageResponseDto, UpdateHomepageDto } from "@/lib/dto/homepage.dto"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
@@ -16,6 +15,8 @@ import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
 import ProductSelectionDialog from "@/features/admin/dialog-product/product-selection-dialog"
 import { ProductResponseDto } from "@/lib/dto/product.dto"
 import NavbarAdmin from "@/components/NavbarAdmin"
+import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import { toast } from "sonner"
 
 export default function AdminHomepagePage() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -83,6 +84,7 @@ export default function AdminHomepagePage() {
         ...form,
         navigation_bar: [...(form.navigation_bar || []), { title: "", url: "" }]
       })
+      toast.success("Đã thêm menu mới")
     }
   }
   const removeNav = (idx: number) => {
@@ -91,6 +93,7 @@ export default function AdminHomepagePage() {
         ...form,
         navigation_bar: (form.navigation_bar || []).filter((_, i) => i !== idx)
       })
+      toast.success("Đã xóa menu")
     }
   }
   const updateNav = (idx: number, key: keyof HomepageNavigationBar, value: string) => {
@@ -108,6 +111,7 @@ export default function AdminHomepagePage() {
         ...form,
         slider: [...(form.slider || []), { image_url: publicId, title, description }]
       })
+      toast.success("Đã thêm ảnh vào slider")
     }
   }
   const removeSlider = (idx: number) => {
@@ -116,6 +120,17 @@ export default function AdminHomepagePage() {
         ...form,
         slider: (form.slider || []).filter((_, i) => i !== idx)
       })
+      toast.success("Đã xóa ảnh slider")
+    }
+  }
+
+  const removeBanner = (idx: number) => {
+    if (form) {
+      setForm({
+        ...form,
+        banner: (form.banner || []).filter((_, i) => i !== idx)
+      })
+      toast.success("Đã xóa ảnh banner")
     }
   }
 
@@ -126,6 +141,7 @@ export default function AdminHomepagePage() {
           ...form,
           banner: [...(form.banner || []), image.public_id]
         })
+        toast.success("Đã thêm ảnh vào banner")
       }
     })
   }
@@ -142,6 +158,7 @@ export default function AdminHomepagePage() {
         ...form,
         products: selectedProducts
       })
+      toast.success(`Đã chọn ${selectedProducts.length} sản phẩm nổi bật`)
     }
   }
 
@@ -151,6 +168,7 @@ export default function AdminHomepagePage() {
         ...form,
         products: (form.products || []).filter(p => p.id !== productId)
       })
+      toast.success("Đã xóa sản phẩm khỏi danh sách nổi bật")
     }
   }
 
@@ -207,7 +225,9 @@ export default function AdminHomepagePage() {
         if (!form?.id && data?.data?.id) {
           setForm(data.data)
         }
+        toast.success(form?.id ? "Cập nhật trang chủ thành công" : "Tạo trang chủ thành công")
       } else {
+        toast.error(data?.message || "Lưu trang chủ thất bại")
         throw new Error(data?.message || "Save failed")
       }
     } catch (e) {
@@ -237,9 +257,11 @@ export default function AdminHomepagePage() {
                       <Label htmlFor={`nav-url-${idx}`}>URL</Label>
                       <Input id={`nav-url-${idx}`} value={nav.url} onChange={(e) => updateNav(idx, "url" as keyof HomepageNavigationBar, e.target.value)} />
                     </div>
+                    <div className="flex justify-start">
                       <Button variant="destructive" className="text-white" onClick={() => removeNav(idx)}>
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
+                    </div>
                   </div>
                 ))}
                 <Button variant="outline" onClick={addNav}><Plus className="h-4 w-4 mr-2" /> Thêm menu</Button>
@@ -337,7 +359,18 @@ export default function AdminHomepagePage() {
                 <div className="flex items-center gap-4">
                   {
                     (form?.banner || []).map((img, idx) => (
-                      <CldImage key={idx} src={img} width={300} height={120} alt={`banner-${idx}`} className="rounded-md object-cover" />
+                      <div key={idx} className="relative">
+                        <ImageWithMetadata 
+                          src={img} 
+                          width={300} 
+                          height={120} 
+                          alt={`banner-${idx}`} 
+                          className="rounded-md object-cover" 
+                        />
+                        <Button size="icon" variant="destructive" className="absolute top-2 right-2 text-white" onClick={() => removeBanner(idx)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ))}
                   <div className="flex gap-2">
                     <Button variant="outline" onClick={handleSelectBanner}>Chọn từ thư viện</Button>
@@ -363,7 +396,13 @@ export default function AdminHomepagePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(form?.slider || []).map(({ title, description, image_url }, idx) => (
                   <div key={`${image_url}-${idx}`} className="relative">
-                    <CldImage src={image_url} width={300} height={160} alt={`slide-${idx}`} className="rounded-md object-cover w-full h-40" />
+                    <ImageWithMetadata 
+                      src={image_url} 
+                      width={300} 
+                      height={160} 
+                      alt={`slide-${idx}`} 
+                      className="rounded-md object-cover w-full h-40" 
+                    />
                     <Button size="icon" variant="destructive" className="absolute top-2 right-2 text-white" onClick={() => removeSlider(idx)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -405,7 +444,7 @@ export default function AdminHomepagePage() {
                         <div className="flex items-center gap-3">
                           <div className="w-16 h-16 flex-shrink-0">
                             {product.main_img ? (
-                              <CldImage
+                              <ImageWithMetadata
                                 src={product.main_img}
                                 width={64}
                                 height={64}

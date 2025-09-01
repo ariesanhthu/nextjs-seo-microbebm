@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
+import axios from "axios";
+import ImageWithMetadata from "@/components/ui/image-with-metadata";
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,27 +24,14 @@ export default function ProductPage() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Fetch tất cả sản phẩm với limit cao để đảm bảo tìm được sản phẩm cần thiết
-        const response = await fetch("/api/product?limit=100");
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        
-        const data = await response.json();
-        const products = data.data || data;
-        
-        // Tìm product theo slug (name)
-        const foundProduct = products.find((p: Product) => {
-          const productSlug = p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-          const urlSlug = params.slug as string;
-          return productSlug === urlSlug;
-        });
+        const response = await axios.get(`/api/product/${params.slug}`);
+        const foundProduct = response.data.data;
         
         if (foundProduct) {
           console.log('📥 Loaded product:', {
             id: foundProduct.id,
             name: foundProduct.name,
-            slug: foundProduct.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+            slug: foundProduct.slug,
             contentLength: foundProduct.content?.length || 0,
             contentPreview: foundProduct.content?.substring(0, 100) + '...',
             hasSubImages: foundProduct.sub_img && foundProduct.sub_img.length > 0,
@@ -51,16 +39,15 @@ export default function ProductPage() {
           });
           setProduct(foundProduct);
         } else {
-          console.log('❌ Product not found for slug:', params.slug);
-          console.log('Available products:', products.map((p: Product) => ({
-            name: p.name,
-            slug: p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-          })));
           setError("Sản phẩm không tồn tại");
         }
       } catch (err: any) {
         console.error("Error fetching product:", err);
-        setError("Không thể tải thông tin sản phẩm");
+        if (err.response?.status === 404) {
+          setError("Sản phẩm không tồn tại");
+        } else {
+          setError("Không thể tải thông tin sản phẩm");
+        }
       } finally {
         setLoading(false);
       }
@@ -110,7 +97,7 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mt-10">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-6">
@@ -128,8 +115,8 @@ export default function ProductPage() {
           {/* Product Image */}
           <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white shadow-lg">
-              <Image
-                src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
+              <ImageWithMetadata
+                src={product.main_img}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-300 hover:scale-105"
@@ -141,8 +128,8 @@ export default function ProductPage() {
             {product.sub_img && product.sub_img.length > 0 && (
               <div className="flex space-x-2 overflow-x-auto">
                 <div className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-green-500 flex-shrink-0">
-                  <Image
-                    src={product.main_img.startsWith("/") ? product.main_img : `/${product.main_img}`}
+                  <ImageWithMetadata
+                    src={product.main_img}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -150,8 +137,8 @@ export default function ProductPage() {
                 </div>
                 {product.sub_img.map((img, index) => (
                   <div key={index} className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-gray-200 flex-shrink-0">
-                    <Image
-                      src={img.startsWith("/") ? img : `/${img}`}
+                    <ImageWithMetadata
+                      src={img}
                       alt={`${product.name} - Ảnh ${index + 1}`}
                       fill
                       className="object-cover"
@@ -192,9 +179,6 @@ export default function ProductPage() {
               </div>
 
               <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Giá
-                </h3>
                 <Link href="/contact" className="text-2xl font-bold text-green-600">
                    Liên hệ để biết giá
                  </Link>
@@ -203,19 +187,23 @@ export default function ProductPage() {
 
             {/* Contact Buttons */}
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Liên hệ đặt hàng
-              </h3>
-              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Link href="/contact" className="w-full">
+                {/* Nút gọi điện */}
+                <Link href="tel:0393614127" className="w-full" passHref>
                   <Button className="w-full" size="lg">
                     <Phone className="mr-2 h-4 w-4" />
+                    Gọi ngay
+                  </Button>
+                </Link>
+
+                {/* Nút Liên hệ */}
+                <Link href="/contact" className="w-full" passHref>
+                  <Button className="w-full" size="lg" variant="outline">
+                    <Mail className="mr-2 h-4 w-4" />
                     Liên hệ
                   </Button>
                 </Link>
               </div>
-
             </div>
           </div>
         </div>
