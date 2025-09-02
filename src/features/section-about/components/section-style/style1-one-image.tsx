@@ -94,9 +94,10 @@ type AboutSection = AboutResponseDto['section'][0]
 interface Style1OneImageProps {
   section: AboutSection
   onUpdate: (section: AboutSection) => void
+  isPreview?: boolean
 }
 
-export default function Style1OneImage({ section, onUpdate }: Style1OneImageProps) {
+export default function Style1OneImage({ section, onUpdate, isPreview = false }: Style1OneImageProps) {
   const {
     updateSubsection,
     addSubsection,
@@ -116,7 +117,7 @@ export default function Style1OneImage({ section, onUpdate }: Style1OneImageProp
             section={section}
             className="text-center space-y-4 max-w-3xl mx-auto"
             titleClassName="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
-            subtitleClassName="text-lg md:text-xl text-muted-foreground leading-relaxed"
+            subtitleClassName="text-lg md:text-xl text-foreground leading-relaxed"
           />
         </div>
 
@@ -211,26 +212,29 @@ export default function Style1OneImage({ section, onUpdate }: Style1OneImageProp
                       )}
                     </div>
 
-                    {/* Edit controls */}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <SubsectionEditor
-                        subsection={subsection}
-                        index={index}
-                        onUpdate={(updates) => updateSubsection(index, updates)}
-                        onDelete={() => removeSubsection(index)}
-                        showImage={false}
-                        canAddImage={false}
-                        sectionStyle={section.style}
-                        className="!p-0 !border-0 !bg-transparent"
-                      />
-                    </div>
+                    {/* Edit controls - chỉ hiện trong edit mode */}
+                    {!isPreview && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <SubsectionEditor
+                          subsection={subsection}
+                          index={index}
+                          onUpdate={(updates) => updateSubsection(index, updates)}
+                          onDelete={() => removeSubsection(index)}
+                          showImage={false}
+                          canAddImage={false}
+                          sectionStyle={section.style}
+                          className="!p-0 !border-0 !bg-transparent"
+                          isPreview={isPreview}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )
             })}
 
-            {/* Add Subsection Button */}
-            {canAddSubsection && (
+            {/* Add Subsection Button - chỉ hiện trong edit mode */}
+            {!isPreview && canAddSubsection && (
               <button
                 type="button"
                 onClick={addSubsection}
@@ -243,16 +247,18 @@ export default function Style1OneImage({ section, onUpdate }: Style1OneImageProp
               </button>
             )}
 
-            {/* CTA Button */}
-            <div className="pt-6">
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
-              >
-                Discover More
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </div>
+            {/* CTA Button - chỉ hiện trong preview mode */}
+            {isPreview && (
+              <div className="pt-6">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                >
+                  Discover More
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

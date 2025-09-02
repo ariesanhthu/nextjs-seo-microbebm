@@ -76,9 +76,10 @@ type AboutSection = AboutResponseDto["section"][0]
 interface Style2FourImageProps {
   section: AboutSection
   onUpdate: (section: AboutSection) => void
+  isPreview?: boolean
 }
 
-export default function Style2FourImage({ section, onUpdate }: Style2FourImageProps) {
+export default function Style2FourImage({ section, onUpdate, isPreview = false }: Style2FourImageProps) {
   const { updateSubsection, addSubsection, removeSubsection, canAddImage, canAddSubsection } = useSectionStyle({
     section,
     onUpdate,
@@ -238,25 +239,29 @@ export default function Style2FourImage({ section, onUpdate }: Style2FourImagePr
                     )}
                   </div>
 
-                  {/* Edit controls */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <SubsectionEditor
-                      subsection={subsection}
-                      index={index}
-                      onUpdate={(updates) => updateSubsection(index, updates)}
-                      onDelete={() => removeSubsection(index)}
-                      showImage={true}
-                      canAddImage={canAddImage}
-                      sectionStyle={section.style}
-                      className="!p-0 !border-0 !bg-transparent"
-                    />
-                  </div>
+                  {/* Edit controls - chỉ hiện trong edit mode */}
+                  {!isPreview && (
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <SubsectionEditor
+                        subsection={subsection}
+                        index={index}
+                        onUpdate={(updates) => updateSubsection(index, updates)}
+                        onDelete={() => removeSubsection(index)}
+                        showImage={true}
+                        canAddImage={canAddImage}
+                        sectionStyle={section.style}
+                        className="!p-0 !border-0 !bg-transparent"
+                        isPreview={isPreview}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )
           })}
 
-          {canAddSubsection && (
+          {/* Add Feature Button - chỉ hiện trong edit mode */}
+          {!isPreview && canAddSubsection && (
             <div
               className="animate-in fade-in-0 slide-in-from-bottom-8 animation-delay-600"
               style={{ animationDelay: "600ms" }}

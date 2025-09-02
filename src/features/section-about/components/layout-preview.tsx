@@ -40,6 +40,7 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
         <StyleComponent 
           section={section} 
           onUpdate={mockOnUpdate}
+          isPreview={true}
         />
       </div>
     )
@@ -55,7 +56,7 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
         <Card>
           <CardContent className="text-center py-12">
             <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Chưa có section nào được tạo</p>
+            <p className="text-foreground">Chưa có section nào được tạo</p>
           </CardContent>
         </Card>
       )}

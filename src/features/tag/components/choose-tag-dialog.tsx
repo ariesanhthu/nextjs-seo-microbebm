@@ -119,7 +119,7 @@ export default function ChooseTagDialog({
               </div>
 
               {tags?.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-foreground">
                   No tags found
                 </div>
               )}

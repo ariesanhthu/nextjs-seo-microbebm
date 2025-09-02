@@ -65,14 +65,97 @@ import { useSectionStyle } from "../../hooks"
 import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
 import { cn } from "@/lib/utils"
 
+// Component riêng để tránh vi phạm Rules of Hooks
+function FeatureCard({ 
+  subsection, 
+  index, 
+  updateSubsection, 
+  removeSubsection, 
+  sectionStyle,
+  isPreview = false
+}: {
+  subsection: any
+  index: number
+  updateSubsection: (index: number, updates: any) => void
+  removeSubsection: (index: number) => void
+  sectionStyle: any
+  isPreview?: boolean
+}) {
+  const { IconComponent } = useIconField(subsection.icon || "Sparkles")
+  
+  return (
+    <div
+      className={cn(
+        "group relative",
+        "animate-in fade-in-0 slide-in-from-bottom-4",
+        `animation-delay-${index * 100}`
+      )}
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      <div className="relative h-full p-6 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+        {/* Icon Container */}
+        <div className="mb-4">
+          <div className="inline-flex p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+            {IconComponent ? (
+              <IconComponent className="w-6 h-6 text-primary" />
+            ) : (
+              <Sparkles className="w-6 h-6 text-primary" />
+            )}
+          </div>
+        </div>
+
+        {/* Content */}
+        <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary transition-colors">
+          {subsection.name || "Feature Title"}
+        </h3>
+        <p className="text-sm text-foreground line-clamp-3">
+          {subsection.description || "Add a brief description of this feature to help visitors understand its value."}
+        </p>
+
+        {/* Optional link - styled as subtle text link */}
+        {subsection.ref && (
+          <a
+            href={subsection.ref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center mt-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            Learn more
+            <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        )}
+
+        {/* Edit controls for admin mode - chỉ hiện trong edit mode */}
+        {!isPreview && (
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <SubsectionEditor
+              subsection={subsection}
+              index={index}
+              onUpdate={(updates) => updateSubsection(index, updates)}
+              onDelete={() => removeSubsection(index)}
+              showImage={false}
+              sectionStyle={sectionStyle}
+              className="!p-0 !border-0 !bg-transparent"
+              isPreview={isPreview}
+            />
+          </div>
+        )} 
+      </div>
+    </div>
+  )
+}
+
 type AboutSection = AboutResponseDto['section'][0]
 
 interface Style0NoImageProps {
   section: AboutSection
   onUpdate: (section: AboutSection) => void
+  isPreview?: boolean
 }
 
-export default function Style0NoImage({ section, onUpdate }: Style0NoImageProps) {
+export default function Style0NoImage({ section, onUpdate, isPreview = false }: Style0NoImageProps) {
   const {
     updateSubsection,
     addSubsection,
@@ -92,79 +175,26 @@ export default function Style0NoImage({ section, onUpdate }: Style0NoImageProps)
             section={section}
             className="text-center space-y-4 max-w-3xl mx-auto"
             titleClassName="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
-            subtitleClassName="text-lg md:text-xl text-muted-foreground leading-relaxed"
+            subtitleClassName="text-lg md:text-xl text-foreground leading-relaxed"
           />
         </div>
 
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {section.subsection.map((subsection, index) => {
-            const { IconComponent } = useIconField(subsection.icon || "Sparkles")
-            
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "group relative",
-                  "animate-in fade-in-0 slide-in-from-bottom-4",
-                  `animation-delay-${index * 100}`
-                )}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="relative h-full p-6 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-                  {/* Icon Container */}
-                  <div className="mb-4">
-                    <div className="inline-flex p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-                      {IconComponent ? (
-                        <IconComponent className="w-6 h-6 text-primary" />
-                      ) : (
-                        <Sparkles className="w-6 h-6 text-primary" />
-                      )}
-                    </div>
-                  </div>
+          {section.subsection.map((subsection, index) => (
+            <FeatureCard
+              key={index}
+              subsection={subsection}
+              index={index}
+              updateSubsection={updateSubsection}
+              removeSubsection={removeSubsection}
+              sectionStyle={section.style as any}
+              isPreview={isPreview}
+            />
+          ))}
 
-                  {/* Content */}
-                  <h3 className="font-semibold text-lg mb-2 text-foreground group-hover:text-primary transition-colors">
-                    {subsection.name || "Feature Title"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {subsection.description || "Add a brief description of this feature to help visitors understand its value."}
-                  </p>
-
-                  {/* Optional link - styled as subtle text link */}
-                  {subsection.ref && (
-                    <a
-                      href={subsection.ref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center mt-3 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                    >
-                      Learn more
-                      <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </a>
-                  )}
-
-                  {/* Edit controls for admin mode */}
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <SubsectionEditor
-                      subsection={subsection}
-                      index={index}
-                      onUpdate={(updates) => updateSubsection(index, updates)}
-                      onDelete={() => removeSubsection(index)}
-                      showImage={false}
-                      sectionStyle={section.style}
-                      className="!p-0 !border-0 !bg-transparent"
-                    />
-                  </div> 
-                </div>
-              </div>
-            )
-          })}
-
-          {/* Add Feature Button */}
-          {canAddSubsection && (
+          {/* Add Feature Button - chỉ hiện trong edit mode */}
+          {!isPreview && canAddSubsection && (
             <div className="animate-in fade-in-0 slide-in-from-bottom-4 animation-delay-300">
               <button
                 type="button"

@@ -517,7 +517,7 @@ export default function AdminHomepagePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-foreground py-8">
                   <Package className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                   <p>Chưa có sản phẩm nào được chọn</p>
                   <p className="text-sm">Nhấn "Thêm sản phẩm" để bắt đầu</p>

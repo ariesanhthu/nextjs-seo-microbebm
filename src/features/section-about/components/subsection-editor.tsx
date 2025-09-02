@@ -18,6 +18,7 @@ interface SubsectionEditorProps {
   canAddImage?: boolean
   className?: string
   sectionStyle?: number
+  isPreview?: boolean
 }
 
 export default function SubsectionEditor({ 
@@ -28,7 +29,8 @@ export default function SubsectionEditor({
   showImage = false,
   canAddImage = true,
   className = "",
-  sectionStyle = 0
+  sectionStyle = 0,
+  isPreview = false
 }: SubsectionEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({
@@ -67,29 +69,31 @@ export default function SubsectionEditor({
 
   return (
     <div className={`relative group ${className}`}>
-      {/* Edit/Delete buttons - chỉ hiện khi hover */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setIsEditing(true)}
-            className="h-6 w-6 p-0"
-          >
-            <Edit2 className="h-3 w-3" />
-          </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={onDelete}
-            className="h-6 w-6 p-0"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+      {/* Edit/Delete buttons - chỉ hiện khi hover và không phải preview mode */}
+      {!isPreview && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setIsEditing(true)}
+              className="h-6 w-6 p-0"
+            >
+              <Edit2 className="h-3 w-3" />
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={onDelete}
+              className="h-6 w-6 p-0"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {isEditing ? (
+      {!isPreview && isEditing && (
         // Edit mode
         <div className="space-y-3 p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
           <IconField
@@ -170,48 +174,49 @@ export default function SubsectionEditor({
             </Button>
           </div>
         </div>
-      ) : (
-        // Display mode
-        <div className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-          {subsection.icon && (
-            <div className="mb-2">
-              <IconField
-                value={subsection.icon}
-                showPicker={false}
-                showPreview={true}
-                iconSize="w-8 h-8"
-              />
-            </div>
-          )}
+      ) 
+        // // Display mode
+        // <div className="p-4 border border-gray-200 rounded-lg b hover:border-gray-300 transition-colors">
+        //   {subsection.icon && (
+        //     <div className="mb-2">
+        //       <IconField
+        //         value={subsection.icon}
+        //         showPicker={false}
+        //         showPreview={true}
+        //         iconSize="w-8 h-8"
+        //       />
+        //     </div>
+        //   )}
           
-          <h4 className="font-medium text-lg mb-2">{subsection.name || "Chưa có tên"}</h4>
+        //   {/* <h4 className="font-medium text-lg mb-2">{subsection.name || "Chưa có tên"}</h4> */}
           
-          <p className="text-gray-600 mb-3">{subsection.description || "Chưa có mô tả"}</p>
+        //   {/* <p className="text-gray-600 mb-3">{subsection.description || "Chưa có mô tả"}</p> */}
           
-          {subsection.ref && (
-            <a 
-              href={subsection.ref} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 text-sm"
-            >
-              Xem thêm →
-            </a>
-          )}
+        //   {subsection.ref && (
+        //     <a 
+        //       href={subsection.ref} 
+        //       target="_blank" 
+        //       rel="noopener noreferrer"
+        //       className="text-blue-600 hover:text-blue-800 text-sm"
+        //     >
+        //       Xem thêm →
+        //     </a>
+        //   )}
 
-          {showImage && sectionStyle !== 1 && subsection.image_url && (
-            <div className="mt-3">
-              <ImageWithMetadata
-                src={subsection.image_url}
-                alt={subsection.name || "Subsection image"}
-                width={200}
-                height={150}
-                className="w-full h-32 object-cover rounded"
-              />
-            </div>
-          )}
-        </div>
-      )}
+        //   {showImage && sectionStyle !== 1 && subsection.image_url && (
+        //     <div className="mt-3">
+        //       <ImageWithMetadata
+        //         src={subsection.image_url}
+        //         alt={subsection.name || "Subsection image"}
+        //         width={200}
+        //         height={150}
+        //         className="w-full h-32 object-cover rounded"
+        //       />
+        //     </div>
+        //   )}
+        // </div>
+        
+      }
     </div>
   )
 }
