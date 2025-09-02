@@ -11,7 +11,7 @@ import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-con
 import Image from "next/image";
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto";
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context";
-import { useBlogGallery } from "../context/blog-gallery-context";
+
 import { EBlogStatus } from "@/lib/enums/blog-status.enum";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,14 +44,15 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
   const [excerpt, setExcerpt] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isOpenBlogDialog, setIsOpenBlogDialog] = React.useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   const [isDirty, setIsDirty] = React.useState(false);
   const suppressDirtyRef = React.useRef(false);
   
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
-  const blogGallery = useBlogGallery();
+
   const tagGallery = useTagGallery();
 
   const setDirty = (val: boolean) => {
@@ -73,67 +74,25 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
 
   // Load existing blog when blogId provided
   useEffect(() => {
-    const fetchBlog = async (targetId: string) => {
+    if (!blogId) return;
+    
+    const fetchBlog = async () => {
       try {
-        const res = await fetch(`/api/blog/${targetId}`);
+        const res = await fetch(`/api/blog/${blogId}`);
         const data: ApiResponseDto<BlogResponseDto> = await res.json();
         if (data?.success && data.data) {
           const blog = data.data;
-          runWithSuppressedDirty(() => {
-            setId(blog.id);
-            setTitle(blog.title);
-            setAuthor(blog.author);
-            setContent(blog.content);
-            setThumbnailUrl(blog.thumbnail_url || "");
-            setExcerpt(blog.excerpt || "");
-            setIsFeatured(blog.is_featured || false);
-            setStatus(blog.status || EBlogStatus.DRAFT);
-            setTags(blog.tags || []);
-          });
+          loadBlogData(blog);
         }
       } catch (err) {
         // ignore
       }
     };
 
-    if (blogId) {
-      fetchBlog(blogId);
-    }
+    fetchBlog();
   }, [blogId]);
 
-  const handlePostBlog = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    try {
-      const body = JSON.stringify({
-        title,
-        author,
-        content,
-        thumbnail_url: thumbnailUrl,
-        tag_ids: tags.map(tag => tag.id),
-        excerpt,
-        is_featured: isFeatured,
-        status: EBlogStatus.PUBLISHED
-      });
 
-      const res = await fetch("/api/blog", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
-      const data: ApiResponseDto<BlogResponseDto> = await res.json();
-      if (!data.success) {
-        toast({ title: "Lưu thất bại", description: data.message ?? "Không thể tạo bài viết" });
-        return;
-      }
-      toast({ title: "Đã lưu", description: "Bài viết đã được tạo" });
-      handleOpenBlog(data.data, false);
-    } catch (err) {
-      toast({ title: "Lỗi", description: "Có lỗi khi lưu bài viết" });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleSelectThumbnailUrl = () => {
     imageGallery.openDialog((image: ImageMetadataResponseDto) => {
@@ -145,7 +104,6 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
   const handleSelectTags = () => {
     tagGallery.openDialog((selectedTags: TagResponseDto[]) => {
       const newTags = selectedTags.filter(tag => !tags.find(t => t.id === tag.id));
-      console.log("Selected tags:", newTags);
       setTags((prev) => [...prev, ...newTags]);
       setDirty(true);
     });
@@ -157,20 +115,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
     setDirty(true);
   };
 
-  const handleOpenBlog = async (blog: BlogResponseDto, alert: boolean = true) => {
-    if (alert) {
-      const choice = await alertDialog.showAlert({
-        title: "Mở bài viết",
-        description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
-        actionText: "Đồng ý",
-        cancelText: "Hủy"
-      });
-
-      if (!choice) {
-        return;
-      }
-    }
-    
+  const loadBlogData = (blog: BlogResponseDto) => {
     runWithSuppressedDirty(() => {
       setId(blog.id);
       setTitle(blog.title);
@@ -182,6 +127,21 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
       setStatus(blog.status || EBlogStatus.DRAFT);
       setTags(blog.tags || []);
     });
+  };
+
+  const handleOpenBlog = async (blog: BlogResponseDto, alert: boolean = true) => {
+    if (alert) {
+      const choice = await alertDialog.showAlert({
+        title: "Mở bài viết",
+        description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
+        actionText: "Đồng ý",
+        cancelText: "Hủy"
+      });
+
+      if (!choice) return;
+    }
+    
+    loadBlogData(blog);
   };
 
   const handleReset = () => {
@@ -225,19 +185,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
         toast({ title: "Lưu thất bại", description: data.message ?? "Không thể lưu bài viết" });
         return;
       }
-      runWithSuppressedDirty(() => {
-        // đồng bộ lại state theo server
-        const b = data.data;
-        setId(b.id);
-        setTitle(b.title);
-        setAuthor(b.author);
-        setContent(b.content);
-        setThumbnailUrl(b.thumbnail_url || "");
-        setExcerpt(b.excerpt || "");
-        setIsFeatured(b.is_featured || false);
-        setStatus(b.status || EBlogStatus.DRAFT);
-        setTags(b.tags || []);
-      });
+      loadBlogData(data.data);
       toast({ title: "Đã lưu", description: id ? "Đã cập nhật bài viết" : "Đã tạo bài viết" });
     } catch (error) {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi lưu" });
@@ -326,8 +274,9 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
                 }
                 <Button
                   type="button"
-                  // onClick={() => setIsOpenImageDialog(true)}
+
                   onClick={handleSelectThumbnailUrl}
+                  disabled={isProcessing}
                 >
                   Chọn Thumbnail
                 </Button>
@@ -336,6 +285,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
               <Button
                 type="button"
                 onClick={handleSelectTags}
+                disabled={isProcessing}
               >
                 Chọn Thẻ
               </Button>
@@ -356,9 +306,6 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
                   </div>
                 ))}
               </div>
-
-              <div></div>
-
             </div>
           </div>
           
@@ -368,7 +315,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
       </Card>
 
     </div>
-  )
+  );
 });
 
 export default BlogEditor

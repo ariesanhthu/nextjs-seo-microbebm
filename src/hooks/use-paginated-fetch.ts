@@ -13,6 +13,8 @@ export interface PaginationOptions extends Omit<PaginationCursorDto, 'cursor'> {
   ttl?: number // Time to live for cached pages, in milliseconds
   cacheSize?: number // Maximum number of pages to cache
   autoFetch?: boolean // Whether to fetch data on mount
+  searchQuery?: string // Search query parameter
+  searchDebounceMs?: number // Debounce delay for search queries
 }
 
 export interface CachedPage<T> {
@@ -34,6 +36,13 @@ export interface UsePaginatedFetchReturn<T> {
   // Loading states
   loading: boolean
   error: string | null
+  
+  // Search
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+  isSearching: boolean
+  clearSearch: () => void
+  clearSearchInput: () => void
   
   // Actions
   fetchData: (cursor?: string | null) => Promise<void>
@@ -60,7 +69,9 @@ export function usePaginatedFetch<T>(
     sort = ESort.DESC,
     initialCursor = null,
     cacheSize = 50,
-    autoFetch = true
+    autoFetch = true,
+    searchQuery: initialSearchQuery = '',
+    searchDebounceMs = 300
   } = options;
 
   // State
@@ -71,6 +82,13 @@ export function usePaginatedFetch<T>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialFetch, setIsInitialFetch] = useState(true);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(initialSearchQuery);
+  const [isSearching, setIsSearching] = useState(false);
+  const [lastExecutedQuery, setLastExecutedQuery] = useState(initialSearchQuery);
+  
   // Navigation history
   const [cursorsHistory, setCursorsHistory] = useState<string[]>([]);
   
@@ -78,12 +96,22 @@ export function usePaginatedFetch<T>(
   const cacheRef = useRef<Map<string, CachedPage<T>>>(new Map());
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Always update the debounced query - the comparison will happen in the search trigger
+      setDebouncedSearchQuery(searchQuery.trim());
+    }, searchDebounceMs);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchDebounceMs]);
+
   // Helper functions
-  const getCacheKey = useCallback((cursor: string | null) => {
-    return cursor || 'first-page'
+  const getCacheKey = useCallback((cursor: string | null, searchQuery: string = '') => {
+    return `${cursor || 'first-page'}_search:${searchQuery}`
   }, []);
 
-  const buildUrl = useCallback((cursor: string | null) => {
+  const buildUrl = useCallback((cursor: string | null, searchQuery: string = '') => {
     const params: PaginationCursorDto = {
       cursor: cursor || undefined,
       limit,
@@ -101,9 +129,10 @@ export function usePaginatedFetch<T>(
     searchParams.set('limit', limit.toString());
     if (sort) searchParams.set('sort', sort);
     if (cursor) searchParams.set('cursor', cursor);
+    if (searchQuery.trim()) searchParams.set('search', searchQuery.trim());
 
     return `${url}${separator}${searchParams.toString()}`;
-  }, [endpoint, limit, sort])
+  }, [endpoint, limit, sort]);
 
   const cleanupCache = useCallback(() => {
     const cache = cacheRef.current;
@@ -117,8 +146,11 @@ export function usePaginatedFetch<T>(
     entriesToRemove.forEach(([key]) => cache.delete(key));
   }, [cacheSize])
 
-  const fetchData = useCallback(async (cursor: string | null = currentCursor) => {
-    const cacheKey = getCacheKey(cursor);
+  const fetchData = useCallback(async (cursor: string | null = currentCursor, searchQueryOverride?: string) => {
+    // Use the override if provided, otherwise use the last executed query to maintain consistency
+    const activeSearchQuery = searchQueryOverride !== undefined ? searchQueryOverride : lastExecutedQuery;
+    const cacheKey = getCacheKey(cursor, activeSearchQuery);
+    
     // Check cache first
     const cachedPage = cacheRef.current.get(cacheKey);
     const isExpired = cachedPage && Date.now() - cachedPage.timestamp > (options.ttl || 60000);
@@ -150,7 +182,7 @@ export function usePaginatedFetch<T>(
     setError(null);
 
     try {
-      const url = buildUrl(cursor);
+      const url = buildUrl(cursor, activeSearchQuery);
       //console.log('🚀 Fetching:', url);
 
       const response = await fetch(url, {
@@ -195,7 +227,21 @@ export function usePaginatedFetch<T>(
       setLoading(false);
       abortControllerRef.current = null;
     }
-  }, [currentCursor, getCacheKey, buildUrl, cleanupCache])
+  }, [currentCursor, getCacheKey, buildUrl, cleanupCache, lastExecutedQuery])
+
+  // Trigger search when debouncedSearchQuery changes
+  useEffect(() => {
+    const trimmedDebouncedQuery = debouncedSearchQuery;
+    const trimmedLastQuery = lastExecutedQuery;
+    
+    // Only trigger search if the query actually changed
+    if (trimmedDebouncedQuery !== trimmedLastQuery) {
+      setIsSearching(true);
+      setCursorsHistory([]);
+      setLastExecutedQuery(trimmedDebouncedQuery);
+      fetchData(null, trimmedDebouncedQuery).finally(() => setIsSearching(false));
+    }
+  }, [debouncedSearchQuery, fetchData, lastExecutedQuery]);
 
   const goToNextPage = useCallback(() => {
     if (hasNextPage && nextCursor) {
@@ -219,13 +265,29 @@ export function usePaginatedFetch<T>(
 
   const refresh = useCallback(() => {
     // Clear cache for current page and refetch
-    const cacheKey = getCacheKey(currentCursor);
+    const cacheKey = getCacheKey(currentCursor, lastExecutedQuery);
     cacheRef.current.delete(cacheKey);
-    fetchData(currentCursor);
-  }, [currentCursor, getCacheKey, fetchData])
+    fetchData(currentCursor, lastExecutedQuery);
+  }, [currentCursor, lastExecutedQuery, getCacheKey, fetchData])
 
   const clearCache = useCallback(() => {
     cacheRef.current.clear();
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    // Clear search without clearing the input field
+    setDebouncedSearchQuery('');
+    setLastExecutedQuery('');
+    setCursorsHistory([]);
+    // This will trigger the search effect and fetch normal data
+  }, []);
+
+  const clearSearchInput = useCallback(() => {
+    // Clear both the input field and search state
+    setSearchQuery('');
+    setDebouncedSearchQuery('');
+    setLastExecutedQuery('');
+    setCursorsHistory([]);
   }, []);
 
   // Auto-fetch on mount
@@ -255,6 +317,13 @@ export function usePaginatedFetch<T>(
     // Loading states
     loading,
     error,
+    
+    // Search
+    searchQuery,
+    setSearchQuery,
+    isSearching,
+    clearSearch,
+    clearSearchInput,
     
     // Actions
     fetchData,

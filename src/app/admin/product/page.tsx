@@ -1,127 +1,15 @@
 // pages/admin/products.tsx
 "use client"
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription, 
-  DialogFooter 
-} from '@/components/ui/dialog';
-import { Trash2, Plus, Edit, Eye } from 'lucide-react';
-import { 
-  Alert, 
-  AlertDescription 
-} from '@/components/ui/alert';
-import { toast } from '@/components/ui/use-toast';
-import { ProductResponseDto } from '@/lib/dto/product.dto';
+
 import NavbarAdmin from '@/components/NavbarAdmin';
-// import { SingleImageDropzoneUsage } from '@/components/SingleImageDropzoneUsage';
+import ProductGallery from '@/features/product/components/product-gallery';
+import { Plus } from 'lucide-react';
+
 export default function AdminProducts() {
   const router = useRouter();
-  const [products, setProducts] = useState<ProductResponseDto[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<string | null>(null);
-
-  // Fetch products from API
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/product');
-      const data = await res.json();
-      if (data.success) {
-        setProducts(data.data);
-      } else {
-        toast({
-          title: "Error loading products",
-          description: data.message || "Failed to load products",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to connect to the server",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-
-
-  // Handle confirming product deletion
-  const confirmDelete = (id: string) => {
-    setProductToDelete(id);
-    setOpenDeleteDialog(true);
-  };
-
-  // Handle deleting a product
-  const handleDelete = async () => {
-    if (productToDelete === null) return;
-    
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/product/id/${productToDelete}`, { 
-        method: 'DELETE' 
-      });
-      
-      const data = await res.json();
-      
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "Product deleted successfully",
-        });
-        fetchProducts();
-      } else {
-        toast({
-          title: "Error",
-          description: data.message || "Failed to delete product",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-      setOpenDeleteDialog(false);
-      setProductToDelete(null);
-    }
-  };
-// Open edit page with product data
-const openEdit = (product: ProductResponseDto) => {
-  router.push(`/admin/product/new/${product.id}`);
-};
+ 
 
   return (
     <div className="space-y-6">
@@ -134,8 +22,9 @@ const openEdit = (product: ProductResponseDto) => {
           </Button>
         }
       />
+      <ProductGallery />
 
-      <div className="px-4">
+      {/* <div className="px-4">
         {products.length === 0 && !isLoading ? (
           <Alert>
             <AlertDescription>
@@ -200,7 +89,7 @@ const openEdit = (product: ProductResponseDto) => {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+      {/* <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
@@ -217,8 +106,8 @@ const openEdit = (product: ProductResponseDto) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-     
+      </Dialog> */}
+      */}
     </div>
   );
 }

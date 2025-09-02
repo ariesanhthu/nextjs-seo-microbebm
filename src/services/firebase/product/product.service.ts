@@ -5,10 +5,11 @@ import {
   CreateProductDto, 
   UpdateProductDto, 
   ProductResponseDto,
+  PaginationCursorProductDto,
 } from '@/lib/dto/product.dto';
 import { ProductSchema } from '@/lib/schemas/product.schema';
 import { generateSlug } from '@/utils/generate-slug';
-import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
+import { PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
 
 export class ProductService {
@@ -79,6 +80,7 @@ export class ProductService {
         sub_img: body.sub_img,
         category_refs: categoryRefs,
         slug: generateSlug([body.name]),
+        search: generateSlug([body.name, body.description], ' '),
         created_at: now,
         updated_at: now,
       };
@@ -130,17 +132,24 @@ export class ProductService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto): Promise<Partial<PaginationCursorResponseDto<ProductResponseDto>>> {
+  static async getAll(query: PaginationCursorProductDto): Promise<Partial<PaginationCursorResponseDto<ProductResponseDto>>> {
     try {
       const {
         cursor,
         limit = 10,
-        sort = ESort.DESC
+        sort = ESort.DESC,
+        categories,
+        search
       } = query;
 
       let queryRef = this.getReadCollectionRef()
         .orderBy("created_at", sort)
         .limit(Number(limit) + 1); // +1 to check if there's a next page
+
+      if (categories && categories.length > 0) {
+        const categoryRefs = await this.getListRef(categories);
+        queryRef = queryRef.where("category_refs", "array-contains-any", categoryRefs);
+      }
 
       // If cursor exists, get the document and use it for startAfter
       if (cursor) {
@@ -151,13 +160,18 @@ export class ProductService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = await Promise.all(
+      let allDocs = await Promise.all(
         snapshot.docs.map(async (doc: any) => {
           const rawData = { id: doc.id, ...doc.data() };
           return await this.populateCategory(rawData) as ProductResponseDto;
         })
       );
-      
+
+      if (search) {
+        const normalizedSearch = generateSlug([search], ' ');
+        allDocs = allDocs.filter(doc => doc.search.includes(normalizedSearch));
+      }
+
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
       
@@ -183,7 +197,7 @@ export class ProductService {
     try {
       // Check if Product exists
       const existing = await this.getDocRef(id).get();
-      if (!existing.exists) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`Product with id '${id}' not found`);
       }
 
@@ -194,6 +208,10 @@ export class ProductService {
       let updateFields: any = {
         ...body,
         slug: slug,
+        search: generateSlug([
+          body.name || existing.data()?.name || "", 
+          body.description || existing.data()?.description || ""
+        ], ' '),
         updated_at: Timestamp.now(),
       };
       

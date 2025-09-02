@@ -4,6 +4,7 @@ import {
   UpdateProductSchema, 
   ProductResponseSchema,
 } from '@/lib/schemas/product.schema';
+import { PaginationCursorDto } from './pagination.dto';
 
 // DTO for creating a new Product
 export type CreateProductDto = z.infer<typeof CreateProductSchema>;
@@ -13,3 +14,8 @@ export type UpdateProductDto = z.infer<typeof UpdateProductSchema>;
 
 // DTO for Product response (includes all fields + metadata)
 export type ProductResponseDto = z.infer<typeof ProductResponseSchema>;
+
+export interface PaginationCursorProductDto extends PaginationCursorDto  {
+  search?: string, 
+  categories?: string[]
+}

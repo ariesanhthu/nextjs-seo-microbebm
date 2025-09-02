@@ -6,16 +6,19 @@ import { formatErrorResponse } from "@/lib/format-error-response";
 import { ZodError } from "zod";
 import { ZodRequestValidation } from "@/services/zod/zod-validation-request";
 import { CreateProductSchema } from "@/lib/schemas/product.schema";
+import { PaginationCursorProductDto } from "@/lib/dto/product.dto";
 
 // GET /api/product - Get all products with pagination
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const query: PaginationCursorDto = {
+    const query: PaginationCursorProductDto = {
       cursor: searchParams.get('cursor') || undefined,
       limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 10,
-      sort: (searchParams.get('sort') as ESort) || ESort.DESC
+      sort: (searchParams.get('sort') as ESort) || ESort.DESC,
+      categories: searchParams.get('tags') ? searchParams.getAll('categorues') : undefined,
+      search: searchParams.get('search') || undefined
     };
 
     const result = await ProductService.getAll(query);
