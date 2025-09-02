@@ -36,7 +36,9 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const [status, setStatus] = React.useState(EBlogStatus.DRAFT);
   const [excerpt, setExcerpt] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
-  
+
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
@@ -71,64 +73,79 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   }, [blogId]);
 
   const handlePostBlog = async () => {
-    if (id) {
-      const choice = await alertDialog.showAlert({
-        title: "Blog đã tồn tại",
-        description: "Blog đã tồn tại. Bạn có muốn đăng mới?",
-        actionText: "Đăng mới",
-        cancelText: "Hủy"
-      });
-      
-      if (!choice) {
-        return;
+    setIsProcessing(true);
+    try {
+      if (id) {
+        const choice = await alertDialog.showAlert({
+          title: "Blog đã tồn tại",
+          description: "Blog đã tồn tại. Bạn có muốn đăng mới?",
+          actionText: "Đăng mới",
+          cancelText: "Hủy"
+        });
+        
+        if (!choice) {
+          return;
+        }
       }
-    }
     
-    const body = JSON.stringify({ 
-      title, 
-      author, 
-      content, 
-      thumbnail_url: thumbnailUrl,
-      tag_ids: tags.map(tag => tag.id),
-      excerpt,
-      is_featured: isFeatured,
-      status: EBlogStatus.PUBLISHED
-    });
-    
-    try { 
-      const response = await fetch("/api/blog", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: body,
+      const body = JSON.stringify({ 
+        title, 
+        author, 
+        content, 
+        thumbnail_url: thumbnailUrl,
+        tag_ids: tags.map(tag => tag.id),
+        excerpt,
+        is_featured: isFeatured,
+        status: EBlogStatus.PUBLISHED
       });
+    
+      try { 
+        const response = await fetch("/api/blog", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: body,
+        });
 
-      const data: ApiResponseDto<BlogResponseDto> = await response.json();
+        const data: ApiResponseDto<BlogResponseDto> = await response.json();
 
-      if (!data.success) {
-        toast.error(`Failed to save blog post\n${data.message}`);
-      } else {
-        toast.success("Blog post saved successfully!");
-        handleOpenBlog(data.data, false);
+        if (!data.success) {
+          toast.error(`Failed to save blog post\n${data.message}`);
+        } else {
+          toast.success("Blog post saved successfully!");
+          handleOpenBlog(data.data, false);
+        }
+      } catch (error) {
+        toast.error("An error occurred while saving the blog post");
       }
-    } catch (error) {
-      toast.error("An error occurred while saving the blog post");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleSelectThumbnailUrl = () => {
-    imageGallery.openDialog((image: ImageMetadataResponseDto) => {
-      setThumbnailUrl(image.url);
-    });
+    setIsProcessing(true);
+    try {
+      imageGallery.openDialog((image: ImageMetadataResponseDto) => {
+        setThumbnailUrl(image.url);
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   const handleSelectTags = () => {
-    tagGallery.openDialog((selectedTags: TagResponseDto[]) => {
-      const newTags = selectedTags.filter(tag => !tags.find(t => t.id === tag.id));
-      console.log("Selected tags:", newTags);
-      setTags((prev) => [...prev, ...newTags]);
-    });
+    setIsProcessing(true);
+    try {
+      tagGallery.openDialog((selectedTags: TagResponseDto[]) => {
+        const newTags = selectedTags.filter(tag => !tags.find(t => t.id === tag.id));
+        console.log("Selected tags:", newTags);
+        setTags((prev) => [...prev, ...newTags]);
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
 
@@ -137,57 +154,84 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   };
 
   const handleSelectBlog = () => {
-    blogGallery.openDialog((blog: BlogResponseDto) => {
-      handleOpenBlog(blog);
-    });
+    setIsProcessing(true);
+    try {
+      blogGallery.openDialog((blog: BlogResponseDto) => {
+        handleOpenBlog(blog);
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleOpenBlog = async (blog: BlogResponseDto, alert: boolean = true) => {
-    if (alert) {
-      const choice = await alertDialog.showAlert({
-        title: "Mở bài viết",
-        description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
-        actionText: "Đồng ý",
-        cancelText: "Hủy"
-      });
+    setIsProcessing(true);
+    try {
+      if (alert) {
+        const choice = await alertDialog.showAlert({
+          title: "Mở bài viết",
+          description: "Bạn có chắc chắn muốn mở bài viết này? Bài viết hiện tại sẽ bị mất nếu chưa lưu.",
+          actionText: "Đồng ý",
+          cancelText: "Hủy"
+        });
 
-      if (!choice) {
-        return;
+        if (!choice) {
+          return;
+        }
       }
-    }
     
-    setId(blog.id);
-    setTitle(blog.title);
-    setAuthor(blog.author);
-    setContent(blog.content);
-    setThumbnailUrl(blog.thumbnail_url || "");
-    setExcerpt(blog.excerpt || "");
-    setIsFeatured(blog.is_featured || false);
-    setStatus(blog.status || EBlogStatus.DRAFT);
-    setTags(blog.tags || []);
+      setId(blog.id);
+      setTitle(blog.title);
+      setAuthor(blog.author);
+      setContent(blog.content);
+      setThumbnailUrl(blog.thumbnail_url || "");
+      setExcerpt(blog.excerpt || "");
+      setIsFeatured(blog.is_featured || false);
+      setStatus(blog.status || EBlogStatus.DRAFT);
+      setTags(blog.tags || []);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleNewBlog = async () => {
-    const choice = await alertDialog.showAlert({
-      title: "Tạo bài viết mới",
-      description: "Bạn có chắc chắn muốn tạo bài viết mới? Các thay đổi chưa lưu sẽ bị mất.",
-      actionText: "Đồng ý",
-      cancelText: "Hủy"
-    });
-    
-    if (!choice) {
-      return 
+    setIsProcessing(true);
+    try {
+      const choice = await alertDialog.showAlert({
+        title: "Tạo bài viết mới",
+        description: "Bạn có chắc chắn muốn tạo bài viết mới? Các thay đổi chưa lưu sẽ bị mất.",
+        actionText: "Đồng ý",
+        cancelText: "Hủy"
+      });
+      
+      if (!choice) {
+        setIsProcessing(false);
+        return;
+      }
+      setId(null);
+      setTitle("");
+      setAuthor("");
+      setContent("");
+      setThumbnailUrl("");
+      toast.success("Đã tạo bài viết mới");
+    } finally {
+      setIsProcessing(false);
     }
-    setId(null);
-    setTitle("");
-    setAuthor("");
-    setContent("");
-    setThumbnailUrl("");
-    toast.success("Đã tạo bài viết mới");
   };
 
   const handleSaveBlog = async () => {
+    setIsProcessing(true);
     try {
+      const choice = await alertDialog.showAlert({
+        title: "Lưu bài viết",
+        description: "Bạn có muốn lưu bài viết này?",
+        actionText: "Đồng ý",
+        cancelText: "Hủy"
+      });
+      
+      if (!choice) {
+        return;
+      }
       const body = JSON.stringify({ 
         title, 
         author, 
@@ -221,6 +265,8 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
       }
     } catch (error) {
       toast.error("Có lỗi xảy ra khi lưu blog");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -235,10 +281,10 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
             <CardDescription>Điền thông tin chi tiết bên dưới</CardDescription>
           </div>
           <div className="ml-auto flex flex-row gap-2">
-            <Button type="button" onClick={handleSelectBlog}>Mở bài viết</Button>
-            <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
-            <Button type="button" onClick={handlePostBlog}>Đăng</Button>
-            <Button type="button" onClick={handleSaveBlog}> Lưu </Button>
+            <Button type="button" onClick={handleSelectBlog} disabled={isProcessing}>Mở bài viết</Button>
+            <Button type="button" onClick={handleNewBlog} disabled={isProcessing}>Tạo mới</Button>
+            <Button type="button" onClick={handlePostBlog} disabled={isProcessing}>Đăng</Button>
+            <Button type="button" onClick={handleSaveBlog} disabled={isProcessing}> Lưu </Button>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">
@@ -302,6 +348,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
                   type="button"
                   // onClick={() => setIsOpenImageDialog(true)}
                   onClick={handleSelectThumbnailUrl}
+                  disabled={isProcessing}
                 >
                   Chọn Thumbnail
                 </Button>
@@ -310,6 +357,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
               <Button
                 type="button"
                 onClick={handleSelectTags}
+                disabled={isProcessing}
               >
                 Chọn Tags
               </Button>
