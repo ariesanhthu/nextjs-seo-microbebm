@@ -7,17 +7,16 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Search, X, Plus, BookOpen, ChevronLeft, ChevronRight } from "lucide-react"
-import { BlogResponseDto } from "@/lib/dto/blog.dto"
-import { EBlogStatus } from "@/lib/enums/blog-status.enum"
+import { ProductResponseDto } from "@/lib/dto/product.dto"
 
-interface BlogSelectionDialogProps {
+interface ProductSelectionDialogProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: (selectedBlogs: BlogResponseDto[]) => void
-  currentSelected: BlogResponseDto[]
-  numberSelection?: number // Optional: max number of blogs to select (undefined = unlimited)
+  onConfirm: (selectedProducts: ProductResponseDto[]) => void
+  currentSelected: ProductResponseDto[]
+  numberSelection?: number
   // Data props
-  blogs: BlogResponseDto[]
+  products: ProductResponseDto[]
   loading: boolean
   error: string | null
   hasNextPage: boolean
@@ -30,13 +29,13 @@ interface BlogSelectionDialogProps {
   refresh: () => void
 }
 
-export default function BlogSelectionDialog({
+export default function ProductSelectionDialog({
   isOpen,
   onClose,
   onConfirm,
   currentSelected,
   numberSelection,
-  blogs,
+  products,
   loading,
   error,
   hasNextPage,
@@ -47,69 +46,42 @@ export default function BlogSelectionDialog({
   setSearchQuery,
   isSearching,
   refresh
-}: BlogSelectionDialogProps) {
-  const [selectedBlogs, setSelectedBlogs] = useState<BlogResponseDto[]>(currentSelected)
+}: ProductSelectionDialogProps) {
+  const [selectedProducts, setSelectedProducts] = useState<ProductResponseDto[]>(currentSelected)
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedBlogs(currentSelected)
+      setSelectedProducts(currentSelected)
       refresh()
     }
   }, [isOpen, currentSelected])
 
-  const toggleBlogSelection = (blog: BlogResponseDto) => {
-    const isSelected = selectedBlogs.some(b => b.id === blog.id)
+  const toggleProductSelection = (product: ProductResponseDto) => {
+    const isSelected = selectedProducts.some(b => b.id === product.id)
     if (isSelected) {
-      // Always allow removing selected blogs
-      setSelectedBlogs(selectedBlogs.filter(b => b.id !== blog.id))
+      // Always allow removing selected products
+      setSelectedProducts(selectedProducts.filter(b => b.id !== product.id))
     } else {
       // Check if we've reached the selection limit
-      if (numberSelection && selectedBlogs.length >= numberSelection) {
+      if (numberSelection && selectedProducts.length >= numberSelection) {
         // If numberSelection is 1, replace the current selection
         if (numberSelection === 1) {
-          setSelectedBlogs([blog])
+          setSelectedProducts([product])
         }
         // For other limits, don't add more (could show a toast/message here)
         return
       }
-      setSelectedBlogs([...selectedBlogs, blog])
+      setSelectedProducts([...selectedProducts, product])
     }
   }
 
-  const removeSelectedBlog = (blogId: string) => {
-    setSelectedBlogs(selectedBlogs.filter(b => b.id !== blogId))
+  const removeSelectedProduct = (productId: string) => {
+    setSelectedProducts(selectedProducts.filter(b => b.id !== productId))
   }
 
   const handleConfirm = () => {
-    onConfirm(selectedBlogs);
-    setSearchQuery("");
+    onConfirm(selectedProducts);
     onClose();
-  }
-
-  const getStatusBadgeColor = (status: EBlogStatus) => {
-    switch (status) {
-      case EBlogStatus.PUBLISHED:
-        return "bg-green-100 text-green-800"
-      case EBlogStatus.DRAFT:
-        return "bg-yellow-100 text-yellow-800"
-      case EBlogStatus.ARCHIVED:
-        return "bg-gray-100 text-gray-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
-
-  const getStatusText = (status: EBlogStatus) => {
-    switch (status) {
-      case EBlogStatus.PUBLISHED:
-        return "Đã xuất bản"
-      case EBlogStatus.DRAFT:
-        return "Bản nháp"
-      case EBlogStatus.ARCHIVED:
-        return "Đã lưu trữ"
-      default:
-        return "Không xác định"
-    }
   }
 
   if (!isOpen) return null
@@ -140,7 +112,7 @@ export default function BlogSelectionDialog({
 
         {/* Content - Scrollable */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Left side - Blog list */}
+          {/* Left side - Product list */}
           <div className="flex-1 border-r overflow-hidden">
             <div className="p-4 pb-0">
               <div>
@@ -199,30 +171,30 @@ export default function BlogSelectionDialog({
                     Thử lại
                   </Button>
                 </div>
-              ) : blogs.length === 0 ? (
+              ) : products.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                   <p>Không tìm thấy bài viết nào</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
-                  {blogs.map((blog) => {
-                    const isSelected = selectedBlogs.some(b => b.id === blog.id)
+                  {products.map((product) => {
+                    const isSelected = selectedProducts.some(b => b.id === product.id)
                     return (
                       <Card
-                        key={blog.id}
+                        key={product.id}
                         className={`cursor-pointer transition-all hover:shadow-md ${
                           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                         }`}
-                        onClick={() => toggleBlogSelection(blog)}
+                        onClick={() => toggleProductSelection(product)}
                       >
                         <CardContent className="p-3">
                           <div className="flex items-center gap-3">
                             <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                              {blog.thumbnail_url ? (
+                              {product.main_img ? (
                                 <img 
-                                  src={blog.thumbnail_url} 
-                                  alt={blog.title}
+                                  src={product.main_img} 
+                                  alt={product.name}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
@@ -230,23 +202,17 @@ export default function BlogSelectionDialog({
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-sm truncate">{blog.title}</h3>
+                              <h3 className="font-medium text-sm truncate">{product.name}</h3>
                               <p className="text-xs text-gray-500 truncate">
-                                {blog.excerpt || "Không có mô tả"}
+                                {product.description || "Không có mô tả"}
                               </p>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant={isSelected ? "default" : "secondary"} className="text-xs">
                                   {isSelected ? "Đã chọn" : "Chưa chọn"}
                                 </Badge>
-                                <Badge 
-                                  className={`text-xs ${getStatusBadgeColor(blog.status)}`}
-                                  variant="secondary"
-                                >
-                                  {getStatusText(blog.status)}
-                                </Badge>
-                                <span className="text-xs text-gray-400">
-                                  {blog.author}
-                                </span>
+                                {/* <span className="text-xs text-gray-400">
+                                  {product.}
+                                </span> */}
                               </div>
                             </div>
                           </div>
@@ -259,29 +225,29 @@ export default function BlogSelectionDialog({
             </div>
           </div>
 
-          {/* Right side - Selected blogs */}
+          {/* Right side - Selected products */}
           <div className="w-80 overflow-hidden">
             <div className="p-4 pb-0">
-              <h3 className="font-medium">Bài viết đã chọn ({selectedBlogs.length})</h3>
+              <h3 className="font-medium">Bài viết đã chọn ({selectedProducts.length})</h3>
             </div>
             
             <div className="p-4 pt-2 overflow-y-auto h-full">
-              {selectedBlogs.length === 0 ? (
+              {selectedProducts.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                   <p>Chưa có bài viết nào được chọn</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {selectedBlogs.map((blog) => (
-                    <Card key={blog.id} className="relative">
+                  {selectedProducts.map((product) => (
+                    <Card key={product.id} className="relative">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                            {blog.thumbnail_url ? (
+                            {product.main_img ? (
                               <img 
-                                src={blog.thumbnail_url} 
-                                alt={blog.title}
+                                src={product.main_img} 
+                                alt={product.name}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
@@ -289,16 +255,16 @@ export default function BlogSelectionDialog({
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm truncate">{blog.title}</h4>
+                            <h4 className="font-medium text-sm truncate">{product.name}</h4>
                             <p className="text-xs text-gray-500 truncate">
-                              {blog.excerpt || "Không có mô tả"}
+                              {product.description || "Không có mô tả"}
                             </p>
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 text-red-500 hover:text-red-700"
-                            onClick={() => removeSelectedBlog(blog.id)}
+                            onClick={() => removeSelectedProduct(product.id)}
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -318,7 +284,7 @@ export default function BlogSelectionDialog({
             Hủy
           </Button>
           <Button onClick={handleConfirm}>
-            Xác nhận ({selectedBlogs.length}{numberSelection ? `/${numberSelection}` : ''})
+            Xác nhận ({selectedProducts.length}{numberSelection ? `/${numberSelection}` : ''})
           </Button>
         </div>
       </div>

@@ -12,14 +12,14 @@ import { HomepageFooter, HomepageNavigationBar, HomepageResponseDto, UpdateHomep
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
-import ProductSelectionDialog from "@/features/admin/dialog-product/product-selection-dialog"
 import { ProductResponseDto } from "@/lib/dto/product.dto"
 import NavbarAdmin from "@/components/NavbarAdmin"
 import ImageWithMetadata from "@/components/ui/image-with-metadata"
 import { toast } from "sonner"
-import BlogSelectionDialog from "@/features/blog/components/blog-selection-dialog"
 import { useBlogGallery } from "@/features/blog/context/blog-gallery-context"
 import { BlogResponseDto } from "@/lib/dto/blog.dto"
+import { useProductGallery } from "@/features/product/context/product-gallery-context"
+import { set } from "zod"
 
 export default function AdminHomepagePage() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -32,6 +32,7 @@ export default function AdminHomepagePage() {
   // Use image gallery context
   const imageGallery = useImageGallery();
   const blogGallery = useBlogGallery();
+  const productGallery = useProductGallery();
 
   // Load homepage data first
   useEffect(() => {
@@ -157,19 +158,20 @@ export default function AdminHomepagePage() {
     })
   }
 
-  const handleProductSelection = (selectedProducts: ProductResponseDto[]) => {
-    if (form) {
-      setForm({
-        ...form,
-        products: selectedProducts
-      })
-      toast.success(`Đã chọn ${selectedProducts.length} sản phẩm nổi bật`)
-    }
+  const handleProductSelection = () => {
+    productGallery.openSelectionDialog(form?.products || [], (selected) => {
+      if (form) {
+        setForm({
+          ...form,
+          products: selected
+        })
+        toast.success(`Đã chọn ${selected.length} sản phẩm nổi bật`)
+      }
+    })
   }
 
   const handleBlogSelection = () => {
     blogGallery.openSelectionDialog(form?.blogs || [], (selected) => {
-      console.log("Selected blogs:", selected);
       if (form) {
         setForm({
           ...form,
@@ -458,7 +460,7 @@ export default function AdminHomepagePage() {
                 <div className="text-sm text-muted-foreground">
                   Đã chọn {form?.products?.length || 0} sản phẩm
                 </div>
-                <Button variant="outline" onClick={() => setShowProductDialog(true)}>
+                <Button variant="outline" onClick={handleProductSelection}>
                   <Plus className="h-4 w-4 mr-2" />
                   {form?.products?.length ? "Chỉnh sửa" : "Thêm sản phẩm"}
                 </Button>
@@ -644,13 +646,6 @@ export default function AdminHomepagePage() {
           </div>
         </>
       )}
-
-      <ProductSelectionDialog
-        isOpen={showProductDialog}
-        onClose={() => setShowProductDialog(false)}
-        onConfirm={handleProductSelection}
-        currentSelected={form?.products || []}
-      />
     </div>
   )
 }
