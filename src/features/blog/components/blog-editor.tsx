@@ -156,9 +156,11 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const handleSelectBlog = () => {
     setIsProcessing(true);
     try {
-      blogGallery.openDialog((blog: BlogResponseDto) => {
-        handleOpenBlog(blog);
-      });
+      blogGallery.openSelectionDialog([], (blogs: BlogResponseDto[]) => {
+        if (blogs.length > 0) {
+          handleOpenBlog(blogs[0]);
+        }
+      }, 1);
     } finally {
       setIsProcessing(false);
     }

@@ -15,6 +15,7 @@ interface BlogSelectionDialogProps {
   onClose: () => void
   onConfirm: (selectedBlogs: BlogResponseDto[]) => void
   currentSelected: BlogResponseDto[]
+  numberSelection?: number // Optional: max number of blogs to select (undefined = unlimited)
   // Data props
   blogs: BlogResponseDto[]
   loading: boolean
@@ -34,6 +35,7 @@ export default function BlogSelectionDialog({
   onClose,
   onConfirm,
   currentSelected,
+  numberSelection,
   blogs,
   loading,
   error,
@@ -58,8 +60,18 @@ export default function BlogSelectionDialog({
   const toggleBlogSelection = (blog: BlogResponseDto) => {
     const isSelected = selectedBlogs.some(b => b.id === blog.id)
     if (isSelected) {
+      // Always allow removing selected blogs
       setSelectedBlogs(selectedBlogs.filter(b => b.id !== blog.id))
     } else {
+      // Check if we've reached the selection limit
+      if (numberSelection && selectedBlogs.length >= numberSelection) {
+        // If numberSelection is 1, replace the current selection
+        if (numberSelection === 1) {
+          setSelectedBlogs([blog])
+        }
+        // For other limits, don't add more (could show a toast/message here)
+        return
+      }
       setSelectedBlogs([...selectedBlogs, blog])
     }
   }
@@ -108,7 +120,17 @@ export default function BlogSelectionDialog({
         <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            <h2 className="text-xl font-semibold">Chọn bài viết nổi bật</h2>
+            <div>
+              <h2 className="text-xl font-semibold">Chọn bài viết</h2>
+              {numberSelection && (
+                <p className="text-sm text-gray-500">
+                  {numberSelection === 1 
+                    ? "Chỉ có thể chọn 1 bài viết" 
+                    : `Tối đa ${numberSelection} bài viết`
+                  }
+                </p>
+              )}
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -295,7 +317,7 @@ export default function BlogSelectionDialog({
             Hủy
           </Button>
           <Button onClick={handleConfirm}>
-            Xác nhận ({selectedBlogs.length})
+            Xác nhận ({selectedBlogs.length}{numberSelection ? `/${numberSelection}` : ''})
           </Button>
         </div>
       </div>

@@ -1,18 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
-import OpenBlogDialog from '../components/open-blog-dialog';
 import BlogSelectionDialog from '../components/blog-selection-dialog';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
 import { EBlogStatus } from '@/lib/enums/blog-status.enum';
 import { toast } from 'sonner';
 interface BlogGalleryContextType {
-  // Dialog state
-  isOpen: boolean;
-  openDialog: (onSelect: (image: BlogResponseDto) => void) => void;
-  closeDialog: () => void;
-  
   // Data from pagination hook
   blogs: BlogResponseDto[];
   loading: boolean;
@@ -33,7 +27,7 @@ interface BlogGalleryContextType {
   // Blog selection functionality
   selectedBlogs: BlogResponseDto[];
   isSelectionDialogOpen: boolean;
-  openSelectionDialog: (currentSelected?: BlogResponseDto[], onConfirm?: (selected: BlogResponseDto[]) => void) => void;
+  openSelectionDialog: (currentSelected?: BlogResponseDto[], onConfirm?: (selected: BlogResponseDto[]) => void, numberSelection?: number) => void;
   closeSelectionDialog: () => void;
   toggleBlogSelection: (blog: BlogResponseDto) => void;
   removeSelectedBlog: (blogId: string) => void;
@@ -48,13 +42,11 @@ interface BlogGalleryProviderProps {
 }
 
 export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentOnSelect, setCurrentOnSelect] = useState<((blog: BlogResponseDto) => void) | null>(null);
-  
   // Blog selection state
   const [selectedBlogs, setSelectedBlogs] = useState<BlogResponseDto[]>([]);
   const [isSelectionDialogOpen, setIsSelectionDialogOpen] = useState(false);
   const [currentOnConfirm, setCurrentOnConfirm] = useState<((selected: BlogResponseDto[]) => void) | null>(null);
+  const [numberSelection, setNumberSelection] = useState<number | undefined>(undefined);
 
   // Use the pagination hook to manage blog data
   const {
@@ -78,24 +70,6 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     searchDebounceMs: 300
   });
 
-  // Select Blog dialog function
-  const openDialog = useCallback((onSelect: (image: BlogResponseDto) => void) => {
-    setCurrentOnSelect(() => onSelect); // Store the callback
-    setIsOpen(true);
-  }, []);
-
-  const closeDialog = useCallback(() => {
-    setIsOpen(false);
-    setCurrentOnSelect(null);
-  }, []);
-
-  const handleSelect = useCallback((image: BlogResponseDto) => {
-    if (currentOnSelect) {
-      currentOnSelect(image);
-    }
-    closeDialog();
-  }, [currentOnSelect, closeDialog]);
-
   const handleUpdateBlogStatus = useCallback(async (id: string, status: EBlogStatus) => {
     // Update the blog status
     const res = await fetch(`/api/blog/${id}`, {
@@ -116,9 +90,10 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
   }, []);
 
   // Blog selection functions
-  const openSelectionDialog = useCallback((currentSelected: BlogResponseDto[] = [], onConfirm?: (selected: BlogResponseDto[]) => void) => {
+  const openSelectionDialog = useCallback((currentSelected: BlogResponseDto[] = [], onConfirm?: (selected: BlogResponseDto[]) => void, numberSelectionParam?: number) => {
     setSelectedBlogs(currentSelected);
     setCurrentOnConfirm(() => onConfirm || null);
+    setNumberSelection(numberSelectionParam);
     setIsSelectionDialogOpen(true);
     // Don't reset search when dialog opens - let users keep their search context
     refresh();
@@ -126,8 +101,8 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
 
   const closeSelectionDialog = useCallback(() => {
     setIsSelectionDialogOpen(false);
-    setSearchQuery("");
     setCurrentOnConfirm(null);
+    setNumberSelection(undefined);
   }, []);
 
   const toggleBlogSelection = useCallback((blog: BlogResponseDto) => {
@@ -157,9 +132,6 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
   }, [currentOnConfirm, closeSelectionDialog]);
 
   const contextValue: BlogGalleryContextType = {
-    isOpen,
-    openDialog,
-    closeDialog,
     blogs,
     loading,
     error,
@@ -183,66 +155,29 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     setSelectedBlogs,
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      goToFirstPage();
-    }
-  }, [isOpen]);
-
   return (
     <BlogGalleryContext.Provider value={contextValue}>
       {children}
-
-      {/* Hidden the dialog when close, do not re-render */}
-      <div
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <OpenBlogDialog
-          onSelect={handleSelect}
-          closeDialog={closeDialog}
-          isOpen={isOpen}
-          data={blogs}
-          loading={loading}
-          error={error}
-          hasNextPage={hasNextPage}
-          hasPrevPage={hasPrevPage}
-          goToNextPage={goToNextPage}
-          goToPrevPage={goToPrevPage}
-          goToFirstPage={goToFirstPage}
-          refresh={refresh}
-          cacheSize={cacheSize}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          isSearching={isSearching}
-        />
-      </div>
       
       {/* Blog Selection Dialog */}
-      <div
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
-          isSelectionDialogOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <BlogSelectionDialog
-          isOpen={isSelectionDialogOpen}
-          onClose={closeSelectionDialog}
-          onConfirm={confirmSelection}
-          currentSelected={selectedBlogs}
-          blogs={blogs}
-          loading={loading}
-          error={error}
-          hasNextPage={hasNextPage}
-          hasPrevPage={hasPrevPage}
-          goToNextPage={goToNextPage}
-          goToPrevPage={goToPrevPage}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          isSearching={isSearching}
-          refresh={refresh}
-        />
-      </div>
+      <BlogSelectionDialog
+        isOpen={isSelectionDialogOpen}
+        onClose={closeSelectionDialog}
+        onConfirm={confirmSelection}
+        currentSelected={selectedBlogs}
+        numberSelection={numberSelection}
+        blogs={blogs}
+        loading={loading}
+        error={error}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+        goToNextPage={goToNextPage}
+        goToPrevPage={goToPrevPage}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isSearching={isSearching}
+        refresh={refresh}
+      />
     </BlogGalleryContext.Provider>
   );
 }
