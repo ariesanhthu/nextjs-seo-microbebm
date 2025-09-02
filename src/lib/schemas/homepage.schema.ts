@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { GeneralSchema } from './general.schema'
 import { ProductResponseSchema } from './product.schema'
+import { BlogResponseSchema } from './blog.schema'
 
 export const HomepageSchema = GeneralSchema.extend({
   title: z.string({
@@ -94,6 +95,10 @@ export const HomepageSchema = GeneralSchema.extend({
   products: z.array(ProductResponseSchema, {
     message: "Homepage products must be an array"
   }).default([]),
+
+  blogs: z.array(BlogResponseSchema, {
+    message: "Homepage blogs must be an array"
+  }).default([]),
 }).strict()
 
 export const CreateHomepageSchema = HomepageSchema.pick({
@@ -108,7 +113,13 @@ export const CreateHomepageSchema = HomepageSchema.pick({
     message: "Homepage product_ids item must be a string"
   }), {
     message: "Homepage product_ids must be a array"
-  }).default([])
+  }).default([]),
+
+  blog_ids: z.array(z.string({
+    message: "Homepage blog_ids item must be a string"
+  }), {
+    message: "Homepage blog_ids must be a array"
+  }).default([]),
 })
 
 export const UpdateHomepageSchema = z.object({
@@ -204,6 +215,12 @@ export const UpdateHomepageSchema = z.object({
     message: "Homepage product_ids item must be a string"
   }), {
     message: "Homepage product_ids must be a array"
+  }).optional(),
+
+  blog_ids: z.array(z.string({
+    message: "Homepage blog_ids item must be a string"
+  }), {
+    message: "Homepage blog_ids must be a array"
   }).optional()
 })
 
