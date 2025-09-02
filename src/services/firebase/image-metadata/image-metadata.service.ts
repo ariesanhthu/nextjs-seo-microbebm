@@ -48,7 +48,7 @@ export class ImageMetadataService {
         throw new Error('Failed to retrieve created image-metadata');
       }
 
-      return createdDoc.data()!;
+      return createdDoc.data() || (() => { throw new Error('Failed to parse created ImageMetadata data'); })();
     } catch (error) {
       console.error('Error creating image-metadata:', error);
       throw new Error(`Failed to create image-metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -58,7 +58,12 @@ export class ImageMetadataService {
   static async getById(id: string): Promise<ImageMetadataResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      return doc.exists ? doc.data()! : null;
+      if (!doc.exists) return null;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting image-metadata by ID:', error);
       throw new Error(`Failed to get image-metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -86,7 +91,14 @@ export class ImageMetadataService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -113,7 +125,7 @@ export class ImageMetadataService {
     try {
       // Check if image-metadata exists
       const existing = await this.getDocRef(id).get();
-      if (!existing) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`ImageMetadata with id '${id}' not found`);
       }
 
@@ -129,7 +141,7 @@ export class ImageMetadataService {
         throw new Error('Failed to retrieve updated image-metadata');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated ImageMetadata data'); })();
     } catch (error) {
       console.error('Error updating image-metadata:', error);
       throw new Error(`Failed to update image-metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -143,7 +155,11 @@ export class ImageMetadataService {
       if (!doc) {
         throw new Error(`ImageMetadata with id '${id}' not found`);
       }
-      const removeImage = await Cloudinary.destroyImage(doc.data()!.public_id);
+      const docData = doc.data();
+      if (!docData) {
+        throw new Error('Failed to parse document data for image deletion');
+      }
+      const removeImage = await Cloudinary.destroyImage(docData.public_id);
       if (removeImage.result !== "ok") {
         throw new Error(`Failed to delete image from Cloudinary: ${removeImage.error?.message || 'Unknown error'}`);
       }

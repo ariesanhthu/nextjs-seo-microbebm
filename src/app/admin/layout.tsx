@@ -16,7 +16,7 @@ export default function AdminLayout({
       <BlogGalleryProvider>
         <ProductGalleryProvider>
           <TagGalleryProvider>
-            <div className="min-h-screen bg-gray-50 px-10">
+            <div className="min-h-screen px-10 bg-background">
               <AdminSidebar />
               <div className="lg:pl-64">
                 <main className="pt-16 lg:pt-8">{children}</main>

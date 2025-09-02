@@ -4,7 +4,7 @@ import { formatZodError } from '@/lib/format-error-response';
 
 export function zodAdminConverter<T extends ZodType>(
   schema: T
-): FirestoreDataConverter<z.infer<T>> {
+): FirestoreDataConverter<z.infer<T> | null> {
   return {
     toFirestore(document: z.infer<T>): DocumentData {
       try {
@@ -21,10 +21,10 @@ export function zodAdminConverter<T extends ZodType>(
         throw new Error(`Validation failed when writing to Firestore: ${error}`);
       }
     },
-    fromFirestore(snapshot): z.infer<T> {
+    fromFirestore(snapshot): z.infer<T> | null{
       const data = snapshot.data();
       if (!data) {
-        throw new Error(`Document ${snapshot.id} has no data`);
+        return null;
       }
       
       try {
@@ -38,11 +38,8 @@ export function zodAdminConverter<T extends ZodType>(
           const errorMessage = formattedErrors
             .map(err => `${err.field}: ${err.message}`)
             .join(', ');
-          console.error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${errorMessage}`);
-          throw new Error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${errorMessage}`);
         }
-        console.error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${error}`);
-        throw new Error(`Validation failed when reading from Firestore (doc: ${snapshot.id}): ${error}`);
+        return null;
       }
     },
   };

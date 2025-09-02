@@ -15,6 +15,10 @@ export default function AdminBlogEditorPage({ params }: { params: Promise<{ id?:
   const editorRef = React.useRef<BlogEditorHandle | null>(null)
   const [saving, setSaving] = React.useState(false)
   const [dirty, setDirty] = React.useState(false)
+  
+  const handleDirtyChange = (isDirty: boolean) => {
+    setDirty(isDirty);
+  }
 
   const handleOpenBlogFromDialog = () => {}
 
@@ -26,6 +30,7 @@ export default function AdminBlogEditorPage({ params }: { params: Promise<{ id?:
     <div className="space-y-6">
       <NavbarAdmin
         name={blogId ? "Chỉnh sửa bài viết" : "Tạo bài viết"}
+        showBackButton={true}
         description="tùy chỉnh bài viết, mở bài viết và tạo mới"
         buttonTool={
           <div className="flex items-center gap-2">
@@ -40,6 +45,7 @@ export default function AdminBlogEditorPage({ params }: { params: Promise<{ id?:
             </Button>
             <Button
               onClick={async () => {
+
                 if (saving || !dirty) return
                 setSaving(true)
                 try {
@@ -58,7 +64,7 @@ export default function AdminBlogEditorPage({ params }: { params: Promise<{ id?:
         }
       />
 
-      <BlogEditor ref={editorRef} blogId={blogId} onDirtyChange={setDirty} />
+      <BlogEditor ref={editorRef} blogId={blogId} onDirtyChange={handleDirtyChange} />
     </div>
   )
 }

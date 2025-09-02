@@ -128,35 +128,28 @@ export default function ProductGallery() {
           <Card>
             <CardHeader>
               <CardTitle>Danh sách sản phẩm</CardTitle>
-              <CardDescription>
-                Quản lý danh mục sản phẩm với giao diện này.
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Tên</TableHead>
                     <TableHead>Mô tả</TableHead>
                     <TableHead>Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody >
                   {products.map((product) => (
                     <TableRow key={product.id}>
-                      <TableCell className="font-mono text-xs truncate max-w-[20px]">
-                        {product.id}
-                      </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.description}</TableCell>
+                      
+                      <TableCell className="font-medium truncate">{product.name}</TableCell>
+                      <TableCell className='truncate max-w-[20rem]'>{product.description}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => router.push(`/product/${product.slug}`)}
-                            disabled={isLoading}
                             title="Xem sản phẩm"
                           >
                             <Eye className="h-4 w-4" />
@@ -165,7 +158,6 @@ export default function ProductGallery() {
                             variant="ghost"
                             size="sm"
                             onClick={() => openEdit(product)}
-                            disabled={isLoading}
                             title="Chỉnh sửa"
                           >
                             <Edit className="h-4 w-4" />
@@ -175,7 +167,6 @@ export default function ProductGallery() {
                             size="sm"
                             onClick={() => handleDelete(product.id)}
                             title="Xóa"
-                            disabled={isLoading}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

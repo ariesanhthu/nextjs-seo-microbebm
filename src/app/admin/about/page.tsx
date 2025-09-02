@@ -94,7 +94,7 @@ export default function AboutManagementPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-foreground">
             Quản lý các layout cho trang About. Mỗi layout có thể chứa nhiều section với các style khác nhau.
           </p>
         </CardContent>

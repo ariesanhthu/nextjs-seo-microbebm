@@ -1,13 +1,12 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ExternalLink, ImageIcon } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { ImageIcon } from "lucide-react"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
-import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
+import Style0NoImage from "./section-style/style0-no-image"
+import Style1OneImage from "./section-style/style1-one-image"
+import Style2FourImage from "./section-style/style2-four-image"
 
 type AboutSection = AboutResponseDto['section'][0]
 
@@ -15,149 +14,41 @@ interface LayoutPreviewProps {
   data: AboutResponseDto
 }
 
-export default function LayoutPreview({ data }: LayoutPreviewProps) {
-  const renderSubsection = (subsection: AboutSection['subsection'][0], index: number) => {
-    const { IconComponent } = useIconField(subsection.icon || "")
-    
-    return (
-      <Card key={index} className="mb-4">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-4">
-            {subsection.image_url && (
-              <div className="flex-shrink-0">
-                <ImageWithMetadata
-                  src={subsection.image_url}
-                  alt={subsection.name}
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 object-cover rounded"
-                />
-              </div>
-            )}
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                {subsection.icon && IconComponent && (
-                  <IconComponent className="w-6 h-6 text-blue-500" />
-                )}
-                <h4 className="font-semibold">{subsection.name}</h4>
-              </div>
-              <p className="text-muted-foreground mb-2">{subsection.description}</p>
-              {subsection.ref && (
-                <Button variant="outline" size="sm" asChild>
-                  <a href={subsection.ref} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Xem thêm
-                  </a>
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
+// Mapping từ EStyleSection đến các style components
+const styleComponentMap = {
+  [EStyleSection.NOIMAGE]: Style0NoImage,
+  [EStyleSection.ONEIMAGE]: Style1OneImage,
+  [EStyleSection.FOURIMAGE]: Style2FourImage,
+} as const
 
+export default function LayoutPreview({ data }: LayoutPreviewProps) {
   const renderSection = (section: AboutSection, index: number) => {
-    const getMaxImages = () => {
-      switch (section.style) {
-        case EStyleSection.NOIMAGE:
-          return 0
-        case EStyleSection.ONEIMAGE:
-          return 1
-        case EStyleSection.FOURIMAGE:
-          return 4
-        default:
-          return 0
-      }
+    const StyleComponent = styleComponentMap[section.style]
+    
+    if (!StyleComponent) {
+      console.warn(`Unknown style: ${section.style}`)
+      return null
     }
 
-    const maxImages = getMaxImages()
-    const subsectionsWithImages = section.subsection.filter(sub => sub.image_url)
-    const subsectionsWithoutImages = section.subsection.filter(sub => !sub.image_url)
+    // Mock onUpdate function cho preview mode
+    const mockOnUpdate = (updatedSection: AboutSection) => {
+      console.log('Preview mode - section updated:', updatedSection)
+    }
 
     return (
-      <Card key={index} className="mb-8">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl">{section.title}</CardTitle>
-              {section.subtitle && (
-                <p className="text-muted-foreground mt-1">{section.subtitle}</p>
-              )}
-            </div>
-            <Badge variant="outline">
-              Style {section.style}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {maxImages === 0 && (
-            <div className="space-y-4">
-              {section.subsection.map((subsection, idx) => renderSubsection(subsection, idx))}
-            </div>
-          )}
-
-          {maxImages === 1 && (
-            <div className="space-y-4">
-              {subsectionsWithImages.slice(0, 1).map((subsection, idx) => renderSubsection(subsection, idx))}
-              {subsectionsWithoutImages.map((subsection, idx) => renderSubsection(subsection, idx + 1))}
-            </div>
-          )}
-
-          {maxImages === 4 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {subsectionsWithImages.slice(0, 4).map((subsection, idx) => {
-                const { IconComponent } = useIconField(subsection.icon || "")
-                return (
-                  <div key={idx} className="space-y-2">
-                    {subsection.image_url && (
-                      <ImageWithMetadata
-                        src={subsection.image_url}
-                        alt={subsection.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {subsection.icon && IconComponent && (
-                          <IconComponent className="w-5 h-5 text-blue-500" />
-                        )}
-                        <h4 className="font-semibold">{subsection.name}</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{subsection.description}</p>
-                      {subsection.ref && (
-                        <Button variant="outline" size="sm" asChild className="mt-2">
-                          <a href={subsection.ref} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Xem thêm
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-              {subsectionsWithoutImages.map((subsection, idx) => renderSubsection(subsection, idx + 4))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div key={index} className="mb-8">
+        <StyleComponent 
+          section={section} 
+          onUpdate={mockOnUpdate}
+        />
+      </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Preview Layout</h1>
-        <p className="text-muted-foreground">
-          Giao diện xem trước bố cục nội dung
-        </p>
-      </div>
-
+    <div className="max-w-6xl mx-auto p-6">
       {data.section && data.section.length > 0 ? (
-        <div className="space-y-6">
+        <div className="space-y-12">
           {data.section.map((section, index) => renderSection(section, index))}
         </div>
       ) : (

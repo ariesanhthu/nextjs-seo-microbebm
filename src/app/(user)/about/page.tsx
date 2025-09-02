@@ -31,16 +31,16 @@ export default function AboutPage() {
     fetchAboutData()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+  //         <p className="text-muted-foreground">Đang tải dữ liệu...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (error) {
     return (
@@ -62,7 +62,7 @@ export default function AboutPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground">Chưa có nội dung nào được tạo</p>
+          <p className="text-foreground">Chưa có nội dung nào được tạo</p>
         </div>
       </div>
     )

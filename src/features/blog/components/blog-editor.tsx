@@ -49,6 +49,13 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
   const [isDirty, setIsDirty] = React.useState(false);
   const suppressDirtyRef = React.useRef(false);
   
+  // Reset dirty state khi component mount
+  React.useEffect(() => {
+
+    setIsDirty(false);
+    onDirtyChange?.(false);
+  }, []);
+  
   // Use the custom alert dialog hook
   const alertDialog = useGlobalAlert();
   const imageGallery = useImageGallery();
@@ -56,7 +63,11 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
   const tagGallery = useTagGallery();
 
   const setDirty = (val: boolean) => {
-    if (suppressDirtyRef.current) return;
+    if (suppressDirtyRef.current) {
+
+      return;
+    }
+
     setIsDirty(val);
     onDirtyChange?.(val);
   }
@@ -67,6 +78,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
       updater();
     } finally {
       suppressDirtyRef.current = false;
+      // Luôn reset dirty state sau khi load data
       setIsDirty(false);
       onDirtyChange?.(false);
     }
@@ -82,6 +94,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
         const data: ApiResponseDto<BlogResponseDto> = await res.json();
         if (data?.success && data.data) {
           const blog = data.data;
+
           loadBlogData(blog);
         }
       } catch (err) {
@@ -116,6 +129,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
   };
 
   const loadBlogData = (blog: BlogResponseDto) => {
+
     runWithSuppressedDirty(() => {
       setId(blog.id);
       setTitle(blog.title);
@@ -127,6 +141,7 @@ const BlogEditor = React.forwardRef<BlogEditorHandle, BlogEditorProps>(function 
       setStatus(blog.status || EBlogStatus.DRAFT);
       setTags(blog.tags || []);
     });
+
   };
 
   const handleOpenBlog = async (blog: BlogResponseDto, alert: boolean = true) => {

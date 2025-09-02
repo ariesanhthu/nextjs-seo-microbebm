@@ -89,7 +89,7 @@ export class ProductService {
       
       // Get the created document and populate references
       const createdDoc = await this.getDocRef(docRef.id).get();
-      if (!createdDoc.exists) {
+      if (!createdDoc.exists || !createdDoc.data()) {
         throw new Error('Failed to retrieve created Product');
       }
 
@@ -103,11 +103,15 @@ export class ProductService {
   static async getById(id: string): Promise<ProductResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      if (!doc.exists) {
+      if (!doc.exists) return null;
+      
+      try {
+        const data = doc.data();
+        if (!data) return null;
+        return await this.populateCategory(data) as ProductResponseDto;
+      } catch (error) {
         return null;
       }
-      
-      return await this.populateCategory(doc.data()) as ProductResponseDto;
     } catch (error) {
       console.error('Error getting Product by ID:', error);
       throw new Error(`Failed to get Product: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -160,12 +164,19 @@ export class ProductService {
       }
 
       const snapshot = await queryRef.get();
-      let allDocs = await Promise.all(
+      let allDocs = (await Promise.all(
         snapshot.docs.map(async (doc: any) => {
-          const rawData = { id: doc.id, ...doc.data() };
-          return await this.populateCategory(rawData) as ProductResponseDto;
+          try {
+            const rawData = doc.data();
+            if (rawData === null) return null;
+            const dataWithId = { id: doc.id, ...rawData };
+            return await this.populateCategory(dataWithId) as ProductResponseDto;
+          } catch (error) {
+            // If converter returns null or throws error, skip this document
+            return null;
+          }
         })
-      );
+      )).filter((doc): doc is ProductResponseDto => doc !== null);
 
       if (search) {
         const normalizedSearch = generateSlug([search], ' ');
@@ -225,7 +236,7 @@ export class ProductService {
 
       // Get updated document and populate references
       const updatedDoc = await this.getDocRef(id).get();
-      if (!updatedDoc.exists) {
+      if (!updatedDoc.exists || !updatedDoc.data()) {
         throw new Error('Failed to retrieve updated Product');
       }
 
@@ -240,7 +251,7 @@ export class ProductService {
     try {
       // Check if Product exists
       const doc = await this.getDocRef(id).get();
-      if (!doc) {
+      if (!doc.exists || !doc.data()) {
         throw new Error(`Product with id '${id}' not found`);
       }
 

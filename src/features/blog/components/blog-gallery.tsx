@@ -121,7 +121,7 @@ export default function BlogGallery() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ảnh</TableHead>
+                  {/* <TableHead>Ảnh</TableHead> */}
                   <TableHead>Tiêu đề</TableHead>
                   <TableHead>Tác giả</TableHead>
                   <TableHead>Trạng thái</TableHead>
@@ -131,7 +131,7 @@ export default function BlogGallery() {
               <TableBody>
                 {blogs.map((blog) => (
                   <TableRow key={blog.id}>
-                    <TableCell>
+                    {/* <TableCell>
                     {
                       blog.thumbnail_url !== "" && blog.thumbnail_url
                       ?
@@ -151,8 +151,8 @@ export default function BlogGallery() {
                           className="rounded-lg object-cover"
                         />
                     }
-                    </TableCell>
-                    <TableCell className="font-medium">{blog.title}</TableCell>
+                    </TableCell> */}
+                    <TableCell className="font-medium truncate max-w-[10rem]">{blog.title}</TableCell>
                     <TableCell>{blog.author}</TableCell>
                     <TableCell className="font-medium">
                         <Select
@@ -204,7 +204,7 @@ export default function BlogGallery() {
             
             <div className="flex items-center">
               <Badge variant="outline">
-                {blogs.length} blogs
+                {blogs.length} bài viết
               </Badge>
             </div>
             

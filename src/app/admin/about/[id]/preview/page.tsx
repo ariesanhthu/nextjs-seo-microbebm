@@ -95,8 +95,8 @@ export default function AboutPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-6">
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto">
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
@@ -106,7 +106,7 @@ export default function AboutPreviewPage() {
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">Preview Layout</h1>
-                <p className="text-muted-foreground">Đây là cách layout sẽ hiển thị trên trang web</p>
+                <p className="text-foreground">Đây là cách layout sẽ hiển thị trên trang web</p>
               </div>
             </div>
           </CardContent>
