@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Save, Trash2, Image as ImageIcon, Images, Globe, FileText, Sliders, Package, NotebookPen } from "lucide-react"
+import { Plus, Save, Trash2, Image as ImageIcon, Images, Globe, FileText, Sliders, Package, NotebookPen, BookOpen } from "lucide-react"
 import ImageUploader from "@/features/image-storage/components/image-uploader"
 import { HomepageFooter, HomepageNavigationBar, HomepageResponseDto, UpdateHomepageDto } from "@/lib/dto/homepage.dto"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -17,6 +17,9 @@ import { ProductResponseDto } from "@/lib/dto/product.dto"
 import NavbarAdmin from "@/components/NavbarAdmin"
 import ImageWithMetadata from "@/components/ui/image-with-metadata"
 import { toast } from "sonner"
+import BlogSelectionDialog from "@/features/blog/components/blog-selection-dialog"
+import { useBlogGallery } from "@/features/blog/context/blog-gallery-context"
+import { BlogResponseDto } from "@/lib/dto/blog.dto"
 
 export default function AdminHomepagePage() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -24,9 +27,11 @@ export default function AdminHomepagePage() {
   const [form, setForm] = useState<HomepageResponseDto | null>(null)
   const [activeSection, setActiveSection] = useState<string>("website")
   const [showProductDialog, setShowProductDialog] = useState<boolean>(false)
-  
+  const [showBlogDialog, setShowBlogDialog] = useState<boolean>(false)
+
   // Use image gallery context
-  const imageGallery = useImageGallery()
+  const imageGallery = useImageGallery();
+  const blogGallery = useBlogGallery();
 
   // Load homepage data first
   useEffect(() => {
@@ -160,6 +165,19 @@ export default function AdminHomepagePage() {
       })
       toast.success(`Đã chọn ${selectedProducts.length} sản phẩm nổi bật`)
     }
+  }
+
+  const handleBlogSelection = () => {
+    blogGallery.openSelectionDialog(form?.blogs || [], (selected) => {
+      console.log("Selected blogs:", selected);
+      if (form) {
+        setForm({
+          ...form,
+          blogs: selected
+        })
+        toast.success(`Đã chọn ${selected.length} bài viết nổi bật`)
+      }
+    })
   }
 
   const removeProduct = (productId: string) => {
@@ -513,7 +531,7 @@ export default function AdminHomepagePage() {
                 <div className="text-sm text-muted-foreground">
                   Đã chọn {form?.blogs?.length || 0} bài viết
                 </div>
-                <Button variant="outline" onClick={() => setShowProductDialog(true)}>
+                <Button variant="outline" onClick={handleBlogSelection}>
                   <Plus className="h-4 w-4 mr-2" />
                   {form?.blogs?.length ? "Chỉnh sửa" : "Thêm bài viết"}
                 </Button>
@@ -566,9 +584,9 @@ export default function AdminHomepagePage() {
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground py-8">
-                  <Package className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                  <p>Chưa có sản phẩm nào được chọn</p>
-                  <p className="text-sm">Nhấn "Thêm sản phẩm" để bắt đầu</p>
+                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                  <p>Chưa có bài viết nào được chọn</p>
+                  <p className="text-sm">Nhấn "Thêm bài viết" để bắt đầu</p>
                 </div>
               )}
             </CardContent>
