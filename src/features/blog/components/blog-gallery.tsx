@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { useGlobalAlert } from '@/features/alert-dialog/context/alert-dialog-context';
 import { ApiResponseDto } from '@/lib/dto/api-response.dto';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -81,13 +81,24 @@ export default function BlogGallery() {
       const data: ApiResponseDto<BlogResponseDto> = await response.json();
 
       if (!data.success) {
-        toast.error(`Failed to delete blog post\n${data.message}`);
+        toast({
+          variant: "destructive",
+          title: "Xóa thất bại",
+          description: `Failed to delete blog post: ${data.message}`,
+        });
       } else {
-        toast.success("Blog post deleted successfully!");
+        toast({
+          title: "Đã xóa",
+          description: "Blog post deleted successfully!",
+        });
         refresh(); 
       }
     } catch (error) {
-      toast.error("An error occurred while deleting the blog post");
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "An error occurred while deleting the blog post",
+      });
     }
 
   };
@@ -111,13 +122,11 @@ export default function BlogGallery() {
         <Card>
           <CardHeader>
             <CardTitle>Danh sách bài viết</CardTitle>
-            <CardDescription>Quản lý blog.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Ảnh</TableHead>
                   <TableHead>Tiêu đề</TableHead>
                   <TableHead>Tác giả</TableHead>
@@ -127,7 +136,6 @@ export default function BlogGallery() {
               <TableBody>
                 {blogs.map((blog) => (
                   <TableRow key={blog.id}>
-                    <TableCell className="font-mono text-xs">{blog.id}</TableCell>
                     <TableCell>
                     {
                       blog.thumbnail_url !== "" && blog.thumbnail_url

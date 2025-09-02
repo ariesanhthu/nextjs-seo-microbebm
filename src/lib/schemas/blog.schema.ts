@@ -14,18 +14,30 @@ export const BlogSchema = GeneralSchema.extend({
     message: "Blog author must be a string"
   }).min(2, 'Author name is too short').max(100, 'Author name is too long'),
 
-  content: z.string({
-    message: "Blog content must be a string"
-  }).default(""),
+  // Accept null/undefined -> ""
+  content: z.preprocess(
+    (val) => (val === null || val === undefined ? "" : val),
+    z.string({
+      message: "Blog content must be a string"
+    }).default("")
+  ),
 
-  tag_refs: z.array(DocumentReferenceSchema, {
-    message: "Blog tags_refs must be an array"
-  }).default([]),
+  // Accept null/undefined -> []
+  tag_refs: z.preprocess(
+    (val) => (val === null || val === undefined ? [] : val),
+    z.array(DocumentReferenceSchema, {
+      message: "Blog tags_refs must be an array"
+    }).default([])
+  ),
 
-  thumbnail_url: z.string({
-    message: "Blog thumbnail_url must be a string"
-  }).default(""),
-}).strict()
+  // Accept null from Firestore and coerce to empty string
+  thumbnail_url: z.preprocess(
+    (val) => (val === null || val === undefined ? "" : val),
+    z.string({
+      message: "Blog thumbnail_url must be a string"
+    }).default("")
+  ),
+}).passthrough()
 
 export const CreateBlogSchema = BlogSchema.pick({
   title: true,

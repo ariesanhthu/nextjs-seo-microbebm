@@ -146,28 +146,22 @@ const openEdit = (product: ProductResponseDto) => {
           <Card>
             <CardHeader>
               <CardTitle>Danh sách sản phẩm</CardTitle>
-              <CardDescription>
-                Quản lý danh mục sản phẩm với giao diện này.
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
                     <TableHead>Tên</TableHead>
                     <TableHead>Mô tả</TableHead>
                     <TableHead>Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody >
                   {products.map((product) => (
                     <TableRow key={product.id}>
-                      <TableCell className="font-mono text-xs truncate max-w-[20px]">
-                        {product.id}
-                      </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.description}</TableCell>
+                      
+                      <TableCell className="font-medium truncate">{product.name}</TableCell>
+                      <TableCell className='truncate max-w-[20rem]'>{product.description}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button

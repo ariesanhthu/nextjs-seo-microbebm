@@ -384,7 +384,7 @@ export default function AdminHomepagePage() {
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">Hoặc tải ảnh mới</div>
+                  <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
                   <ImageUploader />
                 </div>
               </CardContent>
@@ -418,7 +418,7 @@ export default function AdminHomepagePage() {
               </div>
               <Separator />
               <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Hoặc tải ảnh mới</div>
+                <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
                 <ImageUploader />
               </div>
             </CardContent>
@@ -433,7 +433,7 @@ export default function AdminHomepagePage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-foreground">
                   Đã chọn {form?.products?.length || 0} sản phẩm
                 </div>
                 <Button variant="outline" onClick={() => setShowProductDialog(true)}>
@@ -489,7 +489,7 @@ export default function AdminHomepagePage() {
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground py-8">
-                  <Package className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                  <Package className="h-12 w-12 mx-auto mb-2 text-foreground" />
                   <p>Chưa có sản phẩm nào được chọn</p>
                   <p className="text-sm">Nhấn "Thêm sản phẩm" để bắt đầu</p>
                 </div>

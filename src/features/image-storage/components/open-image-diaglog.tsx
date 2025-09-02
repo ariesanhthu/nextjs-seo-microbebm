@@ -106,7 +106,7 @@ export default function OpenImageMetadataDialog({
               </div>
               
               {imageMetadatas?.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-foreground">
                   No images found
                 </div>
               )}

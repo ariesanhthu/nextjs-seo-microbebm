@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Filter, X, RefreshCw, Leaf, TreePine, Sprout, Grid3X3, List } from "lucide-react"
+import { X, RefreshCw, Leaf, Grid3X3, List } from "lucide-react"
 import { BlogShowProvider, useBlogShow } from "../../context/blog-show-context"
 import BlogFilter, { type BlogFilters } from "./blog-filter"
 import BlogGrid from "./blog-grid"

@@ -37,34 +37,19 @@ export default function AdminSidebar() {
       href: "/admin",
       icon: <LayoutDashboard className="h-5 w-5" />,
       submenu: [
-        { title: "Khách hàng liên hệ", href: "/admin/contact" },
+        { title: "Trang chủ", href: "/admin/homepage"},
+        { title: "Giới thiệu", href: "/admin/about"},
         { title: "Đơn hàng", href: "/admin/orders" },
-        { title: "Dự án", href: "/admin/project"},
       ],
-    },
-    {
-      title: "Trang chủ",
-      href: "/admin/homepage",
-      icon: <Leaf className="h-5 w-5" />,
     },
     {
       title: "Sản phẩm",
       href: "/admin/product",
       icon: <Package className="h-5 w-5" />,
       submenu: [
-        { title: "Tất cả sản phẩm", href: "/admin/product" },
+        // { title: "Tất cả sản phẩm", href: "/admin/product" },
         { title: "Thêm sản phẩm", href: "/admin/product/new" },
         { title: "Danh mục", href: "/admin/product/categories" },
-      ],
-    },
-    {
-      title: "Giới thiệu",
-      href: "/admin/policy",
-      icon: <FileText className="h-5 w-5" />,
-      submenu: [
-        { title: "Tùy chỉnh giới thiệu", href: "/admin/about" },
-        // { title: "Chính sách chất lượng", href: "/admin/policy" },
-        // { title: "Danh mục", href: "/admin/products/categories" },
       ],
     },
     {
@@ -72,7 +57,7 @@ export default function AdminSidebar() {
       href: "/admin/blog",
       icon: <FileText className="h-5 w-5" />,
       submenu: [
-        { title: "Tất cả bài viết", href: "/admin/blog" },
+        // { title: "Tất cả bài viết", href: "/admin/blog" },
         { title: "Thêm bài viết", href: "/admin/blog/new" },
         { title: "Thẻ", href: "/admin/blog/tag"},
       ],

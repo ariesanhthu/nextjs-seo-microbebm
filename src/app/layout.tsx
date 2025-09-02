@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Analytics } from '@vercel/analytics/next';
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -19,7 +20,10 @@ import {
 
 import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
 
-const inter = Inter({ subsets: ["latin"] });
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+})
 
 
 export const metadata: Metadata = {
@@ -37,13 +41,13 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-          <html lang="vi">
+          <html lang="vi" className={inter.className}>
             <body
-              className={inter.className}
               suppressHydrationWarning
               >
               <AlertDialogProvider>
                 {children}
+                <Analytics />
               </AlertDialogProvider>
             </body>
           </html>

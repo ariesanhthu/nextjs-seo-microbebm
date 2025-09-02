@@ -7089,7 +7089,6 @@ export const iconsData: Array<{
             "triangular",
             "geometry",
             "filter",
-            "funnel",
             "hopper",
             "spotlight",
             "searchlight"
@@ -9595,7 +9594,6 @@ export const iconsData: Array<{
             "layout"
         ],
         "tags": [
-            "funnel",
             "hopper"
         ]
     },
@@ -9605,7 +9603,6 @@ export const iconsData: Array<{
             "layout"
         ],
         "tags": [
-            "funnel",
             "hopper"
         ]
     },

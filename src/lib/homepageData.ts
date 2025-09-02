@@ -15,7 +15,7 @@ export const HOMEPAGE_SEED_DATA: HomepageResponseDto = {
     { title: 'Liên hệ', url: '/contact' },
   ],
   footer: {
-    vi_name: 'Blue Moonlight Travel & Environment CO., LTD',
+    vi_name: 'CÔNG TY TNHH MÔI TRƯỜNG & DU LỊCH ÁNH TRĂNG XANH',
     en_name: 'Blue Moonlight Travel & Environment CO., LTD',
     tax_code: '',
     short_name: 'Blue Moonlight',

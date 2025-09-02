@@ -2,7 +2,7 @@ import type React from "react"
 import AdminSidebar from "@/components/SideBar"
 import { BlogGalleryProvider } from "@/features/blog/context/blog-gallery-context";
 import { ImageGalleryProvider } from "@/features/image-storage/context/image-gallery-context";
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/toaster"; 
 
 export default function AdminLayout({
   children,

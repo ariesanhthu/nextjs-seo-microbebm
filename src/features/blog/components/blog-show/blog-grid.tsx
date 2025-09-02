@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Grid3X3, List, ChevronLeft, ChevronRight, Loader2, TreePine, Leaf } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, TreePine } from "lucide-react"
 import BlogCard from "./blog-card"
 import type { BlogResponseDto } from "@/lib/dto/blog.dto"
 import type { BlogFilters } from "./blog-filter"

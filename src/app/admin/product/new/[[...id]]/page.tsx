@@ -398,7 +398,7 @@ export default function AdminCreateProductPage() {
             </div>
             <Separator />
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">Hoặc tải ảnh mới</div>
+              <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
               <ImageUploader />
             </div>
           </CardContent>
@@ -422,7 +422,7 @@ export default function AdminCreateProductPage() {
             </div>
             <Separator />
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">Hoặc tải ảnh mới</div>
+              <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
               <ImageUploader />
             </div>
           </CardContent>

@@ -70,28 +70,33 @@ export class BlogService {
     try {
       // Convert tag_ids to DocumentReferences
       const tagRefs = await this.getListRef(body.tag_ids);
-      
+
       const now = Timestamp.now();
+      const slug = generateSlug([body.title]);
+
       const docData = {
         title: body.title,
         content: body.content,
         author: body.author,
         tag_refs: tagRefs,
-        slug: generateSlug([body.title]),
+        slug,
         created_at: now,
         updated_at: now,
-        thumbnail_url: body.thumbnail_url || null,
+        thumbnail_url: body.thumbnail_url || "",
       };
 
-      const docRef = await this.getWriteCollectionRef().add(docData);
-      
-      // Get the created document and populate references
-      const createdDoc = await this.getDocRef(docRef.id).get();
+      // Use deterministic unique ID (slug) to avoid duplicates on rapid submits
+      const writeDocRef = this.getWriteCollectionRef().doc(slug);
+      await writeDocRef.set(docData, { merge: false });
+
+      // Get the created document and populate references, attach id
+      const createdDoc = await this.getDocRef(slug).get();
       if (!createdDoc.exists) {
         throw new Error('Failed to retrieve created Blog');
       }
 
-      return await this.populateTag(createdDoc.data()) as BlogResponseDto;
+      const createdDataWithId = { id: slug, ...createdDoc.data() };
+      return await this.populateTag(createdDataWithId) as BlogResponseDto;
     } catch (error) {
       console.error('Error creating Blog:', error);
       throw new Error(`Failed to create Blog: ${error instanceof Error ? error.message : 'Unknown error'}`);

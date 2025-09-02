@@ -27,6 +27,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [thumbnailUrl, setThumbnailUrl] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isOpenBlogDialog, setIsOpenBlogDialog] = React.useState(false);
   
   // Use the custom alert dialog hook
@@ -59,6 +60,8 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
   }, [blogId]);
 
   const handlePostBlog = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     if (id) {
       const choice = await alertDialog.showAlert({
         title: "Blog đã tồn tại",
@@ -69,6 +72,7 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
       
       console.log("User choice:", choice);
       if (!choice) {
+        setIsSubmitting(false);
         return;
       }
     }
@@ -82,23 +86,27 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, author, content }),
+        body,
       });
 
       const data: ApiResponseDto<BlogResponseDto> = await response.json();
 
       if (!data.success) {
-        toast.error(`Failed to save blog post\n${data.message}`);
+        // toast.error(`Failed to save blog post\n${data.message}`);
+        
       } else {
-        toast.success("Blog post saved successfully!");
+        // toast.success("Blog post saved successfully!");
         const blog: BlogResponseDto = data.data;
         setId(blog.id);
         setTitle(blog.title);
         setAuthor(blog.author);
         setContent(blog.content);
+        setThumbnailUrl(blog.thumbnail_url || "");
       }
     } catch (error) {
-      toast.error("An error occurred while saving the blog post");
+      // toast.error("An error occurred while saving the blog post");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -150,10 +158,12 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
     setAuthor("");
     setContent("");
     setThumbnailUrl("");
-    toast.success("Đã tạo bài viết mới");
+    // toast.success("Đã tạo bài viết mới");
   };
 
   const handleSaveBlog = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     if (id) {
       try {
         const body = JSON.stringify({ title, author, content, thumbnail_url: thumbnailUrl });
@@ -174,6 +184,8 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         }
       } catch (error) {
         toast.error("Có lỗi xảy ra khi lưu blog");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -186,13 +198,12 @@ export default function BlogEditor({ blogId = null }: BlogEditorProps) {
         <CardHeader className="flex flex-row">
           <div className="flex flex-col">
             <CardTitle>Thông tin bài viết</CardTitle>
-            <CardDescription>Điền thông tin chi tiết bên dưới</CardDescription>
           </div>
           <div className="ml-auto flex flex-row gap-2">
-            <Button type="button" onClick={handleSelectBlog}>Mở bài viết</Button>
-            <Button type="button" onClick={handleNewBlog}>Tạo mới</Button>
-            <Button type="button" onClick={handlePostBlog}>Đăng</Button>
-            <Button type="button" onClick={handleSaveBlog} disabled={!id}>Lưu</Button>
+            <Button type="button" onClick={handleSelectBlog} disabled={isSubmitting}>Mở bài viết</Button>
+            <Button type="button" onClick={handleNewBlog} disabled={isSubmitting}>Tạo mới</Button>
+            <Button type="button" onClick={handlePostBlog} disabled={isSubmitting}>Đăng</Button>
+            <Button type="button" onClick={handleSaveBlog} disabled={!id || isSubmitting}>Lưu</Button>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">

@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { CheckCircle, ChevronRight, Shield } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import BackgroundPattern from "@/components/background-pattern"
 
 // Text content configuration
 const textContent = {
@@ -73,27 +74,14 @@ export default function QualityPolicy() {
       className="relative overflow-hidden bg-gradient-to-b from-white to-green-50 py-16 md:py-24"
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 z-0 opacity-5">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern
-              id="leaf-pattern"
-              patternUnits="userSpaceOnUse"
-              width="80"
-              height="80"
-              patternTransform="rotate(45)"
-            >
-              <path
-                d="M20,20 Q40,0 60,20 Q80,40 60,60 Q40,80 20,60 Q0,40 20,20 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#leaf-pattern)" />
-        </svg>
-      </div>
+      <BackgroundPattern
+        type="leaf"
+        color="currentColor"
+        opacity={0.05}
+        rotation={45}
+        spacing={80}
+        strokeWidth={1}
+      />
 
       <div className="container relative z-10 mx-auto px-4">
         <div className="mx-auto mb-12 max-w-xl text-center">
