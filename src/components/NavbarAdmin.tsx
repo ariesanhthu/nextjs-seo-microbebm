@@ -45,7 +45,7 @@ export default function NavbarAdmin({
           <div>
             <h1 className="text-2xl font-bold">{name}</h1>
             {description && (
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-foreground mt-1">
                 {description}
               </p>
             )}

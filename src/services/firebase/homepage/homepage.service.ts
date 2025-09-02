@@ -10,7 +10,7 @@ import { HomepageSchema } from '@/lib/schemas/homepage.schema';
 import { ProductService } from '@/services/firebase/product/product.service';
 import { ESort } from '@/lib/enums/sort.enum';
 import { PaginationCursorDto, PaginationCursorResponseDto } from '@/hooks/use-paginated-fetch';
-import { title } from 'process';
+import { BlogService } from '../blog/blog.service';
 
 export class HomepageService {
   private static readonly COLLECTION = 'homepage';
@@ -41,6 +41,18 @@ export class HomepageService {
     );
   }
 
+  private static async populateBlogs(blog_ids: string[]) {
+    return await Promise.all(
+      blog_ids.map(async (blogId) => {
+        const blog = await BlogService.getById(blogId);
+        if (!blog) {
+          throw new Error(`Blog with id '${blogId}' not found`);
+        }
+        return blog;
+      })
+    );
+  }
+
   static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {
     try {
       const existing = await this.getReadCollectionRef().get();
@@ -49,7 +61,8 @@ export class HomepageService {
       }
       // Fetch full product data from product_ids
       const products = await this.populateProducts(body.product_ids);
-      
+      const blogs = await this.populateBlogs(body.blog_ids);
+
       const now = Timestamp.now();
       const docData = {
         title: body.title,
@@ -59,6 +72,7 @@ export class HomepageService {
         footer: body.footer,
         slider: body.slider,
         products: products,
+        blogs: blogs,
         created_at: now,
         updated_at: now,
       };
@@ -168,6 +182,13 @@ export class HomepageService {
         updateFields.products = products;
 
         delete updateFields.product_ids;
+      }
+
+      if (body.blog_ids !== undefined) {
+        const blogs = await this.populateBlogs(body.blog_ids);
+        updateFields.blogs = blogs;
+
+        delete updateFields.blog_ids;
       }
 
       // Update document

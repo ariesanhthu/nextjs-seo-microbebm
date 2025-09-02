@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, Filter, X, Leaf, TreePine, Sprout } from "lucide-react"
 import type { TagResponseDto } from "@/lib/dto/tag.dto"
+import { EBlogStatus } from "@/lib/enums/blog-status.enum"
 
 interface BlogFilterProps {
   onFilterChange: (filters: BlogFilters) => void
@@ -16,12 +17,12 @@ interface BlogFilterProps {
 export interface BlogFilters {
   search: string
   tags: string[]
-  status: string
+  status: EBlogStatus
 }
 
 export default function BlogFilter({ onFilterChange, selectedTags, onTagToggle }: BlogFilterProps) {
   const [search, setSearch] = useState("")
-  const [status, setStatus] = useState("published")
+  const [status, setStatus] = useState(EBlogStatus.PUBLISHED)
   const [tags, setTags] = useState<TagResponseDto[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -52,8 +53,8 @@ export default function BlogFilter({ onFilterChange, selectedTags, onTagToggle }
 
   const clearFilters = () => {
     setSearch("")
-    setStatus("published")
-    onFilterChange({ search: "", tags: [], status: "published" })
+    setStatus(EBlogStatus.PUBLISHED)
+    onFilterChange({ search: "", tags: [], status: EBlogStatus.PUBLISHED })
   }
 
   return (
@@ -96,7 +97,7 @@ export default function BlogFilter({ onFilterChange, selectedTags, onTagToggle }
         <div className="space-y-2">
           <label className="text-sm font-medium text-green-800">Trạng thái:</label>
           <div className="flex gap-2">
-            {['all', 'published', 'draft'].map((statusOption) => (
+            {[EBlogStatus.ALL, EBlogStatus.PUBLISHED, EBlogStatus.DRAFT].map((statusOption) => (
               <Button
                 key={statusOption}
                 variant={status === statusOption ? "default" : "outline"}

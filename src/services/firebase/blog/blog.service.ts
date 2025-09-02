@@ -5,10 +5,11 @@ import {
   CreateBlogDto, 
   UpdateBlogDto, 
   BlogResponseDto,
+  PaginationCursorBlogDto,
 } from '@/lib/dto/blog.dto';
 import { BlogSchema } from '@/lib/schemas/blog.schema';
 import { generateSlug } from '@/utils/generate-slug';
-import { PaginationCursorDto, PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
+import { PaginationCursorResponseDto } from '@/lib/dto/pagination.dto';
 import { ESort } from '@/lib/enums/sort.enum';
 
 export class BlogService {
@@ -83,6 +84,10 @@ export class BlogService {
         created_at: now,
         updated_at: now,
         thumbnail_url: body.thumbnail_url || "",
+        status: body.status,
+        is_featured: body.is_featured || false,
+        excerpt: body.excerpt || "",
+        search: generateSlug([body.title, body.author, body.excerpt], ' ')
       };
 
       // Use deterministic unique ID (slug) to avoid duplicates on rapid submits
@@ -136,11 +141,9 @@ export class BlogService {
     }
   }
 
-  static async getAll(query: PaginationCursorDto & { 
-    search?: string, 
-    tags?: string[], 
-    status?: string 
-  }): Promise<Partial<PaginationCursorResponseDto<BlogResponseDto>>> {
+  
+
+  static async getAll(query: PaginationCursorBlogDto): Promise<Partial<PaginationCursorResponseDto<BlogResponseDto>>> {
     try {
       const {
         cursor,
@@ -155,13 +158,6 @@ export class BlogService {
         .orderBy("created_at", sort)
         .limit(Number(limit) + 1); // +1 to check if there's a next page
 
-      // Filter by status if provided
-      if (status && status !== 'all') {
-        // Only filter by status if the field exists in the collection
-        // For now, we'll filter after fetching to avoid index issues
-        // queryRef = queryRef.where('status', '==', status);
-      }
-
       // If cursor exists, get the document and use it for startAfter
       if (cursor) {
         const cursorDoc = await this.getDocRef(cursor).get();
@@ -169,7 +165,16 @@ export class BlogService {
           queryRef = queryRef.startAfter(cursorDoc);
         }
       }
-      
+      // Filter by tags if provided
+      if (tags && tags.length > 0) {
+        queryRef = queryRef.where('tags', 'array-contains-any', tags);
+      }
+
+      if (status) {
+        queryRef = queryRef.where('status', '==', status);
+      }
+
+
       const snapshot = await queryRef.get();
       let allDocs = await Promise.all(
         snapshot.docs.map(async (doc: any) => {
@@ -178,31 +183,11 @@ export class BlogService {
         })
       );
 
-      // Filter by search term if provided
-      if (search && search.trim()) {
-        const searchLower = search.toLowerCase();
-        allDocs = allDocs.filter(doc => 
-          doc.title.toLowerCase().includes(searchLower) ||
-          doc.content.toLowerCase().includes(searchLower) ||
-          (doc.excerpt && doc.excerpt.toLowerCase().includes(searchLower)) ||
-          doc.author.toLowerCase().includes(searchLower)
-        );
+      if (search) {
+        const normalizedSearch = generateSlug([search], ' ');
+        allDocs = allDocs.filter(doc => doc.search.includes(normalizedSearch));
       }
 
-      // Filter by tags if provided
-      if (tags && tags.length > 0) {
-        allDocs = allDocs.filter(doc => 
-          doc.tags.some((tag: any) => tags.includes(tag.id))
-        );
-      }
-
-      // Filter by status if provided (after fetching to avoid index issues)
-      if (status && status !== 'all') {
-        allDocs = allDocs.filter(doc => 
-          doc.status === status || (!doc.status && status === 'published')
-        );
-      }
-      
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
       
@@ -228,7 +213,7 @@ export class BlogService {
     try {
       // Check if Blog exists
       const existing = await this.getDocRef(id).get();
-      if (!existing.exists) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`Blog with id '${id}' not found`);
       }
 
@@ -239,6 +224,12 @@ export class BlogService {
       let updateFields: any = {
         ...body,
         slug: slug,
+        search: generateSlug(
+          [
+            body?.title || existing.data()?.title || "", 
+            body.author || existing.data()?.author || "", 
+            body.excerpt || existing.data()?.excerpt || ""
+          ], ' '),
         updated_at: Timestamp.now(),
       };
       

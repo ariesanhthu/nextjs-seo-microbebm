@@ -7,6 +7,7 @@ import { X, RefreshCw, Leaf, Grid3X3, List } from "lucide-react"
 import { BlogShowProvider, useBlogShow } from "../../context/blog-show-context"
 import BlogFilter, { type BlogFilters } from "./blog-filter"
 import BlogGrid from "./blog-grid"
+import { EBlogStatus } from "@/lib/enums/blog-status.enum"
 
 function BlogShowContent() {
   const {
@@ -190,7 +191,7 @@ export default function BlogShow({ initialFilters }: BlogShowProps) {
   const defaultFilters: BlogFilters = {
     search: "",
     tags: [],
-    status: "published"
+    status: EBlogStatus.PUBLISHED
   }
   
   return (

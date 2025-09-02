@@ -13,8 +13,10 @@ import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Edit, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EBlogStatus } from '@/lib/enums/blog-status.enum';
 
 export default function BlogGallery() {
   const {
@@ -25,6 +27,7 @@ export default function BlogGallery() {
     hasPrevPage,
     goToNextPage,
     goToPrevPage,
+    handleUpdateBlogStatus,
     refresh,
     cacheSize
   } = useBlogGallery();
@@ -105,15 +108,6 @@ export default function BlogGallery() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Quản lý bài viết</h1>
-        <Link href="/admin/blog/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4"/> Tạo mới
-          </Button>
-        </Link>
-      </div>
-
       {blogs.length === 0 && !loading ? (
         <Alert>
           <AlertDescription>Chưa có bài viết nào.</AlertDescription>
@@ -130,6 +124,7 @@ export default function BlogGallery() {
                   <TableHead>Ảnh</TableHead>
                   <TableHead>Tiêu đề</TableHead>
                   <TableHead>Tác giả</TableHead>
+                  <TableHead>Trạng thái</TableHead>
                   <TableHead>Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
@@ -159,8 +154,29 @@ export default function BlogGallery() {
                     </TableCell>
                     <TableCell className="font-medium">{blog.title}</TableCell>
                     <TableCell>{blog.author}</TableCell>
+                    <TableCell className="font-medium">
+                        <Select
+                          value={blog.status}
+                          onValueChange={(value) => handleUpdateBlogStatus(blog.id, value as EBlogStatus)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Trạng thái" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={EBlogStatus.DRAFT}>DRAFT</SelectItem>
+                            <SelectItem value={EBlogStatus.PUBLISHED}>PUBLISHED</SelectItem>
+                            <SelectItem value={EBlogStatus.ARCHIVED}>ARCHIVED</SelectItem>
+                          </SelectContent>
+                        </Select>
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        {/* Thêm Link preview  */}
+                        <Link href={`/blog/${blog.slug}`} className="inline-flex">
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Link href={`/admin/blog/new/${blog.id}`} className="inline-flex">
                           <Button variant="ghost" size="sm">
                             <Edit className="h-4 w-4" />

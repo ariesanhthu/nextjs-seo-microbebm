@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import type { BlogResponseDto } from "@/lib/dto/blog.dto"
 import type { BlogFilters } from "../components/blog-show/blog-filter"
+import { EBlogStatus } from "@/lib/enums/blog-status.enum"
 
 interface BlogShowContextType {
   blogs: BlogResponseDto[]
@@ -46,7 +47,7 @@ export function BlogShowProvider({ children, initialFilters }: BlogShowProviderP
     initialFilters || {
       search: "",
       tags: [],
-      status: "published",
+      status: EBlogStatus.PUBLISHED,
     },
   )
   const [cursor, setCursor] = useState<string | undefined>(undefined)
@@ -134,7 +135,7 @@ export function BlogShowProvider({ children, initialFilters }: BlogShowProviderP
   )
 
   const clearFilters = useCallback(() => {
-    const emptyFilters = { search: "", tags: [], status: "published" }
+    const emptyFilters = { search: "", tags: [], status: EBlogStatus.PUBLISHED }
     setFiltersState(emptyFilters)
     setCursor(undefined)
     setCurrentPage(1)
