@@ -10,7 +10,7 @@ import { ApiResponseDto } from '@/lib/dto/api-response.dto';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, ChevronRight, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RefreshCw, Trash2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
 import ImageUploader from './image-uploader';
@@ -89,80 +89,62 @@ export default function ImageGallery() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Quản lý ảnh</h1>
-      </div>
-
       <Card>
         <CardHeader className='flex flex-row justify-center items-center'>
           <div className='flex flex-col gap-2'>
             <CardTitle>Danh sách ảnh</CardTitle>
             <CardDescription>Quản lý ảnh</CardDescription>
           </div>
-          <div className='ml-auto'>
-            <ImageUploader />
-          </div>
+          <Button variant="ghost" onClick={refresh} className='ml-auto mr-5'>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+          <ImageUploader refreshGallery={refresh} />
         </CardHeader>
         <CardContent>
+
           {imageMetadatas.length === 0 && !loading ? (
             <>
               Chưa có ảnh nào.
             </>
           ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Ảnh</TableHead>
-                  <TableHead>Public ID</TableHead>
-                  <TableHead>URL</TableHead>
-                  <TableHead>Thao tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {imageMetadatas.map((imageMetadata) => (
-                    <TableRow key={imageMetadata.id}>
-                      <TableCell className="font-mono text-xs">{imageMetadata.id}</TableCell>
-                      <TableCell>
-                      {
-                        imageMetadata.url
-                        ?
-                          <Image
-                            src={imageMetadata.url}
-                            width={50}
-                            height={50}
-                            alt={`${imageMetadata.public_id}`}
-                            className="rounded-lg object-cover"
-                          />
-                        :
-                          <Image
-                            src="/images/no-image.jpg"
-                            width={50}
-                            height={50}
-                            alt={`Blog ${imageMetadata.public_id}`}
-                            className="rounded-lg object-cover"
-                          />
-                      }
-                      </TableCell>
-                      <TableCell className="font-medium">{imageMetadata.public_id}</TableCell>
-                      <TableCell>{imageMetadata.url}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          {/* <Link href={`/admin/imageMetadata/new/${imageMetadata.id}`} className="inline-flex">
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link> */}
-                          <Button variant="destructive" size="sm" className="text-white" onClick={() => handleDelete(imageMetadata.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+              {imageMetadatas.map((imageMetadata) => (
+
+                <Card  
+                  key={imageMetadata.id}
+                >
+                  <CardHeader className='flex flex-row h-1/5 items-center justify-center space-y-0 py-0'>
+                    <p className='font-sm text-sm line-clamp-1 mr-auto'> 
+                      {imageMetadata.public_id}
+                    </p>
+                    <Button variant="ghost" onClick={() => handleDelete(imageMetadata.id)} className='ml-auto p-0'>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardHeader>
+                  <CardContent className='flex h-4/5 min-h-4/5 justify-center items-center p-2 mb-0'>
+                    {imageMetadata.url
+                      ? <CldImage
+                          id={imageMetadata.id}
+                          src={imageMetadata.url}
+                          width={100}
+                          height={100}
+                          alt={`${imageMetadata.public_id}`}
+                          className="w-full h-full border rounded-2xl"
+                        />
+                      : <Image
+                          id={imageMetadata.id}
+                          src="/images/no-image.jpg"
+                          width={100}
+                          height={100}
+                          alt={`Blog ${imageMetadata.public_id}`}
+                          className="w-full h-full border rounded-2xl"
+                        />}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
+
         </CardContent>
         <CardFooter className='flex flex-row justify-center items-center mt-6 gap-5'>
           <Button

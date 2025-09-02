@@ -47,7 +47,7 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
     refresh,
     cacheSize
   } = usePaginatedFetch<ImageMetadataResponseDto>('/api/image-metadata', {
-    limit: 10,
+    limit: 12,
     sort: ESort.DESC,
     autoFetch: false // Auto-fetch on mount so data is ready when dialog opens
   });

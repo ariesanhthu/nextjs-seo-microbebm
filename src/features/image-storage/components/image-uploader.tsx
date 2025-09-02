@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Upload, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
       // "id",
       // "batchId",
@@ -36,7 +37,11 @@ interface UploadResult {
   format: string;
 }
 
-export default function ImageUploader() {
+interface ImageUploaderProps {
+  refreshGallery?: () => void;
+}
+
+export default function ImageUploader({ refreshGallery }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const createImageMetadata = async (result: UploadResult) => {
@@ -65,6 +70,8 @@ export default function ImageUploader() {
 
   const handleUploadSuccess = async (result: any) => {
     await createImageMetadata(result.info as UploadResult);
+    toast.success("Ảnh được tải lên thành công!");
+    refreshGallery?.();
     setIsUploading(false);
   };
 
