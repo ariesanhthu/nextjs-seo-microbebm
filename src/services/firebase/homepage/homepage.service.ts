@@ -82,7 +82,7 @@ export class HomepageService {
       
       // Get the created document with converter for validation
       const createdDoc = await this.getDocRef(docRef.id).get();
-      if (!createdDoc.exists) {
+      if (!createdDoc.exists || !createdDoc.data()) {
         throw new Error('Failed to retrieve created Homepage');
       }
 
@@ -96,7 +96,15 @@ export class HomepageService {
   static async get(): Promise<HomepageResponseDto | null> {
     try {
       const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
-      return snapshot.docs.map(doc => doc.data()!)[0];
+      const docs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
+      return docs[0] || null;
     } catch (error) {
       console.error('Error getting all homepages:', error);
       throw new Error(`Failed to get homepages: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -110,7 +118,11 @@ export class HomepageService {
         return null;
       }
       
-      return doc.data()!;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting Homepage by ID:', error);
       throw new Error(`Failed to get Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -139,7 +151,14 @@ export class HomepageService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
 
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -200,7 +219,7 @@ export class HomepageService {
         throw new Error('Failed to retrieve updated Homepage');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated Homepage data'); })();
     } catch (error) {
       console.error('Error updating Homepage:', error);
       throw new Error(`Failed to update Homepage: ${error instanceof Error ? error.message : 'Unknown error'}`);

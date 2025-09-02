@@ -48,7 +48,7 @@ export class TagService {
         throw new Error('Failed to retrieve created tag');
       }
 
-      return createdDoc.data()!;
+      return createdDoc.data() || (() => { throw new Error('Failed to parse created Tag data'); })();
     } catch (error) {
       console.error('Error creating tag:', error);
       throw new Error(`Failed to create tag: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -58,7 +58,12 @@ export class TagService {
   static async getById(id: string): Promise<TagResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      return doc.exists ? doc.data()! : null;
+      if (!doc.exists) return null;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting tag by ID:', error);
       throw new Error(`Failed to get tag: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -86,7 +91,14 @@ export class TagService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -113,7 +125,7 @@ export class TagService {
     try {
       // Check if tag exists
       const existing = await this.getDocRef(id).get();
-      if (!existing) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`Tag with id '${id}' not found`);
       }
 
@@ -132,7 +144,7 @@ export class TagService {
         throw new Error('Failed to retrieve updated tag');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated Tag data'); })();
     } catch (error) {
       console.error('Error updating tag:', error);
       throw new Error(`Failed to update tag: ${error instanceof Error ? error.message : 'Unknown error'}`);

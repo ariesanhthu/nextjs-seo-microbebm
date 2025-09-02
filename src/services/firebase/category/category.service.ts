@@ -48,7 +48,7 @@ export class CategoryService {
         throw new Error('Failed to retrieve created category');
       }
 
-      return createdDoc.data()!;
+      return createdDoc.data() || (() => { throw new Error('Failed to parse created Category data'); })();
     } catch (error) {
       console.error('Error creating category:', error);
       throw new Error(`Failed to create category: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -58,7 +58,12 @@ export class CategoryService {
   static async getById(id: string): Promise<CategoryResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      return doc.exists ? doc.data()! : null;
+      if (!doc.exists) return null;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting category by ID:', error);
       throw new Error(`Failed to get category: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -86,7 +91,14 @@ export class CategoryService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -113,7 +125,7 @@ export class CategoryService {
     try {
       // Check if category exists
       const existing = await this.getDocRef(id).get();
-      if (!existing) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`Category with id '${id}' not found`);
       }
 
@@ -132,7 +144,7 @@ export class CategoryService {
         throw new Error('Failed to retrieve updated category');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated Category data'); })();
     } catch (error) {
       console.error('Error updating category:', error);
       throw new Error(`Failed to update category: ${error instanceof Error ? error.message : 'Unknown error'}`);

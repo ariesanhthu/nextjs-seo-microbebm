@@ -92,7 +92,7 @@ export class BlogService {
       
       // Get the created document and populate references
       const createdDoc = await this.getDocRef(docRef.id).get();
-      if (!createdDoc.exists) {
+      if (!createdDoc.exists || !createdDoc.data()) {
         throw new Error('Failed to retrieve created Blog');
       }
 
@@ -106,11 +106,15 @@ export class BlogService {
   static async getById(id: string): Promise<BlogResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      if (!doc.exists) {
+      if (!doc.exists) return null;
+      
+      try {
+        const data = doc.data();
+        if (!data) return null;
+        return await this.populateTag(data) as BlogResponseDto;
+      } catch (error) {
         return null;
       }
-      
-      return await this.populateTag(doc.data()) as BlogResponseDto;
     } catch (error) {
       console.error('Error getting Blog by ID:', error);
       throw new Error(`Failed to get Blog: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -150,12 +154,19 @@ export class BlogService {
 
 
       const snapshot = await queryRef.get();
-      let allDocs = await Promise.all(
+      let allDocs = (await Promise.all(
         snapshot.docs.map(async (doc: any) => {
-          const rawData = { id: doc.id, ...doc.data() };
-          return await this.populateTag(rawData) as BlogResponseDto;
+          try {
+            const rawData = doc.data();
+            if (rawData === null) return null;
+            const dataWithId = { id: doc.id, ...rawData };
+            return await this.populateTag(dataWithId) as BlogResponseDto;
+          } catch (error) {
+            // If converter returns null or throws error, skip this document
+            return null;
+          }
         })
-      );
+      )).filter((doc): doc is BlogResponseDto => doc !== null);
 
       if (search) {
         const normalizedSearch = generateSlug([search], ' ');
@@ -222,7 +233,7 @@ export class BlogService {
 
       // Get updated document and populate references
       const updatedDoc = await this.getDocRef(id).get();
-      if (!updatedDoc.exists) {
+      if (!updatedDoc.exists || !updatedDoc.data()) {
         throw new Error('Failed to retrieve updated Blog');
       }
 
@@ -237,7 +248,7 @@ export class BlogService {
     try {
       // Check if Blog exists
       const doc = await this.getDocRef(id).get();
-      if (!doc) {
+      if (!doc.exists || !doc.data()) {
         throw new Error(`Blog with id '${id}' not found`);
       }
 

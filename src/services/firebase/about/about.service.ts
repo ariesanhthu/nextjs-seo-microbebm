@@ -59,7 +59,7 @@ export class AboutService {
       
       // Get the created document with converter for validation
       const createdDoc = await this.getDocRef(docRef.id).get();
-      if (!createdDoc.exists) {
+      if (!createdDoc.exists || !createdDoc.data()) {
         throw new Error('Failed to retrieve created About');
       }
 
@@ -73,7 +73,15 @@ export class AboutService {
   static async get(): Promise<AboutResponseDto | null> {
     try {
       const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
-      return snapshot.docs.map(doc => doc.data()!)[0];
+      const docs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
+      return docs[0] || null;
     } catch (error) {
       console.error('Error getting all abouts:', error);
       throw new Error(`Failed to get abouts: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -87,7 +95,11 @@ export class AboutService {
         return null;
       }
       
-      return doc.data()!;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting About by ID:', error);
       throw new Error(`Failed to get About: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -116,7 +128,14 @@ export class AboutService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
 
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -162,7 +181,7 @@ export class AboutService {
         throw new Error('Failed to retrieve updated About');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated About data'); })();
     } catch (error) {
       console.error('Error updating About:', error);
       throw new Error(`Failed to update About: ${error instanceof Error ? error.message : 'Unknown error'}`);

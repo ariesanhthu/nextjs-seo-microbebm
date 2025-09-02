@@ -52,7 +52,7 @@ export class ContactService {
         throw new Error('Failed to retrieve created contact');
       }
 
-      return createdDoc.data()!;
+      return createdDoc.data() || (() => { throw new Error('Failed to parse created Contact data'); })();
     } catch (error) {
       console.error('Error creating contact:', error);
       throw new Error(`Failed to create contact: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -62,7 +62,12 @@ export class ContactService {
   static async getById(id: string): Promise<ContactResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      return doc.exists ? doc.data()! : null;
+      if (!doc.exists) return null;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting contact by ID:', error);
       throw new Error(`Failed to get contact: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -95,7 +100,14 @@ export class ContactService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -122,7 +134,7 @@ export class ContactService {
     try {
       // Check if contact exists
       const existing = await this.getDocRef(id).get();
-      if (!existing) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`Contact with id '${id}' not found`);
       }
 
@@ -138,7 +150,7 @@ export class ContactService {
         throw new Error('Failed to retrieve updated contact');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated Contact data'); })();
     } catch (error) {
       console.error('Error updating contact:', error);
       throw new Error(`Failed to update contact: ${error instanceof Error ? error.message : 'Unknown error'}`);

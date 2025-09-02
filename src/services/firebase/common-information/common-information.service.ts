@@ -50,7 +50,7 @@ export class CommonInformationService {
         throw new Error('Failed to retrieve created common-information');
       }
 
-      return createdDoc.data()!;
+      return createdDoc.data() || (() => { throw new Error('Failed to parse created CommonInformation data'); })();
     } catch (error) {
       console.error('Error creating common-information:', error);
       throw new Error(`Failed to create common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -60,7 +60,15 @@ export class CommonInformationService {
   static async get(): Promise<CommonInformationResponseDto | null> {
     try {
       const snapshot = await this.getReadCollectionRef().limit(1).orderBy("updated_at", ESort.DESC).get();
-      return snapshot.docs.map(doc => doc.data()!)[0];
+      const docs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
+      return docs[0] || null;
     } catch (error) {
       console.error('Error getting common-information:', error);
       throw new Error(`Failed to get common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -70,7 +78,12 @@ export class CommonInformationService {
   static async getById(id: string): Promise<CommonInformationResponseDto | null> {
     try {
       const doc = await this.getDocRef(id).get();
-      return doc.exists ? doc.data()! : null;
+      if (!doc.exists) return null;
+      try {
+        return doc.data() || null;
+      } catch (error) {
+        return null;
+      }
     } catch (error) {
       console.error('Error getting common-information by ID:', error);
       throw new Error(`Failed to get common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -98,7 +111,14 @@ export class CommonInformationService {
       }
 
       const snapshot = await queryRef.get();
-      const allDocs = snapshot.docs.map(doc => doc.data()!);
+      const allDocs = snapshot.docs.map(doc => {
+        try {
+          return doc.data();
+        } catch (error) {
+          // If converter throws error, return null
+          return null;
+        }
+      }).filter((data): data is NonNullable<typeof data> => data !== null);
       
       // Check if there's a next page
       const hasNextPage = allDocs.length > limit;
@@ -125,7 +145,7 @@ export class CommonInformationService {
     try {
       // Check if common-information exists
       const existing = await this.getDocRef(id).get();
-      if (!existing) {
+      if (!existing.exists || !existing.data()) {
         throw new Error(`CommonInformation with id '${id}' not found`);
       }
 
@@ -141,7 +161,7 @@ export class CommonInformationService {
         throw new Error('Failed to retrieve updated common-information');
       }
 
-      return updatedDoc.data()!;
+      return updatedDoc.data() || (() => { throw new Error('Failed to parse updated CommonInformation data'); })();
     } catch (error) {
       console.error('Error updating common-information:', error);
       throw new Error(`Failed to update common-information: ${error instanceof Error ? error.message : 'Unknown error'}`);
