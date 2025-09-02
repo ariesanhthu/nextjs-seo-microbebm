@@ -34,5 +34,6 @@ export const HOMEPAGE_SEED_DATA: HomepageResponseDto = {
       image_url: '/images/nature-banner.jpg'
     }
   ],
-  products: []
+  products: [],
+  blogs: []
 };
