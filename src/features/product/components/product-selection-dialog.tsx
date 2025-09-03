@@ -152,7 +152,7 @@ export default function ProductSelectionDialog({
                   </Button>
                 </div>
                 {(loading || isSearching) && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-foreground">
                     {isSearching ? "Đang tìm kiếm..." : "Đang tải..."}
                   </div>
                 )}
@@ -161,7 +161,7 @@ export default function ProductSelectionDialog({
             
             <div className="p-4 pt-2 overflow-y-auto h-full">
               {loading || isSearching ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-foreground">
                   {isSearching ? "Đang tìm kiếm..." : "Đang tải..."}
                 </div>
               ) : error ? (
@@ -172,7 +172,7 @@ export default function ProductSelectionDialog({
                   </Button>
                 </div>
               ) : products.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-foreground">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                   <p>Không tìm thấy bài viết nào</p>
                 </div>
@@ -188,34 +188,19 @@ export default function ProductSelectionDialog({
                         }`}
                         onClick={() => toggleProductSelection(product)}
                       >
-                        <CardContent className="p-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                              {product.main_img ? (
-                                <img 
-                                  src={product.main_img} 
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <BookOpen className="h-8 w-8 text-gray-600" />
-                              )}
-                            </div>
+                        <CardContent className="p-5">
+                          
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-sm truncate">{product.name}</h3>
-                              <p className="text-xs text-gray-500 truncate">
+                              <p className="text-xs text-foreground truncate">
                                 {product.description || "Không có mô tả"}
                               </p>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant={isSelected ? "default" : "secondary"} className="text-xs">
                                   {isSelected ? "Đã chọn" : "Chưa chọn"}
                                 </Badge>
-                                {/* <span className="text-xs text-gray-400">
-                                  {product.}
-                                </span> */}
                               </div>
                             </div>
-                          </div>
                         </CardContent>
                       </Card>
                     )
@@ -233,30 +218,19 @@ export default function ProductSelectionDialog({
             
             <div className="p-4 pt-2 overflow-y-auto h-full">
               {selectedProducts.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-8 text-foreground">
+                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-foreground" />
                   <p>Chưa có bài viết nào được chọn</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {selectedProducts.map((product) => (
                     <Card key={product.id} className="relative">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                            {product.main_img ? (
-                              <img 
-                                src={product.main_img} 
-                                alt={product.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <BookOpen className="h-6 w-6 text-gray-600" />
-                            )}
-                          </div>
+                      <CardContent className="p-5">
+                          
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-sm truncate">{product.name}</h4>
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-foreground truncate">
                               {product.description || "Không có mô tả"}
                             </p>
                           </div>
@@ -268,7 +242,6 @@ export default function ProductSelectionDialog({
                           >
                             <X className="h-3 w-3" />
                           </Button>
-                        </div>
                       </CardContent>
                     </Card>
                   ))}

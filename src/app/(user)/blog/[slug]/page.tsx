@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { BlogResponseDto } from "@/lib/dto/blog.dto";
 
 export default function BlogDetailPage() {
@@ -123,11 +124,14 @@ export default function BlogDetailPage() {
         {blog.thumbnail_url && (
           <div className="flex justify-center mb-8 mt-20">
             <div className="relative w-full max-w-3xl">
-              <img
+              <Image
                 src={blog.thumbnail_url}
                 alt={blog.title}
+                width={800}
+                height={500}
                 className="w-full h-auto rounded-lg shadow-lg object-cover"
                 style={{ maxHeight: "500px" }}
+                priority
               />
             </div>
           </div>

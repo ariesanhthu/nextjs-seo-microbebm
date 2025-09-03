@@ -11,7 +11,7 @@ import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import Image from "next/image"
 import StylePreview from "./style-preview"
 
 type AboutSection = AboutResponseDto['section'][0]
@@ -138,7 +138,7 @@ export default function SectionForm({ section, onUpdate, onDelete }: SectionForm
                 </div>
                 {section.image_url && (
                   <div className="mt-2">
-                    <ImageWithMetadata
+                    <Image
                       src={section.image_url}
                       alt="Section preview"
                       width={200}

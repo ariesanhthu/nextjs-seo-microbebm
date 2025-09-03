@@ -41,7 +41,7 @@ export default function ImageWithMetadata({
       if (src.startsWith('http') || src.startsWith('/')) {
         console.warn('ImageWithMetadata: Using external URL with CldImage is not supported. Use regular Image component instead.');
         setPublicId(null);
-        return;
+      return;
       }
 
       // Nếu src là public_id, sử dụng trực tiếp

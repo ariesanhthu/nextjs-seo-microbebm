@@ -130,9 +130,9 @@ export default function ProductSelectionDialog({
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-sm truncate">{product.name}</h3>
-                              <p className="text-xs text-gray-500 truncate">
+                              {/* <p className="text-xs text-gray-500 truncate">
                                 {product.description || "Không có mô tả"}
-                              </p>
+                              </p> */}
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant={isSelected ? "default" : "secondary"} className="text-xs">
                                   {isSelected ? "Đã chọn" : "Chưa chọn"}
@@ -172,9 +172,9 @@ export default function ProductSelectionDialog({
                     <Card key={product.id} className="relative">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center">
+                          {/* <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center">
                             <Package className="h-6 w-6 text-gray-600" />
-                          </div>
+                          </div> */}
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-sm truncate">{product.name}</h4>
                             {product.categories && product.categories.length > 0 && (

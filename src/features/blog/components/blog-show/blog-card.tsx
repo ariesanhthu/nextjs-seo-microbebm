@@ -1,6 +1,6 @@
 "use client"
 
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -54,15 +54,15 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
   if (variant === "compact") {
     return (
       <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm hover:from-green-100/80 hover:to-emerald-100/80">
-        <div className="flex gap-4 p-4">
-          <div className="flex-shrink-0 relative">
+        <div className="flex gap-4 p-4 rounded-t-lg">
+          <div className="flex-shrink-0 relative rounded-lg">
             {blog.thumbnail_url ? (
-              <ImageWithMetadata
+              <Image
                 src={blog.thumbnail_url}
                 width={80}
                 height={80}
                 alt={blog.title}
-                className="rounded-xl object-cover w-20 h-20 ring-2 ring-green-200/50 group-hover:ring-green-300/70 transition-all"
+                className="rounded-lg object-cover w-20 h-20 ring-2 ring-green-200/50 group-hover:ring-green-300/70 transition-all"
               />
             ) : (
               <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center ring-2 ring-green-200/50">
@@ -99,7 +99,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-emerald-500/5 to-teal-500/5" />
         <div className="relative">
           {blog.thumbnail_url ? (
-            <ImageWithMetadata
+            <Image
               src={blog.thumbnail_url}
               width={800}
               height={400}
@@ -164,7 +164,7 @@ export default function BlogCard({ blog, variant = "default" }: BlogCardProps) {
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-white to-green-50/30 backdrop-blur-sm h-full flex flex-col hover:from-green-50/50 hover:to-emerald-50/50">
       <div className="relative overflow-hidden">
         {blog.thumbnail_url ? (
-          <ImageWithMetadata
+          <Image
             src={blog.thumbnail_url}
             width={400}
             height={250}

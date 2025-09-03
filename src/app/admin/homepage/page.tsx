@@ -15,7 +15,7 @@ import { ProductResponseDto } from "@/lib/dto/product.dto"
 
 import NavbarAdmin from "@/components/NavbarAdmin"
 
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import Image from "next/image"
 import ImageUploader from "@/features/image-storage/components/image-uploader"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
@@ -150,7 +150,7 @@ export default function AdminHomepagePage() {
       if (form) {
         setForm({
           ...form,
-          banner: [...(form.banner || []), image.public_id]
+          banner: [...(form.banner || []), image.url]
         })
         toast.success("Đã thêm ảnh vào banner")
       }
@@ -159,7 +159,7 @@ export default function AdminHomepagePage() {
 
   const handleSelectSlider = () => {
     imageGallery.openDialog((image: ImageMetadataResponseDto) => {
-      addSlider(image.public_id)
+      addSlider(image.url)
     })
   }
 
@@ -395,7 +395,7 @@ export default function AdminHomepagePage() {
                   {
                     (form?.banner || []).map((img, idx) => (
                       <div key={idx} className="relative">
-                        <ImageWithMetadata 
+                        <Image 
                           src={img} 
                           width={300} 
                           height={120} 
@@ -431,7 +431,7 @@ export default function AdminHomepagePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {(form?.slider || []).map(({ title, description, image_url }, idx) => (
                   <div key={`${image_url}-${idx}`} className="relative">
-                    <ImageWithMetadata 
+                    <Image 
                       src={image_url} 
                       width={300} 
                       height={160} 
@@ -477,9 +477,9 @@ export default function AdminHomepagePage() {
                     <Card key={product.id} className="relative">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-16 h-16 flex-shrink-0">
+                          {/* <div className="w-16 h-16 flex-shrink-0">
                             {product.main_img ? (
-                              <ImageWithMetadata
+                              <Image
                                 src={product.main_img}
                                 width={64}
                                 height={64}
@@ -491,7 +491,7 @@ export default function AdminHomepagePage() {
                                 <Package className="h-8 w-8 text-gray-400" />
                               </div>
                             )}
-                          </div>
+                          </div> */}
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-sm truncate">{product.name}</h4>
                             <p className="text-xs text-gray-500 truncate">
@@ -552,7 +552,7 @@ export default function AdminHomepagePage() {
                         <div className="flex items-center gap-3">
                           <div className="w-16 h-16 flex-shrink-0">
                             {blog.thumbnail_url ? (
-                              <ImageWithMetadata
+                              <Image
                                 src={blog.thumbnail_url}
                                 width={64}
                                 height={64}
@@ -590,7 +590,7 @@ export default function AdminHomepagePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-foreground py-8">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
                   <p>Chưa có bài viết nào được chọn</p>
                   <p className="text-sm">Nhấn "Thêm bài viết" để bắt đầu</p>
@@ -625,7 +625,7 @@ export default function AdminHomepagePage() {
                         <div className="flex items-center gap-3">
                           <div className="w-16 h-16 flex-shrink-0">
                             {blog.thumbnail_url ? (
-                              <ImageWithMetadata
+                              <Image
                                 src={blog.thumbnail_url}
                                 width={64}
                                 height={64}
@@ -663,8 +663,8 @@ export default function AdminHomepagePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                <div className="text-center text-foreground py-8">
+                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-foreground" />
                   <p>Chưa có bài viết nào được chọn</p>
                   <p className="text-sm">Nhấn "Thêm bài viết" để bắt đầu</p>
                 </div>

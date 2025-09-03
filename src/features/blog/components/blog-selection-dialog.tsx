@@ -267,8 +267,8 @@ export default function BlogSelectionDialog({
             
             <div className="p-4 pt-2 overflow-y-auto h-full">
               {selectedBlogs.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                <div className="text-center py-8 text-foreground">
+                  <BookOpen className="h-12 w-12 mx-auto mb-2 text-foreground" />
                   <p>Chưa có bài viết nào được chọn</p>
                 </div>
               ) : (

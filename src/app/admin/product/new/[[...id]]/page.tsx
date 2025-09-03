@@ -190,13 +190,13 @@ export default function AdminCreateProductPage() {
 
   const handleSelectMainImage = () => {
     imageGallery.openDialog((selectedImage: ImageMetadataResponseDto) => {
-      updateFormField('main_img', selectedImage.public_id)
+      updateFormField('main_img', selectedImage.url)
     })
   }
 
   const handleSelectSubImage = () => {
     imageGallery.openDialog((selectedImage: ImageMetadataResponseDto) => {
-      updateFormField('sub_img', [...formData.sub_img, selectedImage.public_id])
+      updateFormField('sub_img', [...formData.sub_img, selectedImage.url])
     })
   }
 

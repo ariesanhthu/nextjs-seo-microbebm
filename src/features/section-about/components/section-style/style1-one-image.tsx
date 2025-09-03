@@ -83,7 +83,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, ArrowRight, CheckCircle2, Award } from "lucide-react"
 import SubsectionEditor from "../subsection-editor"
 import SectionHeader from "./section-header"
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import Image from "next/image"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { useSectionStyle } from "../../hooks"
 import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
@@ -130,7 +130,7 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
               <div className="relative overflow-hidden rounded-[calc(1.5rem-4px)] bg-card">
                 {section.image_url ? (
                   <>
-                    <ImageWithMetadata
+                    <Image
                       src={section.image_url}
                       alt="Featured image"
                       width={600}

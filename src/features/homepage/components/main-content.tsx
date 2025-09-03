@@ -1,12 +1,17 @@
+"use client"
+
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Droplets, Leaf, Recycle, Shield } from "lucide-react";
+import * as React from "react";
 
 import FeaturedProducts, { FeaturedProductItem } from "@/components/featured-products";
 import ProjectsCarousel from "@/components/projects-carousel";
 import SocialLinks from "@/components/social-links";
 import QualityPolicy from "@/components/quality-policy";
 import { HomepageResponseDto } from "@/lib/dto/homepage.dto";
+import { ProductResponseDto } from "@/lib/dto/product.dto";
+import SlideShow, { SlideItem } from "@/components/banner-slider";
 
 type MainContentProps = {
   data: HomepageResponseDto;
@@ -25,7 +30,13 @@ export default function MainContent({ data }: MainContentProps) {
     return "/images/nature-banner.jpg";
   };
 
-  const mappedProducts: FeaturedProductItem[] = (data?.products ?? []).map((p, idx) => ({
+  const banners: string[] = (data?.banner ?? []).map(getValidImageUrl);
+  if (banners.length === 0) banners.push("/images/nature-banner.jpg");
+  const [currentIndex, setCurrentIndex] = React.useState<number>(0);
+  const clampedIndex = Math.min(currentIndex, banners.length - 1);
+  const bannerSlides: SlideItem[] = banners.map((image) => ({ image }));
+  
+  const mappedProducts: ProductResponseDto[] = (data?.products ?? []).map((p, idx) => ({
     id: p.id ?? idx.toString(),
     created_at: new Date() as any,
     updated_at: new Date() as any,
@@ -36,22 +47,20 @@ export default function MainContent({ data }: MainContentProps) {
     sub_img: [],
     content: "",
     categories: [],
+    search: "",
   }));
 
   return (
     <main className="flex min-h-screen flex-col">
       {/* Banner/Message Section */}
       <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] min-h-[500px] sm:min-h-[600px] w-full overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src={getValidImageUrl(data.banner?.[0] ?? "")}
-            alt={data?.title ?? "Thiên nhiên xanh mát"}
-            fill
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/30" />
-        </div>
+        <SlideShow
+          items={bannerSlides}
+          heightClass="h-full"
+          autoIntervalMs={3000}
+          onIndexChange={setCurrentIndex}
+          renderOverlay={() => null}
+        />
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-10 text-center text-white">
           <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
             {data?.title ?? "Tôn vinh thiên nhiên – Sống xanh mỗi ngày"}

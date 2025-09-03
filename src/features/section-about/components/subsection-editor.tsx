@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Trash2, Edit2, Check, X, ImageIcon } from "lucide-react"
 import { SubsectionDto } from "@/lib/dto/about.dto"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
-import ImageWithMetadata from "@/components/ui/image-with-metadata"
+import Image from "next/image"
 import IconField from "@/features/icon-picker/components/icon-picker-custom"
 
 interface SubsectionEditorProps {
@@ -151,7 +151,7 @@ export default function SubsectionEditor({
               </div>
               {subsection.image_url && (
                 <div className="mt-2">
-                  <ImageWithMetadata
+                  <Image
                     src={subsection.image_url}
                     alt="Preview"
                     width={80}

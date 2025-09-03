@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import ImageWithMetadata from "@/components/ui/image-with-metadata";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,7 @@ export default function ProductPage() {
           {/* Product Image */}
           <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white shadow-lg">
-              <ImageWithMetadata
+              <Image
                 src={product.main_img}
                 alt={product.name}
                 fill
@@ -128,7 +128,7 @@ export default function ProductPage() {
             {product.sub_img && product.sub_img.length > 0 && (
               <div className="flex space-x-2 overflow-x-auto">
                 <div className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-green-500 flex-shrink-0">
-                  <ImageWithMetadata
+                  <Image
                     src={product.main_img}
                     alt={product.name}
                     fill
@@ -137,7 +137,7 @@ export default function ProductPage() {
                 </div>
                 {product.sub_img.map((img, index) => (
                   <div key={index} className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-gray-200 flex-shrink-0">
-                    <ImageWithMetadata
+                    <Image
                       src={img}
                       alt={`${product.name} - Ảnh ${index + 1}`}
                       fill

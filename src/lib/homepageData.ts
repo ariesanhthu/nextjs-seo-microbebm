@@ -29,7 +29,7 @@ export const HOMEPAGE_SEED_DATA: HomepageResponseDto = {
   },
   slider: [
     {
-      title: 'Thiên nhiên xanh mát',
+      title: 'CHẾ PHẨM VI SINH MÔI TRƯỜNG',
       description: 'Chúng tôi cung cấp các sản phẩm thân thiện với môi trường, góp phần xây dựng một tương lai bền vững cho thế hệ mai sau.',
       image_url: '/images/nature-banner.jpg'
     }
