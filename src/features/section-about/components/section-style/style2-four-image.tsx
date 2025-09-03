@@ -344,31 +344,30 @@ import { useSectionStyle } from "../../hooks"
 import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
 import { cn } from "@/lib/utils"
 
+// Component riêng để xử lý icon
+function SubsectionIcon({ iconName }: { iconName?: string }) {  
+  const { IconComponent } = useIconField(iconName || "Leaf")
+  return IconComponent ? <IconComponent className="w-9 h-9 text-emerald-600 dark:text-emerald-400" /> : <Leaf className="w-9 h-9 text-emerald-600 dark:text-emerald-400" />
+}
+
+function SubsectionIconSmall({ iconName }: { iconName?: string | null }) {
+  const { IconComponent } = useIconField(iconName || "Leaf")
+  return IconComponent ? <IconComponent className="w-6 h-6 text-emerald-600 dark:text-emerald-300" /> : <Leaf className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
+}
+
 type AboutSection = AboutResponseDto["section"][0]
 
 interface Style2FourImageProps {
   section: AboutSection
   onUpdate: (section: AboutSection) => void
+  isPreview?: boolean
 }
 
-export default function Style2FourImage({ section, onUpdate }: Style2FourImageProps) {
+export default function Style2FourImage({ section, onUpdate, isPreview = false }: Style2FourImageProps) {
   const { updateSubsection, addSubsection, removeSubsection, canAddImage, canAddSubsection } = useSectionStyle({
     section,
     onUpdate,
   })
-
-  const icon0 = useIconField(section.subsection[0]?.icon || "Leaf")
-  const icon1 = useIconField(section.subsection[1]?.icon || "Leaf")
-  const icon2 = useIconField(section.subsection[2]?.icon || "Leaf")
-  const icon3 = useIconField(section.subsection[3]?.icon || "Leaf")
-  const icon4 = useIconField(section.subsection[4]?.icon || "Leaf")
-  const icon5 = useIconField(section.subsection[5]?.icon || "Leaf")
-  const icon6 = useIconField(section.subsection[6]?.icon || "Leaf")
-  const icon7 = useIconField(section.subsection[7]?.icon || "Leaf")
-  const icon8 = useIconField(section.subsection[8]?.icon || "Leaf")
-  const icon9 = useIconField(section.subsection[9]?.icon || "Leaf")
-
-  const iconComponents = [icon0, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, icon9]
 
   return (
     <div className="relative overflow-hidden">
@@ -395,25 +394,11 @@ export default function Style2FourImage({ section, onUpdate }: Style2FourImagePr
             titleClassName="text-5xl md:text-7xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent leading-tight tracking-tight"
             subtitleClassName="text-xl md:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium max-w-3xl mx-auto"
           />
-          <div className="flex justify-center mt-8">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-100/90 to-emerald-100/90 dark:from-green-900/40 dark:to-emerald-900/40 rounded-full border border-green-200/60 dark:border-green-700/60 backdrop-blur-sm">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <Sparkles className="w-5 h-5 text-emerald-600 animate-pulse" />
-                <span className="text-base font-bold text-emerald-800 dark:text-emerald-200">
-                  Sustainable Innovation
-                </span>
-                <Sparkles className="w-5 h-5 text-emerald-600 animate-pulse animation-delay-500" />
-                <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse animation-delay-1000"></div>
-              </div>
-            </div>
-          </div>
+         
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {section.subsection.slice(0, 4).map((subsection, index) => {
-            const { IconComponent } = iconComponents[index]
 
             return (
               <div
@@ -462,26 +447,11 @@ export default function Style2FourImage({ section, onUpdate }: Style2FourImagePr
                       </div>
                     )}
 
-                    {index === 0 && (
-                      <div className="absolute top-6 left-6">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur opacity-75 animate-pulse"></div>
-                          <Badge className="relative bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-white backdrop-blur-sm shadow-xl border-0 px-5 py-2 rounded-full font-bold text-sm">
-                            ⭐ Featured
-                          </Badge>
-                        </div>
-                      </div>
-                    )}
-
                     <div className="absolute bottom-6 right-6">
                       <div className="relative group/icon">
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-2xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div className="relative w-18 h-18 rounded-2xl bg-gradient-to-br from-white/95 via-emerald-50/95 to-teal-50/95 dark:from-slate-800/95 dark:via-emerald-900/95 dark:to-teal-900/95 backdrop-blur-sm shadow-2xl border-2 border-emerald-200/60 dark:border-emerald-700/60 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-                          {IconComponent ? (
-                            <IconComponent className="w-9 h-9 text-emerald-600 dark:text-emerald-400" />
-                          ) : (
-                            <Leaf className="w-9 h-9 text-emerald-600 dark:text-emerald-400" />
-                          )}
+                          <SubsectionIcon iconName={subsection.icon || undefined} />
                         </div>
                       </div>
                     </div>
@@ -511,25 +481,28 @@ export default function Style2FourImage({ section, onUpdate }: Style2FourImagePr
                     )}
                   </div>
 
-                  {/* Edit controls */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <SubsectionEditor
-                      subsection={subsection}
-                      index={index}
-                      onUpdate={(updates) => updateSubsection(index, updates)}
-                      onDelete={() => removeSubsection(index)}
-                      showImage={true}
-                      canAddImage={canAddImage}
-                      sectionStyle={section.style}
-                      className="!p-0 !border-0 !bg-transparent"
-                    />
-                  </div>
+                  {/* Edit controls - ẩn trong preview mode để tránh gọi hook context */}
+                  {!isPreview && (
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <SubsectionEditor
+                        subsection={subsection}
+                        index={index}
+                        onUpdate={(updates) => updateSubsection(index, updates)}
+                        onDelete={() => removeSubsection(index)}
+                        showImage={true}
+                        canAddImage={canAddImage}
+                        sectionStyle={section.style}
+                        className="!p-0 !border-0 !bg-transparent"
+                        isPreview={isPreview}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )
           })}
 
-          {canAddSubsection && (
+          {!isPreview && canAddSubsection && (
             <div
               className="animate-in fade-in-0 slide-in-from-bottom-8 animation-delay-600"
               style={{ animationDelay: "600ms" }}
@@ -568,18 +541,13 @@ export default function Style2FourImage({ section, onUpdate }: Style2FourImagePr
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {section.subsection.slice(4).map((subsection, index) => {
-                const { IconComponent } = iconComponents[index + 4]
 
                 return (
                   <div key={index + 4} className="group">
                     <div className="p-6 rounded-2xl border border-emerald-200/60 dark:border-emerald-700/40 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-slate-800/80 hover:border-emerald-400/60 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-1">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-800 dark:to-teal-800 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-md">
-                          {IconComponent ? (
-                            <IconComponent className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
-                          ) : (
-                            <Leaf className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
-                          )}
+                          <SubsectionIconSmall iconName={subsection.icon || undefined} />
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors leading-tight">

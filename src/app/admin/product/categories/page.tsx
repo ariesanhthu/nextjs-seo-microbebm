@@ -145,7 +145,7 @@ export default function AdminCategoriesPage() {
           ) : (
             list.map((cat) => (
               <div key={cat.id} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
-                <div className="md:col-span-2 text-sm text-muted-foreground">ID: {cat.id}</div>
+                <div className="md:col-span-2 text-sm text-foreground">ID: {cat.id}</div>
                 <div className="md:col-span-2">
                   {editingId === cat.id ? (
                     <Input value={editName} onChange={(e) => setEditName(e.target.value)} />

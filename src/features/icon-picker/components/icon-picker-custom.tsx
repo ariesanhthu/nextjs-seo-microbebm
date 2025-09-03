@@ -1,5 +1,6 @@
 "use client";
-import { IconPicker, Icon, type IconName } from "@/components/ui/icon-picker";
+import { IconPicker, Icon } from "@/components/ui/icon-picker";
+import { IconName } from "@/components/ui/icon-picker";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 

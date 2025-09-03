@@ -145,7 +145,7 @@ export default function AdminTagsPage() {
           ) : (
             list.map((tag) => (
               <div key={tag.id} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
-                <div className="md:col-span-2 text-sm text-muted-foreground">ID: {tag.id}</div>
+                <div className="md:col-span-2 text-sm text-foreground">ID: {tag.id}</div>
                 <div className="md:col-span-2">
                   {editingId === tag.id ? (
                     <Input value={editName} onChange={(e) => setEditName(e.target.value)} />

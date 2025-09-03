@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Icon, type IconName } from "@/components/ui/icon-picker"
+import { Icon } from "@/components/ui/icon-picker"
+import { IconName } from "@/components/ui/icon-picker"
 
 export function useIconField(initialValue?: string) {
   const [iconName, setIconName] = useState<IconName | undefined>(initialValue as IconName)

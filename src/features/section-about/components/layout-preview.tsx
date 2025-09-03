@@ -11,7 +11,7 @@ import Style2FourImage from "./section-style/style2-four-image"
 type AboutSection = AboutResponseDto['section'][0]
 
 interface LayoutPreviewProps {
-  data: AboutResponseDto
+  data: AboutResponseDto | null
 }
 
 // Mapping từ EStyleSection đến các style components
@@ -48,9 +48,9 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {data.section && data.section.length > 0 ? (
+      {data?.section && data?.section.length > 0 ? (
         <div className="space-y-12">
-          {data.section.map((section, index) => renderSection(section, index))}
+          {data?.section.map((section, index) => renderSection(section, index))}
         </div>
       ) : (
         <Card>

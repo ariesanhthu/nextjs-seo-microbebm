@@ -141,10 +141,10 @@ export default function LayoutEditor({ initialData, aboutId }: LayoutEditorProps
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
+          <p className="text-foreground">
             Tạo và chỉnh sửa các section cho trang của bạn. Mỗi section có thể có style khác nhau:
           </p>
-          <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
+          <ul className="list-disc list-inside mt-2 text-sm text-foreground">
             <li>Style 0: Không có hình ảnh</li>
             <li>Style 1: Có 1 hình ảnh</li>
             <li>Style 2: Có 4 hình ảnh</li>

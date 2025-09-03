@@ -9,7 +9,6 @@ import { CreateHomepageSchema } from "@/lib/schemas/homepage.schema";
 export async function GET() {
   try {
     const homepage = await HomepageService.get();
-    console.log(homepage);
     return NextResponse.json({
       success: true,
       data: homepage,

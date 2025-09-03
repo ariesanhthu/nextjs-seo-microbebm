@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { LucideProps, LucideIcon } from 'lucide-react';
-import { DynamicIcon, IconName } from 'lucide-react/dynamic';
+// import { IconName } from 'lucide-react/dynamic';
+import dynamic from 'next/dynamic';
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { iconsData } from "./icons-data";
 import { useVirtualizer, VirtualItem } from '@tanstack/react-virtual';
@@ -16,6 +18,7 @@ import Fuse from 'fuse.js';
 import { useDebounceValue } from "usehooks-ts";
 
 export type IconData = typeof iconsData[number];
+export type IconName = keyof typeof dynamicIconImports;
 
 interface IconPickerProps extends Omit<React.ComponentPropsWithoutRef<typeof PopoverTrigger>, 'onSelect' | 'onOpenChange'> {
   value?: IconName
@@ -425,15 +428,24 @@ const IconPicker = React.forwardRef<
 IconPicker.displayName = "IconPicker";
 
 interface IconProps extends Omit<LucideProps, 'ref'> {
-  name: IconName;
+  name: keyof typeof dynamicIconImports;
 }
 
 const Icon = React.forwardRef<
   React.ComponentRef<LucideIcon>,
   IconProps
 >(({ name, ...props }, ref) => {
-  return <DynamicIcon name={name} {...props} ref={ref} />;
+  const LucideIcon = dynamic(dynamicIconImports[name], {
+    loading: () => (
+      <div className="w-4 h-4 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+        ?
+      </div>
+    ),
+    ssr: false
+  });
+
+  return <LucideIcon {...props} ref={ref} />;
 });
 Icon.displayName = "Icon";
 
-export { IconPicker, Icon, type IconName };
+export { IconPicker, Icon };

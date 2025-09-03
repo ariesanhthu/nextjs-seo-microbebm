@@ -10,7 +10,7 @@ export const iconsData: Array<{
     categories: string[];
     tags: string[];
 }> = [{
-        "name": "a-arrow-down",
+        "name": "arrow-down",
         "categories": [
             "text",
             "design"
@@ -24,7 +24,7 @@ export const iconsData: Array<{
         ]
     },
     {
-        "name": "a-arrow-up",
+        "name": "arrow-up",
         "categories": [
             "text",
             "design"
@@ -39,7 +39,7 @@ export const iconsData: Array<{
         ]
     },
     {
-        "name": "a-large-small",
+        "name": "type",
         "categories": [
             "text",
             "design"
