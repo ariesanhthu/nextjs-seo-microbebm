@@ -61,7 +61,7 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="w-6xl max-w-7xl mx-auto p-6 mt-10">
       {data?.section && data?.section.length > 0 ? (
         <div className="space-y-12">
           {data?.section.map((section, index) => renderSection(section, index))}

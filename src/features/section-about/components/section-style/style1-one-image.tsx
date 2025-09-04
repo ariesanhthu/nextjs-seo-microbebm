@@ -43,7 +43,6 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
           <SectionHeader 
             section={section}
             className="text-center space-y-4 max-w-3xl mx-auto"
-            titleClassName="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
             subtitleClassName="text-lg md:text-xl text-foreground leading-relaxed"
           />
         </div>

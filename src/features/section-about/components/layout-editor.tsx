@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Save, ArrowLeft, Eye } from "lucide-react"
+import { Plus, Save, Eye } from "lucide-react"
+import NavbarAdmin from "@/components/NavbarAdmin"
 import { toast } from "sonner"
 import SectionForm from "./section-form"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
@@ -90,56 +91,46 @@ export default function LayoutEditor({ initialData, aboutId }: LayoutEditorProps
   if (showPreview) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <Card className="mb-6">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm" onClick={() => router.push("/admin/about")}>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Quay lại
-                </Button>
-                <CardTitle>Preview Layout</CardTitle>
-              </div>
-              <Button variant="outline" onClick={() => setShowPreview(false)}>
-                <Eye className="h-4 w-4 mr-2" />
-                Quay lại chỉnh sửa
-              </Button>
-            </div>
-          </CardHeader>
-        </Card>
+        <NavbarAdmin
+          name="Preview Layout"
+          showBackButton
+          onBack={() => router.push("/admin/about")}
+          buttonTool={(
+            <Button variant="outline" onClick={() => setShowPreview(false)}>
+              <Eye className="h-4 w-4 mr-2" />
+              Quay lại chỉnh sửa
+            </Button>
+          )}
+        />
         <LayoutPreview data={{ section: sections} as AboutResponseDto} />
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={() => router.push("/admin/about")}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Quay lại
-              </Button>
-              <CardTitle>Chỉnh sửa Layout</CardTitle>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
-                <Eye className="h-4 w-4 mr-2" />
-                {showPreview ? "Ẩn Preview" : "Xem Preview"}
-              </Button>
-              <Button variant="outline" onClick={addSection}>
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm Section
-              </Button>
-              <Button onClick={saveLayout} disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
-                {loading ? "Đang lưu..." : "Lưu Layout"}
-              </Button>
-            </div>
+    <div className="w-6xl max-w-7xl mx-auto">
+      <NavbarAdmin
+        name="Chỉnh sửa Layout"
+        showBackButton
+        onBack={() => router.push("/admin/about")}
+        buttonTool={(
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
+              <Eye className="h-4 w-4 mr-2" />
+              {showPreview ? "Ẩn Preview" : "Xem Preview"}
+            </Button>
+            <Button variant="outline" onClick={addSection}>
+              <Plus className="h-4 w-4 mr-2" />
+              Thêm Section
+            </Button>
+            <Button onClick={saveLayout} disabled={loading}>
+              <Save className="h-4 w-4 mr-2" />
+              {loading ? "Đang lưu..." : "Lưu Layout"}
+            </Button>
           </div>
-        </CardHeader>
+        )}
+      />
+      <Card className="mb-6 mt-6">
         <CardContent>
           <p className="text-foreground">
             Tạo và chỉnh sửa các section cho trang của bạn. Mỗi section có thể có style khác nhau:

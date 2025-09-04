@@ -112,17 +112,17 @@ export default function Style0NoImage({ section, onUpdate, isPreview = false }: 
   } = useSectionStyle({ section, onUpdate })
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       {/* Decorative background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl -z-10" />
+      <div className="w-full absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 rounded-3xl -z-10" />
       
-      <div className="space-y-12 p-8">
+      <div className="space-y-12 p-8 w-full">
         {/* Enhanced Header with animation */}
         <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
           <SectionHeader 
             section={section}
             className="text-center space-y-4 max-w-3xl mx-auto"
-            titleClassName="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
+            
             subtitleClassName="text-lg md:text-xl text-foreground leading-relaxed"
           />
         </div>

@@ -13,7 +13,7 @@ interface SectionHeaderProps {
 export default function SectionHeader({ 
   section, 
   className = "text-center space-y-2",
-  titleClassName = "text-3xl font-bold",
+  titleClassName = "text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent leading-tight tracking-tight",
   subtitleClassName = "text-lg text-gray-600"
 }: SectionHeaderProps) {
   return (
@@ -23,7 +23,7 @@ export default function SectionHeader({
       </h2>
       {section.subtitle && (
         <div className={subtitleClassName}>
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-2">
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-100/90 to-emerald-100/90 dark:from-green-900/40 dark:to-emerald-900/40 rounded-full border border-green-200/60 dark:border-green-700/60 backdrop-blur-sm">

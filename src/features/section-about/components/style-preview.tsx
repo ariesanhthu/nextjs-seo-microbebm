@@ -25,7 +25,7 @@ export default function StylePreview({ section, onUpdate, onDelete }: StylePrevi
   }
 
   return (
-    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50">
+    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 w-full">
       {renderPreview()}
     </div>
   )
