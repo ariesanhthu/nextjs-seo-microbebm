@@ -6,12 +6,7 @@ export default function EmailSenderPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <ContactForm
-          className=""
-          onSuccess={() => {
-            console.log('Contact form submitted successfully');
-          }}
-        />
+        <ContactForm/>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
+import DialogContact from "@/features/emailSender/components/dialog-contact";
 import dynamic from "next/dynamic";
 
 type Product = ProductResponseDto;
@@ -202,12 +203,7 @@ export default function ProductPage() {
                 </Link>
 
                 {/* Nút Liên hệ */}
-                <Link href="/contact" className="w-full" passHref>
-                  <Button className="w-full" size="lg" variant="outline">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Liên hệ
-                  </Button>
-                </Link>
+                <DialogContact />
               </div>
             </div>
           </div>

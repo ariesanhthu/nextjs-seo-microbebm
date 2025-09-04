@@ -176,7 +176,7 @@ export default function MainContent() {
       <section id="products" className="bg-background py-16">
         <div className="container mx-auto px-10">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-black md:text-4xl">
+            <h2 className="mb-2 text-3xl font-bold text-black md:text-4xl">
               Sản phẩm tiêu biểu
             </h2>
             <p className="mx-auto max-w-2xl text-foreground">

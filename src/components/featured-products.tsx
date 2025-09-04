@@ -6,6 +6,8 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
 import Image from "next/image";
 import { HOMEPAGE_SEED_DATA } from "@/lib/homepageData";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import DialogContact from "@/features/emailSender/components/dialog-contact";
 
 // Hàm helper để xử lý image URL
 function getImageUrl(url?: string): string {
@@ -78,7 +80,7 @@ export default function FeaturedProducts({ products: inputProducts }: { products
       {/* Container chính với scroll ngang */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth scroll-snap-x scroll-snap-mandatory"
+        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth scroll-snap-x scroll-snap-mandatory py-5"
         style={{
           scrollSnapType: 'x mandatory',
           scrollbarWidth: 'none',
@@ -86,40 +88,44 @@ export default function FeaturedProducts({ products: inputProducts }: { products
         }}
       >
         {products.map((product, index) => (
-          <div
+          <Card
             key={product.id}
-            className={`flex-shrink-0 w-80 transform rounded-lg bg-white shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-xl scroll-snap-align-start ${
+            className={`flex-shrink-0 w-80 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl scroll-snap-align-start flex flex-col ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
             }`}
             style={{ transitionDelay: `${index * 100}ms` }}
           >
-            <div className="relative h-64 w-full overflow-hidden rounded-t-lg">
-              <Image
-                src={product.main_img}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-300 hover:scale-105"
-              />
-            </div>
-            <div className="p-6">
+            <CardHeader className="p-0">
+              <div className="relative h-64 w-full overflow-hidden rounded-t-lg">
+                <Image
+                  src={product.main_img}
+                  alt={product.name}
+                  fill
+                  className="object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 flex-1 flex flex-col">
               <h3 className="mb-2 text-xl font-semibold text-gray-800">
                 {product.name}
               </h3>
-              <p className="mb-4 text-gray-600 line-clamp-2">{product.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-lg font-bold text-green-600">
-                  Liên hệ
-                </span>
-                <Link
-                  href={`/product/${product.slug}`}
-                  className="group flex items-center text-sm font-medium text-green-600 hover:text-green-700"
-                >
-                  Chi tiết
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
+              <p className="text-gray-600 line-clamp-2 flex-1">{product.description}</p>
+            </CardContent>
+            <CardFooter className="flex items-center justify-between p-6 pt-0 mt-auto">
+              <DialogContact 
+                variant="outline" 
+                size="sm"
+                className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
+              />
+              <Link
+                href={`/product/${product.slug}`}
+                className="group flex items-center text-sm font-medium text-green-600 hover:text-green-700"
+              >
+                Chi tiết
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </CardFooter>
+          </Card>
         ))}
       </div>
 

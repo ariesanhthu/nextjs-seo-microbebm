@@ -4,7 +4,7 @@ import type React from "react"
 import AdminSidebar from "@/components/SideBar"
 import { BlogGalleryProvider } from "@/features/blog/context/blog-gallery-context";
 import { ImageGalleryProvider } from "@/features/image-storage/context/image-gallery-context";
-import { Toaster } from "@/components/ui/toaster"; 
+
 import { TagGalleryProvider } from "@/features/tag/context/tag-galerry-context";
 import { ProductGalleryProvider } from "@/features/product/context/product-gallery-context";
 import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
@@ -44,7 +44,7 @@ export default function AdminLayout({
             <TagGalleryProvider>
               <AlertDialogProvider>
                 <AdminLayoutContent>{children}</AdminLayoutContent>
-                <Toaster />
+                
               </AlertDialogProvider>
           </TagGalleryProvider>
         </ProductGalleryProvider>

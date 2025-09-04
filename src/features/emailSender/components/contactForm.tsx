@@ -11,21 +11,15 @@ import { Leaf, Building2, Phone } from "lucide-react"
 import { useContactForm } from "../hooks/use-contact-form"
 import { ContactFormFields } from "./contact-form-fields"
 import { ContactFormSubmit } from "./contact-form-submit"
-
 interface ContactFormProps {
   className?: string
   onSuccess?: () => void
 }
 
 export default function ContactForm({ className, onSuccess }: ContactFormProps) {
-  console.log("=== ContactForm component rendering ===");
   const { form, isSubmitting, onSubmit } = useContactForm(onSuccess)
-  console.log("=== About to call form.handleSubmit ===");
   const handleFormSubmit = form.handleSubmit(onSubmit);
-  console.log("=== handleFormSubmit created ===");
-  console.log("onSubmit function:", onSubmit);
-  console.log("typeof onSubmit:", typeof onSubmit);
-
+  
   return (
     <div className={`max-w-2xl mx-auto mt-20 ${className}`}>
       <Card className="border-green-200 shadow-xl bg-white/95 backdrop-blur-sm">
