@@ -1,8 +1,10 @@
 "use client";
 import { IconPicker, Icon } from "@/components/ui/icon-picker";
-import { IconName } from "@/components/ui/icon-types";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+
+type IconName = keyof typeof dynamicIconImports;
 
 interface IconFieldProps {
   value?: string;

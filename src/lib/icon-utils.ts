@@ -1,6 +1,7 @@
 // Utility for optimized icon imports
 import { LucideIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import React from 'react';
 
 // Common icons used across the app - preload these
 const COMMON_ICONS = [
@@ -14,9 +15,7 @@ export const createOptimizedIcon = (iconName: string) => {
   return dynamic(
     () => import('lucide-react').then((mod) => ({ default: mod[iconName as keyof typeof mod] as LucideIcon })),
     {
-      loading: () => (
-        <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-      ),
+      loading: () => React.createElement('div', { className: 'w-4 h-4 bg-gray-200 rounded animate-pulse' }),
       ssr: false
     }
   );
