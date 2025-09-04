@@ -23,6 +23,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,6 +43,7 @@ export default function ProductPage() {
             description: foundProduct.description?.substring(0, 50) + '...'
           });
           setProduct(foundProduct);
+          setSelectedImage(foundProduct.main_img); // Set ảnh chính làm ảnh được chọn ban đầu
         } else {
           setError("Sản phẩm không tồn tại");
         }
@@ -104,7 +106,7 @@ export default function ProductPage() {
           <div className="space-y-4">
             <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-white shadow-lg">
               <Image
-                src={product.main_img}
+                src={selectedImage || product.main_img}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-300 hover:scale-105"
@@ -115,7 +117,14 @@ export default function ProductPage() {
             {/* Thumbnail Gallery */}
             {product.sub_img && product.sub_img.length > 0 && (
               <div className="flex space-x-2 overflow-x-auto">
-                <div className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-green-500 flex-shrink-0">
+                <div 
+                  className={`relative aspect-square w-20 overflow-hidden rounded-md border-2 flex-shrink-0 cursor-pointer transition-all duration-200 ${
+                    selectedImage === product.main_img 
+                      ? 'border-green-500 ring-2 ring-green-200' 
+                      : 'border-gray-200 hover:border-green-300'
+                  }`}
+                  onClick={() => setSelectedImage(product.main_img)}
+                >
                   <Image
                     src={product.main_img}
                     alt={product.name}
@@ -124,7 +133,15 @@ export default function ProductPage() {
                   />
                 </div>
                 {product.sub_img.map((img, index) => (
-                  <div key={index} className="relative aspect-square w-20 overflow-hidden rounded-md border-2 border-gray-200 flex-shrink-0">
+                  <div 
+                    key={index} 
+                    className={`relative aspect-square w-20 overflow-hidden rounded-md border-2 flex-shrink-0 cursor-pointer transition-all duration-200 ${
+                      selectedImage === img 
+                        ? 'border-green-500 ring-2 ring-green-200' 
+                        : 'border-gray-200 hover:border-green-300'
+                    }`}
+                    onClick={() => setSelectedImage(img)}
+                  >
                     <Image
                       src={img}
                       alt={`${product.name} - Ảnh ${index + 1}`}

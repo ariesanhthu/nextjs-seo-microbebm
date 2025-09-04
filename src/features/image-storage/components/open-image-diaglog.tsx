@@ -90,7 +90,7 @@ export default function OpenImageMetadataDialog({
                 {imageMetadatas?.map((imageMetadata) => (
                   <Button 
                     key={imageMetadata.id} 
-                    className="flex flex-row gap-5 justify-start bg-transparent hover:bg-muted"
+                    className="flex flex-row gap-5 justify-start bg-transparent hover:bg-primary-foreground"
                     onClick={() => handleSelect(imageMetadata)}
                   >
                     <Image

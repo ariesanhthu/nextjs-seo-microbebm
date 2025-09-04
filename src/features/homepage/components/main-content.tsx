@@ -1,13 +1,10 @@
 "use client"
-
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Droplets, Leaf, Recycle, Shield } from "lucide-react";
 import * as React from "react";
 
 import FeaturedProducts, { FeaturedProductItem } from "@/components/featured-products";
 import ProjectsCarousel from "@/components/projects-carousel";
-import SocialLinks from "@/components/social-links";
 import QualityPolicy from "@/components/quality-policy";
 import { HomepageResponseDto } from "@/lib/dto/homepage.dto";
 import { useHomepage } from "@/features/homepage/context/homepage-context";
@@ -49,19 +46,31 @@ export default function MainContent() {
   }));
 
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col bg-background">
       {/* Banner/Message Section */}
       <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] min-h-[500px] sm:min-h-[600px] w-full overflow-hidden">
         <SlideShow
           items={bannerSlides}
           heightClass="h-full"
-          autoIntervalMs={3000}
+          autoIntervalMs={5000}
           onIndexChange={setCurrentIndex}
           renderOverlay={() => null}
+
         />
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-10 text-center text-white">
+        {/* Color overlay (top 50%) with fading to transparent */}
+        <div className="h-full absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-black/0 pointer-events-none z-10"/>
+        {/* Blur overlay (top 50%) with gradient mask to decrease blur towards bottom */}
+        <div
+              className="z-10 absolute inset-x-0 top-0 pointer-events-none backdrop-blur-md"
+              style={{
+                height: "50%",
+                WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
+                maskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
+              }}
+            />
+          <div className="container absolute inset-0 z-10 mx-auto flex flex-col items-center justify-center px-10 text-center text-primary-foreground">
           <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-            {data?.title ?? "Tôn vinh thiên nhiên – Sống xanh mỗi ngày"}
+            {data?.title ?? "Tôn vinh thiên nhiên - Sống xanh mỗi ngày"}
           </h1>
           <p className="mb-6 sm:mb-8 max-w-2xl text-base sm:text-lg md:text-xl px-2">
             {data?.subtitle ?? "Chúng tôi cung cấp các sản phẩm thân thiện với môi trường, góp phần xây dựng một tương lai bền vững cho thế hệ mai sau."}
@@ -77,13 +86,13 @@ export default function MainContent() {
       </section>
 
       {/* Services Section */}
-      <section className="bg-white py-16" id="Services">
+      <section className="py-16" id="Services">
         <div className="container mx-auto px-10">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
               Dịch vụ của chúng tôi
             </h2>
-            <p className="mx-auto max-w-2xl text-gray-600">
+            <p className="mx-auto max-w-2xl text-foreground">
               Chúng tôi cung cấp các giải pháp toàn diện giúp bạn và doanh nghiệp sống và làm việc theo phong cách bền vững.
             </p>
           </div>
@@ -145,7 +154,7 @@ export default function MainContent() {
       </section>
 
       {/* Projects Section */}
-      <section className="bg-white py-16" id="Projects">
+      <section className="py-16" id="Projects">
         <div className="container mx-auto px-10">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
@@ -164,14 +173,14 @@ export default function MainContent() {
       <QualityPolicy />
 
       {/* Featured Products Section */}
-      <section id="products" className="bg-gray-50 py-16">
+      <section id="products" className="bg-background py-16">
         <div className="container mx-auto px-10">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-800 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold text-black md:text-4xl">
               Sản phẩm tiêu biểu
             </h2>
-            <p className="mx-auto max-w-2xl text-gray-600">
-              Khám phá các sản phẩm thân thiện với môi trường, được thiết kế để giúp bạn sống xanh mỗi ngày.
+            <p className="mx-auto max-w-2xl text-foreground">
+              Khám phá các sản phẩm thân thiện với môi trường.
             </p>
           </div>
 

@@ -1,121 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { BlogResponseDto } from "@/lib/dto/blog.dto";
+import { fetchBlogSlugServerCached } from "@/lib/fetchers/blogSlug.fetcher";
+import { formatDate } from "@/utils/format-date";
 
-export default function BlogDetailPage() {
-  const params = useParams();
-  const [blog, setBlog] = useState<BlogResponseDto | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Helper function to format date
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return "Không xác định";
-
-    try {
-      if (timestamp.toDate) {
-        const date = timestamp.toDate();
-        return date.toLocaleDateString("vi-VN", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-      }
-      const date = new Date(timestamp);
-      if (isNaN(date.getTime())) return "Không xác định";
-      return date.toLocaleDateString("vi-VN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      return "Không xác định";
-    }
-  };
-
-  useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        const response = await fetch(`/api/blog/slug/${params.slug}`);
-        if (response.ok) {
-          const result = await response.json();
-          setBlog(result.data);
-        }
-      } catch (error) {
-        console.error("Error fetching blog:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (params.slug) {
-      fetchBlog();
-    }
-  }, [params.slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 animate-pulse space-y-8">
-          {/* Thumbnail skeleton */}
-          <div className="w-full h-80 bg-gray-200 rounded-lg mt-20" />
-
-          {/* Title + excerpt */}
-          <div className="text-center space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto" />
-            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto" />
-          </div>
-
-          {/* Content skeleton */}
-          <div className="bg-white rounded-lg shadow-lg p-8 space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-full" />
-            <div className="h-4 bg-gray-200 rounded w-5/6" />
-            <div className="h-4 bg-gray-200 rounded w-2/3" />
-            <div className="h-4 bg-gray-200 rounded w-full" />
-          </div>
-
-          {/* Tags skeleton */}
-          <div className="flex justify-center gap-2">
-            <div className="h-6 w-16 bg-gray-200 rounded-full" />
-            <div className="h-6 w-20 bg-gray-200 rounded-full" />
-            <div className="h-6 w-14 bg-gray-200 rounded-full" />
-          </div>
-
-          {/* Footer skeleton */}
-          <div className="bg-white rounded-lg shadow-lg p-6 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gray-200 rounded-full" />
-              <div className="space-y-2">
-                <div className="h-4 w-24 bg-gray-200 rounded" />
-                <div className="h-4 w-32 bg-gray-200 rounded" />
-              </div>
-            </div>
-            <div className="space-y-2 text-right">
-              <div className="h-4 w-20 bg-gray-200 rounded" />
-              <div className="h-4 w-24 bg-gray-200 rounded" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!blog) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Blog không tìm thấy
-          </h1>
-          <p className="text-gray-600">
-            Blog bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
-          </p>
-        </div>
-      </div>
-    );
-  }
+export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const blog: BlogResponseDto | null = await fetchBlogSlugServerCached(slug);
+  if (!blog) return notFound();
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

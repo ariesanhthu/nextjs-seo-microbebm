@@ -2,8 +2,8 @@
   "name": "nextjs-seo-microbebm",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
+  "scripts": {  
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start"
   },

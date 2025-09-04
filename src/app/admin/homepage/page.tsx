@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Plus, Save, Trash2, Image as ImageIcon, Images, Globe, FileText, Sliders, Package, NotebookPen, BookOpen } from "lucide-react"
 import { HomepageFooter, HomepageNavigationBar, HomepageResponseDto, UpdateHomepageDto } from "@/lib/dto/homepage.dto"
@@ -132,6 +133,20 @@ export default function AdminHomepagePage() {
         slider: (form.slider || []).filter((_, i) => i !== idx)
       })
       toast.success("Đã xóa ảnh slider")
+    }
+  }
+
+  const updateSliderField = (idx: number, field: 'title' | 'description', value: string) => {
+    if (form) {
+      const updatedSlider = [...(form.slider || [])]
+      updatedSlider[idx] = {
+        ...updatedSlider[idx],
+        [field]: value
+      }
+      setForm({
+        ...form,
+        slider: updatedSlider
+      })
     }
   }
 
@@ -425,25 +440,68 @@ export default function AdminHomepagePage() {
         return (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sliders className="h-5 w-5" /> Ảnh Slider</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Sliders className="h-5 w-5" /> Ảnh Slider
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(form?.slider || []).map(({ title, description, image_url }, idx) => (
-                  <div key={`${image_url}-${idx}`} className="relative">
-                    <Image 
-                      src={image_url} 
-                      width={300} 
-                      height={160} 
-                      alt={`slide-${idx}`} 
-                      className="rounded-md object-cover w-full h-40" 
-                    />
-                    <Button size="icon" variant="destructive" className="absolute top-2 right-2 text-white" onClick={() => removeSlider(idx)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(form?.slider || []).map((sliderItem, idx) => (
+                  <div key={`${sliderItem.image_url}-${idx}`} className="space-y-3">
+                    <div className="space-y-2">
+                      <div>
+                        <Label htmlFor={`slider-title-${idx}`} className="text-sm font-medium">
+                          Tiêu đề
+                        </Label>
+                        <Input
+                          id={`slider-title-${idx}`}
+                          value={sliderItem.title || ''}
+                          onChange={(e) => updateSliderField(idx, 'title', e.target.value)}
+                          placeholder="Nhập tiêu đề..."
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`slider-description-${idx}`} className="text-sm font-medium">
+                          Mô tả
+                        </Label>
+                        <Textarea
+                          id={`slider-description-${idx}`}
+                          value={sliderItem.description || ''}
+                          onChange={(e) => updateSliderField(idx, 'description', e.target.value)}
+                          placeholder="Nhập mô tả..."
+                          className="mt-1 min-h-[60px]"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="relative">
+                      <Image 
+                        src={sliderItem.image_url} 
+                        width={300} 
+                        height={160} 
+                        alt={`slide-${idx}`} 
+                        className="rounded-md object-cover w-full h-40" 
+                      />
+                      <Button 
+                        size="icon" 
+                        variant="destructive" 
+                        className="absolute top-2 right-2 text-white" 
+                        onClick={() => removeSlider(idx)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
-                <Button variant="outline" onClick={handleSelectSlider}>Thêm ảnh</Button>
+                <div className="flex items-center justify-center">
+                  <Button variant="outline" onClick={handleSelectSlider} className="h-40 w-full">
+                    <div className="flex flex-col items-center gap-2">
+                      <Plus className="h-8 w-8" />
+                      <span>Thêm ảnh</span>
+                    </div>
+                  </Button>
+                </div>
               </div>
               <Separator />
               <div className="space-y-2">

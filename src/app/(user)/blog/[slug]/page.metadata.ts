@@ -1,0 +1,1 @@
+export { generateBlogMetadata } from "@/utils/generate-blog-metadata";

@@ -11,8 +11,6 @@ import axios from "axios";
 import {
     LayoutDashboard
   } from "lucide-react";
-  
-import { checkRole } from '@/utils/roles'
 
 type NavItem = { title: string; url: string }
 
@@ -86,7 +84,7 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
                   <path d="M20.27 17.27 22 19" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-green-800">Môi trường</span>
+              <span className="text-xl font-bold text-primary">Môi trường</span>
             </div>
           </Link>
 
@@ -96,10 +94,10 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
               <Link
                 key={`${item.title}-${item.url}`}
                 href={item.url || "#"}
-                                                                                                                                       className={cn(
+                className={cn(
                      "relative px-4 py-2 text-base font-bold transition-all duration-300 rounded-full",
-                     "text-green-800 hover:text-green-600 hover:bg-green-50/50",
-                     "after:absolute after:bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-green-600 after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-6"
+                     "text-primary hover:text-green-900 hover:bg-green-50/50",
+                     "after:absolute after:bottom-1 after:left-1/2 after:h-[2px] after:w-0 after:bg-green-900 after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-6"
                    )}
               >
                 {item.title}
@@ -179,7 +177,7 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={cn("lg:hidden transition-colors duration-200", isScrolled ? "text-white hover:text-green-400" : "text-green-800 hover:text-green-600")}
+            className={cn("lg:hidden transition-colors duration-200", "text-primary hover:text-green-800")}
             aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
