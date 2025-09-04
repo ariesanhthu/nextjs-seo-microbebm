@@ -8,17 +8,17 @@ import dynamic from "next/dynamic"
 
 // Dynamic imports cho các style components để tránh build từ đầu
 const Style0NoImage = dynamic(() => import("./section-style/style0-no-image"), {
-  ssr: false,
+  ssr: true,
   loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
 })
 
 const Style1OneImage = dynamic(() => import("./section-style/style1-one-image"), {
-  ssr: false,
+  ssr: true,
   loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
 })
 
 const Style2FourImage = dynamic(() => import("./section-style/style2-four-image"), {
-  ssr: false,
+  ssr: true,
   loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
 })
 

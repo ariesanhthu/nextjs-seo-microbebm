@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
-import ProductSelectionDialog from '../components/product-selection-dialog';
+import LazyOnOpen from '@/components/lazy-on-open';
 import { ProductResponseDto } from '@/lib/dto/product.dto';
 import { toast } from 'sonner';
 interface ProductGalleryContextType {
@@ -138,24 +138,28 @@ export function ProductGalleryProvider({ children }: ProductGalleryProviderProps
     <ProductGalleryContext.Provider value={contextValue}>
       {children}
       
-      {/* Product Selection Dialog */}
-      <ProductSelectionDialog
-        isOpen={isSelectionDialogOpen}
-        onClose={closeSelectionDialog}
-        onConfirm={confirmSelection}
-        currentSelected={selectedProducts}
-        numberSelection={numberSelection}
-        products={products}
-        loading={loading}
-        error={error}
-        hasNextPage={hasNextPage}
-        hasPrevPage={hasPrevPage}
-        goToNextPage={goToNextPage}
-        goToPrevPage={goToPrevPage}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        isSearching={isSearching}
-        refresh={refresh}
+      <LazyOnOpen
+        open={isSelectionDialogOpen}
+        loader={() => import('../components/product-selection-dialog')}
+        fallback={<div>Loading...</div>}
+        componentProps={{
+          isOpen: isSelectionDialogOpen,
+          onClose: closeSelectionDialog,
+          onConfirm: confirmSelection,
+          currentSelected: selectedProducts,
+          numberSelection,
+          products,
+          loading,
+          error,
+          hasNextPage,
+          hasPrevPage,
+          goToNextPage,
+          goToPrevPage,
+          searchQuery,
+          setSearchQuery,
+          isSearching,
+          refresh,
+        }}
       />
     </ProductGalleryContext.Provider>
   );

@@ -105,7 +105,7 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
                 {item.title}
               </Link>
             ))}
-            
+{/*             
             <div className="relative">
               <button
                 onClick={() => setIsProductsOpen(!isProductsOpen)}
@@ -142,7 +142,7 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
                   </Link>
                 </div>
               )}
-            </div>
+            </div> */}
           </nav>
 
           {/* Desktop Right Actions */}

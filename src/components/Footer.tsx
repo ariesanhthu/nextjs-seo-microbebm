@@ -19,9 +19,9 @@ type FooterProps = {
 
 export default function Footer({ footer }: FooterProps) {
   return (
-    <footer className="bg-gradient-to-br from-green-800 via-green-900 to-green-950 py-16 text-white">
-      <div className="container mx-auto px-10">
-        <div className="flex flex-col md:flex-row md:justify-evenly gap-8 max-w-7xl mx-auto">
+    <footer className="bg-gradient-to-br from-green-800 via-green-900 to-green-950 py-16 text-white w-full">
+      <div className="container mx-auto px-8">
+        <div className="flex flex-col md:flex-row md:justify-evenly gap-6 w-full mx-auto">
           
           {/* Cột 1: Về chúng tôi */}
           <div className="text-center md:text-left md:flex-1 md:max-w-xs">

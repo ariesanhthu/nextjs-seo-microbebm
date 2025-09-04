@@ -9,10 +9,14 @@ import { ArrowLeft, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
+import dynamic from "next/dynamic";
 
 type Product = ProductResponseDto;
+
+const ContentSkeleton = dynamic(() =>
+  import("@/components/skeletons/ContentSkeleton").then((m) => m.ContentSkeleton)
+);
 
 export default function ProductPage() {
   const params = useParams();
@@ -59,23 +63,7 @@ export default function ProductPage() {
   }, [params.slug]);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Skeleton className="h-8 w-32" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Skeleton className="h-96 w-full rounded-lg" />
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-4 w-4/5" />
-            <Skeleton className="h-12 w-48" />
-          </div>
-        </div>
-      </div>
-    );
+    return <ContentSkeleton />;
   }
 
   if (error || !product) {
@@ -169,11 +157,11 @@ export default function ProductPage() {
             </div>
 
             <div className="space-y-4 mt-5">
-              <div>
+              <div className="p-3">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Mô tả sản phẩm
                 </h3>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed pr-5">
                   {product.description}
                 </p>
               </div>

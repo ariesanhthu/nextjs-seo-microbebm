@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
 import { ImageMetadataResponseDto } from '@/lib/dto/image-metadata.dto';
-import OpenImageMetadataDialog from '../components/open-image-diaglog';
+import LazyOnOpen from '@/components/lazy-on-open';
 
 interface ImageGalleryContextType {
   // Dialog state
@@ -95,26 +95,26 @@ export function ImageGalleryProvider({ children }: ImageGalleryProviderProps) {
     <ImageGalleryContext.Provider value={contextValue}>
       {children}
 
-      {/* Hidden the dialog when close, do not re-render */}
-      <div
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <OpenImageMetadataDialog
-          onSelect={handleSelect}
-          closeDialog={closeDialog}
-          isOpen={isOpen}
-          data={imageMetadatas}
-          loading={loading}
-          error={error}
-          hasNextPage={hasNextPage}
-          hasPrevPage={hasPrevPage}
-          goToNextPage={goToNextPage}
-          goToPrevPage={goToPrevPage}
-          goToFirstPage={goToFirstPage}
-          refresh={refresh}
-          cacheSize={cacheSize}
+      <div className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-200 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <LazyOnOpen
+          open={isOpen}
+          loader={() => import('../components/open-image-diaglog')}
+          fallback={<div>Loading...</div>}
+          componentProps={{
+            onSelect: handleSelect,
+            closeDialog,
+            isOpen,
+            data: imageMetadatas,
+            loading,
+            error,
+            hasNextPage,
+            hasPrevPage,
+            goToNextPage,
+            goToPrevPage,
+            goToFirstPage,
+            refresh,
+            cacheSize,
+          }}
         />
       </div>
     </ImageGalleryContext.Provider>

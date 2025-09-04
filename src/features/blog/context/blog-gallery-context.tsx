@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, lazy, Suspense } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
 import { EBlogStatus } from '@/lib/enums/blog-status.enum';
 import { toast } from 'sonner';
 
-const BlogSelectionDialog = lazy(() => import('../components/blog-selection-dialog'));
+import LazyOnOpen from '@/components/lazy-on-open';
 interface BlogGalleryContextType {
   // Data from pagination hook
   blogs: BlogResponseDto[];
@@ -160,29 +160,29 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     <BlogGalleryContext.Provider value={contextValue}>
       {children}
       
-      {/* Blog Selection Dialog - Dynamic Import */}
-      {isSelectionDialogOpen && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BlogSelectionDialog
-            isOpen={isSelectionDialogOpen}
-            onClose={closeSelectionDialog}
-            onConfirm={confirmSelection}
-            currentSelected={selectedBlogs}
-            numberSelection={numberSelection}
-            blogs={blogs}
-            loading={loading}
-            error={error}
-            hasNextPage={hasNextPage}
-            hasPrevPage={hasPrevPage}
-            goToNextPage={goToNextPage}
-            goToPrevPage={goToPrevPage}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            isSearching={isSearching}
-            refresh={refresh}
-          />
-        </Suspense>
-      )}
+      <LazyOnOpen
+        open={isSelectionDialogOpen}
+        loader={() => import('../components/blog-selection-dialog')}
+        fallback={<div>Loading...</div>}
+        componentProps={{
+          isOpen: isSelectionDialogOpen,
+          onClose: closeSelectionDialog,
+          onConfirm: confirmSelection,
+          currentSelected: selectedBlogs,
+          numberSelection,
+          blogs,
+          loading,
+          error,
+          hasNextPage,
+          hasPrevPage,
+          goToNextPage,
+          goToPrevPage,
+          searchQuery,
+          setSearchQuery,
+          isSearching,
+          refresh,
+        }}
+      />
     </BlogGalleryContext.Provider>
   );
 }

@@ -8,7 +8,6 @@ import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
 import { UsePaginatedFetchReturn } from '@/hooks/use-paginated-fetch';
 import Image from 'next/image';
-import { useEffect } from 'react';
 
 
 interface OpenBlogDialogProps extends Partial<UsePaginatedFetchReturn<BlogResponseDto>> {

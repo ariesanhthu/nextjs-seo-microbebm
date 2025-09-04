@@ -10,14 +10,12 @@ import ProjectsCarousel from "@/components/projects-carousel";
 import SocialLinks from "@/components/social-links";
 import QualityPolicy from "@/components/quality-policy";
 import { HomepageResponseDto } from "@/lib/dto/homepage.dto";
+import { useHomepage } from "@/features/homepage/context/homepage-context";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
 import SlideShow, { SlideItem } from "@/components/banner-slider";
 
-type MainContentProps = {
-  data: HomepageResponseDto;
-};
-
-export default function MainContent({ data }: MainContentProps) {
+export default function MainContent() {
+  const data: HomepageResponseDto = useHomepage();
   // Helper function để validate URL
   const getValidImageUrl = (url?: string): string => {
     if (!url || typeof url !== 'string') return "/images/nature-banner.jpg";
@@ -158,7 +156,7 @@ export default function MainContent({ data }: MainContentProps) {
             </p>
           </div>
 
-          <ProjectsCarousel />
+          <ProjectsCarousel slides={data?.slider ?? []} />
         </div>
       </section>
 
