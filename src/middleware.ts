@@ -14,6 +14,11 @@ const clerkMw = clerkMiddleware(async (auth, req) =>
         return NextResponse.redirect(url);
     }
 
+    if (req.method !== "GET" && claims?.metadata?.role !== "admin") {
+      const url = new URL("/", req.url);
+      return NextResponse.redirect(url);
+    }
+
     return NextResponse.next();
 });
 
