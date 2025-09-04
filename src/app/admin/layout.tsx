@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import AdminSidebar from "@/components/SideBar"
 import { BlogGalleryProvider } from "@/features/blog/context/blog-gallery-context";
@@ -5,6 +7,28 @@ import { ImageGalleryProvider } from "@/features/image-storage/context/image-gal
 import { Toaster } from "@/components/ui/toaster"; 
 import { TagGalleryProvider } from "@/features/tag/context/tag-galerry-context";
 import { ProductGalleryProvider } from "@/features/product/context/product-gallery-context";
+import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
+import { cn } from "@/lib/utils";
+
+function AdminLayoutContent({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { collapsed } = useSidebar()
+  
+  return (
+    <div className="min-h-screen px-10 bg-background">
+      <AdminSidebar />
+      <div className={cn(
+        "transition-all duration-300 ease-in-out",
+        collapsed ? "lg:pl-20" : "lg:pl-64"
+      )}>
+        <main className="pt-16 lg:pt-8">{children}</main>
+      </div>
+    </div>
+  )
+}
 
 export default function AdminLayout({
   children,
@@ -12,20 +36,17 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <ImageGalleryProvider>
-      <BlogGalleryProvider>
-        <ProductGalleryProvider>
-          <TagGalleryProvider>
-            <div className="min-h-screen px-10 bg-background">
-              <AdminSidebar />
-              <div className="lg:pl-64">
-                <main className="pt-16 lg:pt-8">{children}</main>
-              </div>
-            </div>
-            <Toaster />
-        </TagGalleryProvider>
-      </ProductGalleryProvider>
-    </BlogGalleryProvider>
-  </ImageGalleryProvider>
+    <SidebarProvider>
+      <ImageGalleryProvider>
+        <BlogGalleryProvider>
+          <ProductGalleryProvider>
+            <TagGalleryProvider>
+              <AdminLayoutContent>{children}</AdminLayoutContent>
+              <Toaster />
+          </TagGalleryProvider>
+        </ProductGalleryProvider>
+      </BlogGalleryProvider>
+    </ImageGalleryProvider>
+    </SidebarProvider>
   )
 }

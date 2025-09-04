@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, Eye } from "lucide-react"
+import { Plus, Edit, Trash2, Eye, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useGlobalAlert } from "@/features/alert-dialog/context/alert-dialog-context"
 import type { AboutResponseDto } from "@/lib/dto/about.dto"
@@ -69,13 +69,12 @@ export default function AboutManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card>
-          <CardContent className="p-6">
-            <p>Đang tải dữ liệu...</p>
-          </CardContent>
-        </Card>
+      <div className="flex justify-center items-center py-24">
+      <div className="text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto" />
+        <p className="text-slate-600 mt-4">Đang tải dữ liệu...</p>
       </div>
+    </div>
     )
   }
 

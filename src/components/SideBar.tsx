@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, FileText, Settings, MessageSquare, Bell, LogOut, ChevronLeft, ChevronRight, Leaf, Image } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { useSidebar } from "@/contexts/SidebarContext"
 
 type SidebarItem = {
   title: string
@@ -15,8 +16,7 @@ type SidebarItem = {
 
 export default function AdminSidebar() {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { collapsed, setCollapsed, mobileOpen, setMobileOpen } = useSidebar()
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
 
   // Check if we're on mobile on initial render
@@ -29,7 +29,7 @@ export default function AdminSidebar() {
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+  }, [setCollapsed, setMobileOpen])
 
   const sidebarItems: SidebarItem[] = [
     {

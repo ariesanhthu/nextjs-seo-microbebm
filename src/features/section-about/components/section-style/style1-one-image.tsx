@@ -1,93 +1,20 @@
-// "use client"
-// import { Button } from "@/components/ui/button"
-// import { Plus } from "lucide-react"
-// import SubsectionEditor from "../subsection-editor"
-// import SectionHeader from "./section-header"
-// import ImageWithMetadata from "@/components/ui/image-with-metadata"
-// import { AboutResponseDto } from "@/lib/dto/about.dto"
-// import { useSectionStyle } from "../../hooks"
-
-// type AboutSection = AboutResponseDto['section'][0]
-
-// interface Style1OneImageProps {
-//   section: AboutSection
-//   onUpdate: (section: AboutSection) => void
-// }
-
-// export default function Style1OneImage({ section, onUpdate }: Style1OneImageProps) {
-//   const {
-//     updateSubsection,
-//     addSubsection,
-//     removeSubsection,
-//     canAddSubsection
-//   } = useSectionStyle({ section, onUpdate })
-
-//   return (
-//     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//       {/* Ảnh lớn bên trái */}
-//       <div className="space-y-4">
-//         <SectionHeader 
-//           section={section} 
-//           className="space-y-2"
-//           titleClassName="text-2xl font-bold"
-//           subtitleClassName="text-gray-600"
-//         />
-        
-//         {/* Ảnh chính - lấy từ section image_url */}
-//         {section.image_url && (
-//           <div className="relative">
-//             <ImageWithMetadata
-//               src={section.image_url}
-//               alt="Main image"
-//               width={400}
-//               height={256}
-//               className="w-full h-64 object-cover rounded-lg"
-//             />
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Subsections bên phải */}
-//       <div className="space-y-4">
-//         {section.subsection.map((subsection, index) => (
-//           <SubsectionEditor
-//             key={index}
-//             subsection={subsection}
-//             index={index}
-//             onUpdate={(updates) => updateSubsection(index, updates)}
-//             onDelete={() => removeSubsection(index)}
-//             showImage={false}
-//             canAddImage={false}
-//             sectionStyle={section.style}
-//           />
-//         ))}
-        
-//         {canAddSubsection && (
-//           <Button 
-//             type="button" 
-//             variant="outline" 
-//             onClick={addSubsection}
-//             className="w-full"
-//           >
-//             <Plus className="h-4 w-4 mr-2" />
-//             Thêm subsection
-//           </Button>
-//         )}
-//       </div>
-//     </div>
-//   )
-// }
 "use client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, ArrowRight, CheckCircle2, Award } from "lucide-react"
-import SubsectionEditor from "../subsection-editor"
 import SectionHeader from "./section-header"
 import Image from "next/image"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { useSectionStyle } from "../../hooks"
-import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
 import { cn } from "@/lib/utils"
+import { DynamicIcon } from "../../hooks/useIconFieldDynamic"
+import dynamic from "next/dynamic"
+
+// Dynamic import cho SubsectionEditor
+const SubsectionEditor = dynamic(() => import("../subsection-editor"), {
+  ssr: false,
+  loading: () => <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+})
 
 type AboutSection = AboutResponseDto['section'][0]
 
@@ -167,8 +94,6 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
           {/* Right: Subsections List */}
           <div className="space-y-6">
             {section.subsection.map((subsection, index) => {
-              const { IconComponent } = useIconField(subsection.icon || "CheckCircle2")
-              
               return (
                 <div
                   key={index}
@@ -182,11 +107,11 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
                     {/* Icon */}
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-                        {IconComponent ? (
-                          <IconComponent className="w-6 h-6 text-primary" />
-                        ) : (
-                          <CheckCircle2 className="w-6 h-6 text-primary" />
-                        )}
+                        <DynamicIcon 
+                          iconName={subsection.icon || undefined} 
+                          fallbackIcon={CheckCircle2}
+                          className="w-6 h-6 text-primary" 
+                        />
                       </div>
                     </div>
 

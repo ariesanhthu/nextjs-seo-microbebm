@@ -7,7 +7,13 @@ import { Trash2, Edit2, Check, X, ImageIcon } from "lucide-react"
 import { SubsectionDto } from "@/lib/dto/about.dto"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import Image from "next/image"
-import IconField from "@/features/icon-picker/components/icon-picker-custom"
+import dynamic from "next/dynamic"
+
+// Dynamic import cho IconField để tránh build từ đầu
+const IconField = dynamic(() => import("@/features/icon-picker/components/icon-picker-custom"), {
+  ssr: false,
+  loading: () => <div className="h-10 w-10 bg-muted animate-pulse rounded" />
+})
 
 interface SubsectionEditorProps {
   subsection: SubsectionDto[0]

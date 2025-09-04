@@ -1,10 +1,8 @@
 "use client";
 
-import { CldImage } from 'next-cloudinary';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useBlogGallery } from '../context/blog-gallery-context';
-import Image from 'next/image';
 import { useGlobalAlert } from '@/features/alert-dialog/context/alert-dialog-context';
 import { ApiResponseDto } from '@/lib/dto/api-response.dto';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
@@ -13,7 +11,7 @@ import { useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, Edit, Eye, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, RefreshCw, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EBlogStatus } from '@/lib/enums/blog-status.enum';

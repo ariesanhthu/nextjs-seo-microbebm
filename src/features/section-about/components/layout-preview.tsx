@@ -4,9 +4,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ImageIcon } from "lucide-react"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { EStyleSection } from "@/lib/enums/style-section.enum"
-import Style0NoImage from "./section-style/style0-no-image"
-import Style1OneImage from "./section-style/style1-one-image"
-import Style2FourImage from "./section-style/style2-four-image"
+import dynamic from "next/dynamic"
+
+// Dynamic imports cho các style components để tránh build từ đầu
+const Style0NoImage = dynamic(() => import("./section-style/style0-no-image"), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
+})
+
+const Style1OneImage = dynamic(() => import("./section-style/style1-one-image"), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
+})
+
+const Style2FourImage = dynamic(() => import("./section-style/style2-four-image"), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-muted animate-pulse rounded-lg" />
+})
 
 type AboutSection = AboutResponseDto['section'][0]
 

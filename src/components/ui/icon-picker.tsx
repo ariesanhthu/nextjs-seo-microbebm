@@ -11,32 +11,59 @@ import { LucideProps, LucideIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { iconsData } from "./icons-data";
 import { useVirtualizer, VirtualItem } from '@tanstack/react-virtual';
 import { Skeleton } from "@/components/ui/skeleton";
 import Fuse from 'fuse.js';
 import { useDebounceValue } from "usehooks-ts";
+// Generate icon list from Lucide dynamic imports
+const generateIconList = () => {
+  return Object.keys(dynamicIconImports).map(name => ({
+    name,
+    categories: ['general'], // Default category
+    tags: [name] // Use name as tag for search
+  }));
+};
 
-export type IconData = typeof iconsData[number];
-export type IconName = keyof typeof dynamicIconImports;
+const ICONS_LIST = generateIconList();
 
 interface IconPickerProps extends Omit<React.ComponentPropsWithoutRef<typeof PopoverTrigger>, 'onSelect' | 'onOpenChange'> {
-  value?: IconName
-  defaultValue?: IconName
-  onValueChange?: (value: IconName) => void
+  value?: keyof typeof dynamicIconImports
+  defaultValue?: keyof typeof dynamicIconImports
+  onValueChange?: (value: keyof typeof dynamicIconImports) => void
   open?: boolean
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
   searchable?: boolean
   searchPlaceholder?: string
   triggerPlaceholder?: string
-  iconsList?: IconData[]
   categorized?: boolean
   modal?: boolean
 }
 
-const IconRenderer = React.memo(({ name }: { name: IconName }) => {
-  return <Icon name={name} />;
+// Helper function to validate icon name
+const isValidIconName = (name: string | undefined): name is keyof typeof dynamicIconImports => {
+  return name !== undefined && name !== "default" && name in dynamicIconImports;
+};
+
+// Type-safe icon name getter
+const getSafeIconName = (name: string | undefined): keyof typeof dynamicIconImports | null => {
+  if (name && name !== "default" && name in dynamicIconImports) {
+    return name as keyof typeof dynamicIconImports;
+  }
+  return null;
+};
+
+// Type guard for Icon component
+const isValidIconForComponent = (name: string | undefined): name is keyof typeof dynamicIconImports => {
+  return name !== undefined && name !== "default" && name in dynamicIconImports;
+};
+
+
+const IconRenderer = React.memo(({ name }: { name: string }) => {
+  if (!isValidIconForComponent(name)) {
+    return null;
+  }
+  return <Icon name={name as keyof typeof dynamicIconImports} />;
 });
 IconRenderer.displayName = "IconRenderer";
 
@@ -55,32 +82,7 @@ const IconsColumnSkeleton = () => {
   )
 }
 
-const useIconsData = () => {
-  const [icons, setIcons] = useState<IconData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const loadIcons = async () => {
-      setIsLoading(true);
-
-      const { iconsData } = await import('./icons-data');
-      if (isMounted) {
-        setIcons(iconsData);
-        setIsLoading(false);
-      }
-    };
-
-    loadIcons();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  return { icons, isLoading };
-};
+// No need for useIconsData hook anymore - using static list
 
 const IconPicker = React.forwardRef<
   React.ComponentRef<typeof PopoverTrigger>,
@@ -96,19 +98,17 @@ const IconPicker = React.forwardRef<
   searchable = true,
   searchPlaceholder = "Search for an icon...",
   triggerPlaceholder = "Select an icon",
-  iconsList,
   categorized = true,
   modal = false,
   ...props
 }, ref) => {
-  const [selectedIcon, setSelectedIcon] = useState<IconName | undefined>(defaultValue)
+  const [selectedIcon, setSelectedIcon] = useState<keyof typeof dynamicIconImports | undefined>(defaultValue)
   const [isOpen, setIsOpen] = useState(defaultOpen || false)
   const [search, setSearch] = useDebounceValue("", 100);
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
-  const { icons } = useIconsData();
   const [isLoading, setIsLoading] = useState(true);
   
-  const iconsToUse = useMemo(() => iconsList || icons, [iconsList, icons]);
+  const iconsToUse = useMemo(() => ICONS_LIST, []);
   
   const fuseInstance = useMemo(() => {
     return new Fuse(iconsToUse, {
@@ -133,7 +133,7 @@ const IconPicker = React.forwardRef<
       return [{ name: "All Icons", icons: filteredIcons }];
     }
 
-    const categories = new Map<string, IconData[]>();
+    const categories = new Map<string, typeof filteredIcons>();
     
     filteredIcons.forEach(icon => {
       if (icon.categories && icon.categories.length > 0) {
@@ -162,7 +162,7 @@ const IconPicker = React.forwardRef<
       type: 'category' | 'row';
       categoryIndex: number;
       rowIndex?: number;
-      icons?: IconData[];
+      icons?: typeof filteredIcons;
     }> = [];
 
     categorizedIcons.forEach((category, categoryIndex) => {
@@ -210,7 +210,7 @@ const IconPicker = React.forwardRef<
     overscan: 5,
   });
 
-  const handleValueChange = useCallback((icon: IconName) => {
+  const handleValueChange = useCallback((icon: keyof typeof dynamicIconImports) => {
     if (value === undefined) {
       setSelectedIcon(icon)
     }
@@ -234,7 +234,7 @@ const IconPicker = React.forwardRef<
     }
   }, [open, onOpenChange, virtualizer]);
 
-  const handleIconClick = useCallback((iconName: IconName) => {
+  const handleIconClick = useCallback((iconName: keyof typeof dynamicIconImports) => {
     handleValueChange(iconName);
     setIsOpen(false);
     setSearch("");
@@ -280,7 +280,7 @@ const IconPicker = React.forwardRef<
     ));
   }, [categorizedIcons, scrollToCategory, categorized, search]);
 
-  const renderIcon = useCallback((icon: IconData) => (
+  const renderIcon = useCallback((icon: typeof filteredIcons[0]) => (
     <TooltipProvider key={icon.name}>
       <Tooltip>
         <TooltipTrigger
@@ -288,8 +288,8 @@ const IconPicker = React.forwardRef<
             "p-2 rounded-md border hover:bg-foreground/10 transition",
             "flex items-center justify-center"
           )}
-          onClick={() => handleIconClick(icon.name as IconName)}>
-          <IconRenderer name={icon.name as IconName} />
+          onClick={() => isValidIconName(icon.name) && handleIconClick(icon.name)}>
+          {isValidIconName(icon.name) && <IconRenderer name={icon.name} />}
         </TooltipTrigger>
         <TooltipContent>
           <p>{icon.name}</p>
@@ -387,13 +387,17 @@ const IconPicker = React.forwardRef<
       <PopoverTrigger ref={ref} asChild {...props}>
         {children || (
           <Button variant="outline">
-            {(value || selectedIcon) ? (
-              <>
-                <Icon name={(value || selectedIcon)!} /> {value || selectedIcon}
-              </>
-            ) : (
-              triggerPlaceholder
-            )}
+            {(() => {
+              const iconName = value || selectedIcon;
+              if (iconName && isValidIconForComponent(iconName)) {
+                return (
+                  <>
+                    <Icon name={iconName} /> {iconName}
+                  </>
+                );
+              }
+              return triggerPlaceholder;
+            })()}
           </Button>
         )}
       </PopoverTrigger>

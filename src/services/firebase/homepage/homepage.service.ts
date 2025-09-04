@@ -30,27 +30,47 @@ export class HomepageService {
   }
 
   private static async populateProducts(product_ids: string[]) {
-    return await Promise.all(
-      product_ids.map(async (productId) => {
-        const product = await ProductService.getById(productId);
-        if (!product) {
-          throw new Error(`Product with id '${productId}' not found`);
-        }
-        return product;
-      })
-    );
+    // Batch fetch products instead of individual calls
+    if (product_ids.length === 0) return [];
+    
+    try {
+      const products = await ProductService.getByIds(product_ids);
+      return products;
+    } catch (error) {
+      console.error('Error batch fetching products:', error);
+      // Fallback to individual calls if batch fails
+      return await Promise.all(
+        product_ids.map(async (productId) => {
+          const product = await ProductService.getById(productId);
+          if (!product) {
+            throw new Error(`Product with id '${productId}' not found`);
+          }
+          return product;
+        })
+      );
+    }
   }
 
   private static async populateBlogs(blog_ids: string[]) {
-    return await Promise.all(
-      blog_ids.map(async (blogId) => {
-        const blog = await BlogService.getById(blogId);
-        if (!blog) {
-          throw new Error(`Blog with id '${blogId}' not found`);
-        }
-        return blog;
-      })
-    );
+    // Batch fetch blogs instead of individual calls
+    if (blog_ids.length === 0) return [];
+    
+    try {
+      const blogs = await BlogService.getByIds(blog_ids);
+      return blogs;
+    } catch (error) {
+      console.error('Error batch fetching blogs:', error);
+      // Fallback to individual calls if batch fails
+      return await Promise.all(
+        blog_ids.map(async (blogId) => {
+          const blog = await BlogService.getById(blogId);
+          if (!blog) {
+            throw new Error(`Blog with id '${blogId}' not found`);
+          }
+          return blog;
+        })
+      );
+    }
   }
 
   static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {

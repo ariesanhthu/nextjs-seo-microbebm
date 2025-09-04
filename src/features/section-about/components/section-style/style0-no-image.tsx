@@ -1,69 +1,18 @@
-// "use client"
-// import { Button } from "@/components/ui/button"
-// import { Plus } from "lucide-react"
-// import SubsectionEditor from "../subsection-editor"
-// import SectionHeader from "./section-header"
-// import { AboutResponseDto } from "@/lib/dto/about.dto"
-// import { useSectionStyle } from "../../hooks"
-
-// type AboutSection = AboutResponseDto['section'][0]
-
-// interface Style0NoImageProps {
-//   section: AboutSection
-//   onUpdate: (section: AboutSection) => void
-// }
-
-// export default function Style0NoImage({ section, onUpdate }: Style0NoImageProps) {
-//   const {
-//     updateSubsection,
-//     addSubsection,
-//     removeSubsection,
-//     canAddSubsection
-//   } = useSectionStyle({ section, onUpdate })
-
-//   return (
-//     <div className="space-y-6">
-//       {/* Title và Subtitle ở giữa */}
-//       <SectionHeader section={section} />
-
-//       {/* Subsections list dọc */}
-//       <div className="space-y-4">
-//         {section.subsection.map((subsection, index) => (
-//           <SubsectionEditor
-//             key={index}
-//             subsection={subsection}
-//             index={index}
-//             onUpdate={(updates) => updateSubsection(index, updates)}
-//             onDelete={() => removeSubsection(index)}
-//             showImage={false}
-//             sectionStyle={section.style}
-//           />
-//         ))}
-        
-//         {canAddSubsection && (
-//           <Button 
-//             type="button" 
-//             variant="outline" 
-//             onClick={addSubsection}
-//             className="w-full"
-//           >
-//             <Plus className="h-4 w-4 mr-2" />
-//             Thêm subsection
-//           </Button>
-//         )}
-//       </div>
-//     </div>
-//   )
-// }
 "use client"
 import { Button } from "@/components/ui/button"
 import { Plus, Sparkles } from "lucide-react"
-import SubsectionEditor from "../subsection-editor"
 import SectionHeader from "./section-header"
 import { AboutResponseDto } from "@/lib/dto/about.dto"
 import { useSectionStyle } from "../../hooks"
-import { useIconField } from "@/features/icon-picker/hooks/useIconFeild"
 import { cn } from "@/lib/utils"
+import { DynamicIcon } from "../../hooks/useIconFieldDynamic"
+import dynamic from "next/dynamic"
+
+// Dynamic import cho SubsectionEditor
+const SubsectionEditor = dynamic(() => import("../subsection-editor"), {
+  ssr: false,
+  loading: () => <div className="h-8 w-8 bg-muted animate-pulse rounded" />
+})
 
 // Component riêng để tránh vi phạm Rules of Hooks
 function FeatureCard({ 
@@ -81,7 +30,6 @@ function FeatureCard({
   sectionStyle: any
   isPreview?: boolean
 }) {
-  const { IconComponent } = useIconField(subsection.icon || "Sparkles")
   
   return (
     <div
@@ -96,11 +44,11 @@ function FeatureCard({
         {/* Icon Container */}
         <div className="mb-4">
           <div className="inline-flex p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-            {IconComponent ? (
-              <IconComponent className="w-6 h-6 text-primary" />
-            ) : (
-              <Sparkles className="w-6 h-6 text-primary" />
-            )}
+            <DynamicIcon 
+              iconName={subsection.icon || undefined} 
+              fallbackIcon={Sparkles}
+              className="w-6 h-6 text-primary" 
+            />
           </div>
         </div>
 
@@ -194,7 +142,7 @@ export default function Style0NoImage({ section, onUpdate, isPreview = false }: 
           ))}
 
           {/* Add Feature Button - chỉ hiện trong edit mode */}
-          {!isPreview && canAddSubsection && (
+          {!isPreview && canAddSubsection && section.subsection.length < 4 && (
             <div className="animate-in fade-in-0 slide-in-from-bottom-4 animation-delay-300">
               <button
                 type="button"

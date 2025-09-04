@@ -18,9 +18,11 @@ export default function OpenBlogButton({ onOpen, className, variant = "default",
 
   const handleClick = () => {
     if (disabled) return
-    blogGallery.openDialog((blog) => {
-      onOpen(blog)
-    })
+    blogGallery.openSelectionDialog([], (blogs) => {
+      if (blogs.length > 0) {
+        onOpen(blogs[0])
+      }
+    }, 1)
   }
 
   return (

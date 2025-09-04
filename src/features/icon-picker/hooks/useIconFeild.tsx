@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Icon } from "@/components/ui/icon-picker"
-import { IconName } from "@/components/ui/icon-picker"
+import { IconName } from "@/components/ui/icon-types"
 
 export function useIconField(initialValue?: string) {
   const [iconName, setIconName] = useState<IconName | undefined>(initialValue as IconName)

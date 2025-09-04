@@ -1,11 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, lazy, Suspense } from 'react';
 import { usePaginatedFetch, ESort } from '@/hooks/use-paginated-fetch';
-import BlogSelectionDialog from '../components/blog-selection-dialog';
 import { BlogResponseDto } from '@/lib/dto/blog.dto';
 import { EBlogStatus } from '@/lib/enums/blog-status.enum';
 import { toast } from 'sonner';
+
+const BlogSelectionDialog = lazy(() => import('../components/blog-selection-dialog'));
 interface BlogGalleryContextType {
   // Data from pagination hook
   blogs: BlogResponseDto[];
@@ -159,25 +160,29 @@ export function BlogGalleryProvider({ children }: BlogGalleryProviderProps) {
     <BlogGalleryContext.Provider value={contextValue}>
       {children}
       
-      {/* Blog Selection Dialog */}
-      <BlogSelectionDialog
-        isOpen={isSelectionDialogOpen}
-        onClose={closeSelectionDialog}
-        onConfirm={confirmSelection}
-        currentSelected={selectedBlogs}
-        numberSelection={numberSelection}
-        blogs={blogs}
-        loading={loading}
-        error={error}
-        hasNextPage={hasNextPage}
-        hasPrevPage={hasPrevPage}
-        goToNextPage={goToNextPage}
-        goToPrevPage={goToPrevPage}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        isSearching={isSearching}
-        refresh={refresh}
-      />
+      {/* Blog Selection Dialog - Dynamic Import */}
+      {isSelectionDialogOpen && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <BlogSelectionDialog
+            isOpen={isSelectionDialogOpen}
+            onClose={closeSelectionDialog}
+            onConfirm={confirmSelection}
+            currentSelected={selectedBlogs}
+            numberSelection={numberSelection}
+            blogs={blogs}
+            loading={loading}
+            error={error}
+            hasNextPage={hasNextPage}
+            hasPrevPage={hasPrevPage}
+            goToNextPage={goToNextPage}
+            goToPrevPage={goToPrevPage}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearching={isSearching}
+            refresh={refresh}
+          />
+        </Suspense>
+      )}
     </BlogGalleryContext.Provider>
   );
 }
