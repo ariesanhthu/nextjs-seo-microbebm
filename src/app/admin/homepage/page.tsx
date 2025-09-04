@@ -550,7 +550,7 @@ export default function AdminHomepagePage() {
                               </div>
                             )}
                           </div> */}
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 ">
                             <h4 className="font-medium text-sm truncate">{product.name}</h4>
                             <p className="text-xs text-gray-500 truncate">
                               {product.description || "Không có mô tả"}

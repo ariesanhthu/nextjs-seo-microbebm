@@ -5,6 +5,7 @@
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useAlertDialog, AlertDialogConfig, UseAlertDialogReturn } from '@/features/alert-dialog/hooks/use-alert-dialog'
 import { ReusableAlertDialog } from '@/features/alert-dialog/components/reusable-alert-dialog'
+import { useAdminContext } from '@/hooks/use-admin-context'
 
 interface AlertDialogContextType {
   showAlert: (config: AlertDialogConfig) => Promise<boolean>

@@ -1,6 +1,18 @@
-import { ContactResponseDto } from "@/lib/dto/contact.dto";
 import { renderAdminHtml } from "../templates/admin-noti";
 import { renderClientHtml } from "../templates/client-confirm";
+import { isValidEmail, sanitizeEmailContent, formatEmailForDisplay } from "../templates/email-format";
+
+// Client-side type - không import server DTOs
+type ContactResponse = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string;
+  is_check: boolean;
+  created_at: any;
+  updated_at: any;
+};
 
 export class MailerService {
 
@@ -8,10 +20,26 @@ export class MailerService {
     console.log("=== MailerService.send called ===");
     console.log("Payload:", { recipient: payload.recipient, subject: payload.subject });
     
+    // Validate payload before sending
+    if (!payload.recipient?.trim()) {
+      throw new Error("Recipient email is required");
+    }
+    if (!payload.subject?.trim()) {
+      throw new Error("Email subject is required");
+    }
+    if (!payload.body?.trim()) {
+      throw new Error("Email body is required");
+    }
+
+    // Email validation using utility function
+    if (!isValidEmail(payload.recipient)) {
+      throw new Error("Invalid email address format");
+    }
+    
     const requestBody = {
-      recipient: payload.recipient,
-      subject: payload.subject,
-      body: payload.body,
+      recipient: formatEmailForDisplay(payload.recipient),
+      subject: sanitizeEmailContent(payload.subject),
+      body: sanitizeEmailContent(payload.body),
     };
 
     console.log("Sending request to /api/send");
@@ -25,24 +53,44 @@ export class MailerService {
     });
 
     console.log("Response status:", res.status);
-    const text = await res.text().catch(() => "");
+    
+    // Check if response is JSON
+    const contentType = res.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await res.text();
+      console.error("Non-JSON response:", text);
+      throw new Error("Server returned non-JSON response. Please check your API configuration.");
+    }
+    
+    const text = await res.text();
     console.log("Response text:", text);
     
     let json: any = {};
     try {
       json = text ? JSON.parse(text) : {};
-    } catch {}
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      throw new Error("Server returned invalid JSON response. Please check your API configuration.");
+    }
 
     if (!res.ok || json?.status === "error") {
-      const reason = json?.message || res.statusText || "Unknown";
+      const reason = json?.message || res.statusText || "Unknown error";
       console.error("Mailer failed:", reason);
       console.error("Full response:", { status: res.status, statusText: res.statusText, json });
       
       // Provide more specific error messages
-      if (reason === "Unauthorized") {
-        throw new Error("Email service authentication failed. Please check your API key configuration.");
-      } else if (reason.includes("missing")) {
-        throw new Error("Email service configuration is incomplete. Please check environment variables.");
+      if (res.status === 400) {
+        throw new Error(`Invalid request: ${reason}`);
+      } else if (res.status === 403) {
+        throw new Error("Email service access denied. Please check your Google Apps Script configuration and API key.");
+      } else if (res.status === 500) {
+        if (reason.includes("configuration")) {
+          throw new Error("Email service configuration error. Please check environment variables.");
+        } else if (reason.includes("Google Apps Script")) {
+          throw new Error("Google Apps Script error. Please check your script configuration.");
+        } else {
+          throw new Error(`Server error: ${reason}`);
+        }
       } else {
         throw new Error(`Email service error: ${reason}`);
       }
@@ -53,7 +101,7 @@ export class MailerService {
   }
 
   /** Gửi thông báo cho admin */
-  async sendNotiAdmin(contact: ContactResponseDto) {
+  async sendNotiAdmin(contact: ContactResponse) {
     console.log("sendNotiAdmin called with contact:", contact);
     return this.send({
       recipient: "aries.anhthu@gmail.com",
@@ -63,7 +111,7 @@ export class MailerService {
   }
 
   /** Gửi email xác nhận cho khách */
-  async sendConfirmClient(contact: ContactResponseDto) {
+  async sendConfirmClient(contact: ContactResponse) {
     console.log("sendConfirmClient called with contact:", contact);
     if (!contact.email) throw new Error("Contact email missing");
     

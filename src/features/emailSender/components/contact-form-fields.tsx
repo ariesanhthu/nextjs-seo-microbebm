@@ -2,10 +2,17 @@ import type { UseFormReturn } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { User, Mail, Phone, Leaf } from "lucide-react"
-import { CreateContactDto } from "@/lib/dto/contact.dto";
+
+// Client-side type - không import server DTOs
+type ContactFormData = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string;
+};
 
 interface ContactFormFieldsProps {
-  form: UseFormReturn<CreateContactDto>
+  form: UseFormReturn<ContactFormData>
 }
 
 export function ContactFormFields({ form }: ContactFormFieldsProps) {
@@ -25,7 +32,17 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
         <div className="relative">
           <Input
             id="name"
-            {...register("name")}
+            {...register("name", {
+              required: "Họ và tên là bắt buộc",
+              minLength: {
+                value: 1,
+                message: "Vui lòng nhập họ và tên"
+              },
+              maxLength: {
+                value: 100,
+                message: "Họ và tên quá dài"
+              }
+            })}
             placeholder="Nhập họ và tên của bạn"
             className="border-green-200 focus:border-green-500 focus:ring-green-500/20 bg-green-50/30 text-black placeholder:text-green-600/60 h-12 rounded-lg"
             aria-invalid={!!errors.name}
@@ -49,8 +66,22 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           <Input
             id="phone"
             type="tel"
-            {...register("phone")}
-            placeholder="0123 456 789"
+            {...register("phone", {
+              required: "Số điện thoại là bắt buộc",
+              pattern: {
+                value: /^\d{10}$/,
+                message: "Số điện thoại phải gồm đúng 10 chữ số"
+              },
+              minLength: {
+                value: 10,
+                message: "Số điện thoại phải gồm đúng 10 chữ số"
+              },
+              maxLength: {
+                value: 10,
+                message: "Số điện thoại phải gồm đúng 10 chữ số"
+              }
+            })}
+            placeholder="0123456789"
             className="border-green-200 focus:border-green-500 focus:ring-green-500/20 bg-green-50/30 text-black placeholder:text-green-600/60 h-12 rounded-lg"
             aria-invalid={!!errors.phone}
           />
@@ -73,7 +104,12 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           <Input
             id="email"
             type="email"
-            {...register("email")}
+            {...register("email", {
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Email không hợp lệ"
+              }
+            })}
             placeholder="example@company.com"
             className="border-green-200 focus:border-green-500 focus:ring-green-500/20 bg-green-50/30 text-black placeholder:text-green-600/60 h-12 rounded-lg"
             aria-invalid={!!errors.email}
@@ -96,7 +132,12 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
         </label>
         <Textarea
           id="description"
-          {...register("description")}
+          {...register("description", {
+            maxLength: {
+              value: 1000,
+              message: "Nội dung quá dài"
+            }
+          })}
           placeholder="Mô tả chi tiết về dự án môi trường, dịch vụ tư vấn hoặc yêu cầu hợp tác của bạn..."
           rows={5}
           className="resize-none border-green-200 focus:border-green-500 focus:ring-green-500/20 bg-green-50/30 text-black placeholder:text-green-600/60 rounded-lg"

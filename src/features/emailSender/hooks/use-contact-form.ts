@@ -1,10 +1,29 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { useConfirmation } from "@/features/alert-dialog/context/alert-dialog-context";
 import { ContactService } from "@/features/emailSender/services/contactService";
-import { CreateContactDto, ContactResponseDto } from "@/lib/dto/contact.dto";
 import { MailerService } from "@/features/emailSender/services/emailService";
+import { ContactClientSchema } from "../schemas/contact-client.schema";
+
+// Client-side type - không import server DTOs
+type ContactFormData = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string;
+};
+
+type ContactResponse = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string;
+  is_check: boolean;
+  created_at: any;
+  updated_at: any;
+};
 
 export function useContactForm(onSuccess?: () => void) {
   console.log("=== useContactForm hook starting ===");
@@ -16,32 +35,20 @@ export function useContactForm(onSuccess?: () => void) {
     const { toast } = useToast();
     console.log("useToast OK");
     
-    const { confirm } = useConfirmation();
-    console.log("useConfirmation OK");
-    
-    const form = useForm<CreateContactDto>({ mode: "onChange" });
+    const form = useForm<ContactFormData>({ 
+      mode: "onChange",
+      resolver: zodResolver(ContactClientSchema)
+    });
     console.log("useForm OK");
     
     console.log("useContactForm hook initialized successfully");
 
-  const onSubmit = async (data: CreateContactDto) => {
+  const onSubmit = async (data: ContactFormData) => {
     console.log("=== onSubmit function called ===");
     console.log("Data received:", data);
-    
-    const confirmed = await confirm(
-      "Xác nhận gửi",
-      "Bạn có chắc chắn muốn gửi thông tin liên hệ này?"
-    );
-    console.log("Confirmation result:", confirmed);
-    if (!confirmed) return;
 
-    // Chuẩn hóa dữ liệu theo schema
-    const contactData: CreateContactDto = {
-      name: data.name,
-      email: data.email || null,
-      phone: data.phone || null,
-      description: data.description || ""
-    };
+    // Dữ liệu đã được validate bởi zodResolver, không cần chuẩn hóa thêm
+    const contactData = data;
 
     setIsSubmitting(true);
     
@@ -52,7 +59,7 @@ export function useContactForm(onSuccess?: () => void) {
       // 1. Lưu contact
       console.log("Calling ContactService.createContact...");
       const result = await ContactService.createContact(contactData);
-      const newContact = result.data as ContactResponseDto;
+      const newContact = result.data as ContactResponse;
       console.log("Contact saved successfully:", newContact);
 
       // 2. Gửi email
@@ -110,7 +117,7 @@ export function useContactForm(onSuccess?: () => void) {
       console.log("Showing success toast...");
       toast({
         title: "Thành công!",
-        description: result.message || "Thông tin liên hệ đã được gửi thành công",
+        description: "Thông tin liên hệ đã được gửi thành công. Chúng tôi sẽ liên hệ lại sớm nhất!",
       });
 
       form.reset();

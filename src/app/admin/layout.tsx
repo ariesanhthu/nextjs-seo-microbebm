@@ -7,6 +7,7 @@ import { ImageGalleryProvider } from "@/features/image-storage/context/image-gal
 import { Toaster } from "@/components/ui/toaster"; 
 import { TagGalleryProvider } from "@/features/tag/context/tag-galerry-context";
 import { ProductGalleryProvider } from "@/features/product/context/product-gallery-context";
+import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
 
@@ -41,8 +42,10 @@ export default function AdminLayout({
         <BlogGalleryProvider>
           <ProductGalleryProvider>
             <TagGalleryProvider>
-              <AdminLayoutContent>{children}</AdminLayoutContent>
-              <Toaster />
+              <AlertDialogProvider>
+                <AdminLayoutContent>{children}</AdminLayoutContent>
+                <Toaster />
+              </AlertDialogProvider>
           </TagGalleryProvider>
         </ProductGalleryProvider>
       </BlogGalleryProvider>

@@ -10,21 +10,24 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { Save, Trash2, Image as ImageIcon, Images, FolderTree, ArrowLeft } from "lucide-react"
 
-import ImageUploader from "@/features/image-storage/components/image-uploader"
-import { CldImage } from "next-cloudinary"
-import { toast } from "sonner"
-import ContentEditor from "@/features/blog/components/content-editor"
+import { useToast } from "@/hooks/use-toast"
 import { CreateProductDto, UpdateProductDto } from "@/lib/dto/product.dto"
 import NavbarAdmin from "@/components/NavbarAdmin"
 import { ImageMetadataResponseDto } from "@/lib/dto/image-metadata.dto"
 import { useImageGallery } from "@/features/image-storage/context/image-gallery-context"
 import { useConfirmation } from "@/features/alert-dialog/context/alert-dialog-context"
+import { 
+  LazyContentEditor, 
+  LazyImageUploader, 
+  LazyCldImage 
+} from "@/hooks/use-lazy-components"
 
 type CategoryItem = { id: string; name: string }
 
 export default function AdminCreateProductPage() {
   const params = useParams()
   const router = useRouter()
+  const { toast } = useToast()
 
   const id = params?.id?.[0] // Lấy id từ dynamic route
   
@@ -32,6 +35,7 @@ export default function AdminCreateProductPage() {
   const [loading, setLoading] = useState(false)
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const [categories, setCategories] = useState<CategoryItem[]>([])
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
@@ -40,7 +44,7 @@ export default function AdminCreateProductPage() {
   // Use image gallery context
   const imageGallery = useImageGallery()
   
-  // Confirmation hook
+  // Confirmation dialogs
   const confirmation = useConfirmation()
 
   // Sử dụng form state duy nhất với DTO
@@ -75,7 +79,10 @@ export default function AdminCreateProductPage() {
       })
       setSelectedCategoryIds([])
       setContentResetKey((k) => k + 1)
-      toast.success("Đã xóa bản nháp")
+      toast({
+        title: "Thành công",
+        description: "Đã xóa bản nháp"
+      })
     }
   }
 
@@ -174,6 +181,14 @@ export default function AdminCreateProductPage() {
       ...prev,
       [field]: value
     }))
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [field]: ""
+      }))
+    }
   }
 
   const toggleCategory = (categoryId: string) => {
@@ -184,6 +199,15 @@ export default function AdminCreateProductPage() {
         : [...currentIds, categoryId]
       
       updateFormField('category_ids', newIds)
+      
+      // Clear category error when user selects/deselects
+      if (fieldErrors.categories) {
+        setFieldErrors(prev => ({
+          ...prev,
+          categories: ""
+        }))
+      }
+      
       return newIds
     })
   }
@@ -191,6 +215,13 @@ export default function AdminCreateProductPage() {
   const handleSelectMainImage = () => {
     imageGallery.openDialog((selectedImage: ImageMetadataResponseDto) => {
       updateFormField('main_img', selectedImage.url)
+      // Clear main_img error when user selects image
+      if (fieldErrors.main_img) {
+        setFieldErrors(prev => ({
+          ...prev,
+          main_img: ""
+        }))
+      }
     })
   }
 
@@ -206,23 +237,35 @@ export default function AdminCreateProductPage() {
   }
 
   const save = async () => {
+    // Clear previous errors
+    setFieldErrors({})
+    
+    const errors: Record<string, string> = {}
+    
     if (!formData.name.trim()) {
-      toast.error("Vui lòng nhập tên sản phẩm")
-      return
+      errors.name = "Vui lòng nhập tên sản phẩm"
     }
 
     if (!formData.description.trim()) {
-      toast.error("Vui lòng nhập mô tả sản phẩm")
-      return
+      errors.description = "Vui lòng nhập mô tả sản phẩm"
     }
 
     if (!formData.main_img) {
-      toast.error("Vui lòng chọn ảnh chính")
-      return
+      errors.main_img = "Vui lòng chọn ảnh chính"
     }
 
     if (!selectedCategoryIds || selectedCategoryIds.length === 0) {
-      toast.error("Vui lòng chọn ít nhất một danh mục")
+      errors.categories = "Vui lòng chọn ít nhất một danh mục"
+    }
+
+    // If there are validation errors, show them and return
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      toast({
+        title: "Lỗi validation",
+        description: "Vui lòng kiểm tra lại các trường bắt buộc",
+        variant: "destructive"
+      })
       return
     }
 
@@ -243,7 +286,10 @@ export default function AdminCreateProductPage() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success(isEditMode ? "Cập nhật sản phẩm thành công" : "Tạo sản phẩm thành công")
+        toast({
+          title: "Thành công",
+          description: isEditMode ? "Cập nhật sản phẩm thành công" : "Tạo sản phẩm thành công"
+        })
         
         // Clear drafts after successful save
         localStorage.removeItem('product-draft')
@@ -251,18 +297,31 @@ export default function AdminCreateProductPage() {
         
         router.push('/admin/product')
       } else {
-        toast.error(result.message || 'Có lỗi xảy ra')
+        toast({
+          title: "Lỗi",
+          description: result.message || 'Có lỗi xảy ra',
+          variant: "destructive"
+        })
       }
     } catch (error) {
       console.error('Error saving product:', error)
-      toast.error('Có lỗi xảy ra khi lưu sản phẩm')
+      toast({
+        title: "Lỗi",
+        description: 'Có lỗi xảy ra khi lưu sản phẩm',
+        variant: "destructive"
+      })
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+    const confirmed = await confirmation.delete(
+      "Xóa sản phẩm",
+      "Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác."
+    )
+
+    if (!confirmed) {
       return
     }
 
@@ -276,14 +335,25 @@ export default function AdminCreateProductPage() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success("Xóa sản phẩm thành công")
+        toast({
+          title: "Thành công",
+          description: "Xóa sản phẩm thành công"
+        })
         router.push('/admin/product')
       } else {
-        toast.error(result.message || 'Có lỗi xảy ra')
+        toast({
+          title: "Lỗi",
+          description: result.message || 'Có lỗi xảy ra',
+          variant: "destructive"
+        })
       }
     } catch (error) {
       console.error('Error deleting product:', error)
-      toast.error('Có lỗi xảy ra khi xóa sản phẩm')
+      toast({
+        title: "Lỗi",
+        description: 'Có lỗi xảy ra khi xóa sản phẩm',
+        variant: "destructive"
+      })
     } finally {
       setSaving(false)
     }
@@ -360,16 +430,24 @@ export default function AdminCreateProductPage() {
               <Label>Tên sản phẩm</Label>
               <Input 
                 value={formData.name} 
-                onChange={(e) => updateFormField('name', e.target.value)} 
+                onChange={(e) => updateFormField('name', e.target.value)}
+                className={fieldErrors.name ? "border-red-500" : ""}
               />
+              {fieldErrors.name && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.name}</p>
+              )}
             </div>
             <div className="md:col-span-2">
               <Label>Mô tả</Label>
               <Textarea 
                 value={formData.description} 
-                onChange={(e) => updateFormField('description', e.target.value)} 
+                onChange={(e) => updateFormField('description', e.target.value)}
+                className={fieldErrors.description ? "border-red-500" : ""}
                 rows={3} 
               />
+              {fieldErrors.description && (
+                <p className="text-sm text-red-500 mt-1">{fieldErrors.description}</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -383,23 +461,28 @@ export default function AdminCreateProductPage() {
               <div className="relative">
                 {formData.main_img ? (
                   <>
-                    <CldImage src={formData.main_img} width={300} height={160} alt="main" className="rounded-md object-cover" />
+                    <LazyCldImage src={formData.main_img} width={300} height={160} alt="main" className="rounded-md object-cover" />
                     <Button size="icon" variant="destructive" className="absolute top-2 right-2 text-white" onClick={() => updateFormField('main_img', '')}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
                 ) : (
-                  <div className="w-[300px] h-[160px] bg-gray-100 rounded-md flex items-center justify-center text-gray-500">Chưa chọn</div>
+                  <div className={`w-[300px] h-[160px] rounded-md flex items-center justify-center text-gray-500 ${fieldErrors.main_img ? "bg-red-50 border-2 border-red-200" : "bg-gray-100"}`}>
+                    Chưa chọn
+                  </div>
                 )}
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleSelectMainImage}>Chọn từ thư viện</Button>
               </div>
             </div>
+            {fieldErrors.main_img && (
+              <p className="text-sm text-red-500">{fieldErrors.main_img}</p>
+            )}
             <Separator />
             <div className="space-y-2">
               <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
-              <ImageUploader />
+              <LazyImageUploader />
             </div>
           </CardContent>
         </Card>
@@ -412,7 +495,7 @@ export default function AdminCreateProductPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {formData.sub_img.map((pid, idx) => (
                 <div key={`${pid}-${idx}`} className="relative">
-                  <CldImage src={pid} width={300} height={160} alt={`sub-${idx}`} className="rounded-md object-cover w-full h-40" />
+                  <LazyCldImage src={pid} width={300} height={160} alt={`sub-${idx}`} className="rounded-md object-cover w-full h-40" />
                   <Button size="icon" variant="destructive" className="absolute top-2 right-2 text-white" onClick={() => removeSubAt(idx)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -423,7 +506,7 @@ export default function AdminCreateProductPage() {
             <Separator />
             <div className="space-y-2">
               <div className="text-sm text-foreground">Hoặc tải ảnh mới</div>
-              <ImageUploader />
+              <LazyImageUploader />
             </div>
           </CardContent>
         </Card>
@@ -455,6 +538,9 @@ export default function AdminCreateProductPage() {
                 ))}
               </div>
             )}
+            {fieldErrors.categories && (
+              <p className="text-sm text-red-500 mt-2">{fieldErrors.categories}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -463,7 +549,7 @@ export default function AdminCreateProductPage() {
             <CardTitle>Nội dung chi tiết</CardTitle>
           </CardHeader>
           <CardContent>
-            <ContentEditor 
+            <LazyContentEditor 
               key={`product-content-${contentResetKey}`}
               value={formData.content}
               onChange={(value) => updateFormField('content', value)}
@@ -472,6 +558,7 @@ export default function AdminCreateProductPage() {
           </CardContent>
                </Card>
      </div>
+     
    </>
    )
  }

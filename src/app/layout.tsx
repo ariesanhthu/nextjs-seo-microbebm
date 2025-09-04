@@ -6,8 +6,6 @@ import {
   ClerkProvider
 } from '@clerk/nextjs'
 
-import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
-
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -45,10 +43,8 @@ export default function RootLayout({
               suppressHydrationWarning
               >
                 
-              <AlertDialogProvider>
-                {children}
-                <Analytics />
-              </AlertDialogProvider>
+              {children}
+              <Analytics />
             </body>
           </html>
     </ClerkProvider>

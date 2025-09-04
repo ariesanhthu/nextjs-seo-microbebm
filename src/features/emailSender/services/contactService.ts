@@ -1,6 +1,11 @@
-import { CreateContactDto } from "@/lib/dto/contact.dto";
+// Client-side type - không import server DTOs
+type ContactFormData = {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string;
+};
 
-// Service mỏng - chỉ để gom fetch và xử lý lỗi
 export class ContactService {
   private static async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
@@ -10,7 +15,7 @@ export class ContactService {
     return response.json();
   }
 
-  static async createContact(data: CreateContactDto) {
+  static async createContact(data: ContactFormData) {
     console.log("=== ContactService.createContact called ===");
     console.log("Data:", data);
     
