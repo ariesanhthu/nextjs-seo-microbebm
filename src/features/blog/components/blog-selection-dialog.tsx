@@ -141,7 +141,7 @@ export default function BlogSelectionDialog({
         {/* Content - Scrollable */}
         <div className="flex flex-1 overflow-hidden">
           {/* Left side - Blog list */}
-          <div className="flex-1 border-r overflow-hidden">
+          <div className="flex-1 border-r mb-2 overflow-hidden">
             <div className="p-4 pb-0">
               <div>
                 <Label htmlFor="search">Tìm kiếm bài viết</Label>
@@ -187,7 +187,7 @@ export default function BlogSelectionDialog({
               </div>
             </div>
             
-            <div className="p-4 pt-2 overflow-y-auto h-full">
+            <div className="p-4 pt-2 overflow-auto h-4/5 max-h-4/5">
               {loading || isSearching ? (
                 <div className="text-center py-8 text-gray-500">
                   {isSearching ? "Đang tìm kiếm..." : "Đang tải..."}

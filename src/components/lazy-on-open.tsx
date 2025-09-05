@@ -17,7 +17,7 @@ export default function LazyOnOpen<P extends Record<string, any>>({
   fallback,
   componentProps,
 }: LazyOnOpenProps<P>) {
-  const LazyComponent = useMemo(() => lazy(loader), [loader]);
+  const LazyComponent = useMemo(() => lazy(loader), []);
 
   if (!open) return null;
 
