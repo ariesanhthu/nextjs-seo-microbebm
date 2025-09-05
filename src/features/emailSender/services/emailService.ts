@@ -104,7 +104,7 @@ export class MailerService {
   async sendNotiAdmin(contact: ContactResponse) {
     console.log("sendNotiAdmin called with contact:", contact);
     return this.send({
-      recipient: "aries.anhthu@gmail.com",
+      recipient: String(process.env.ADMIN_EMAIL),
       subject: `New form submission from ${contact.name || "Unknown"}`,
       body: renderAdminHtml(contact),
     });
