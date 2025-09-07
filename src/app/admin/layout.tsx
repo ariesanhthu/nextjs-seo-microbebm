@@ -10,6 +10,7 @@ import { ProductGalleryProvider } from "@/features/product/context/product-galle
 import { AlertDialogProvider } from "@/features/alert-dialog/context/alert-dialog-context";
 import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 function AdminLayoutContent({
   children,
@@ -44,7 +45,7 @@ export default function AdminLayout({
             <TagGalleryProvider>
               <AlertDialogProvider>
                 <AdminLayoutContent>{children}</AdminLayoutContent>
-                
+                <SonnerToaster />
               </AlertDialogProvider>
           </TagGalleryProvider>
         </ProductGalleryProvider>

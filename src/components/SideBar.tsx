@@ -130,7 +130,7 @@ export default function AdminSidebar() {
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-md bg-green-600 text-white shadow-md lg:hidden"
+        className="z-90 fixed left-4 top-4 flex h-10 w-10 items-center justify-center rounded-md bg-green-600 text-white shadow-md lg:hidden"
         aria-label="Open sidebar"
       >
         <ChevronRight className="h-5 w-5" />
@@ -139,7 +139,7 @@ export default function AdminSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white shadow-xl transition-all duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-100 flex w-64 flex-col bg-white shadow-xl transition-all duration-300 ease-in-out",
           collapsed && !mobileOpen ? "w-20" : "w-64",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
@@ -150,7 +150,7 @@ export default function AdminSidebar() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 text-white">
                 <Leaf className="h-5 w-5" />
                 </div>
-                {!collapsed && <span className="ml-2 text-lg font-bold text-green-600">EcoAdmin</span>}
+                {(!collapsed || mobileOpen) && <span className="ml-2 text-lg font-bold text-green-600">EcoAdmin</span>}
             </Link>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -186,7 +186,7 @@ export default function AdminSidebar() {
                     >
                       <span className="flex items-center">
                         {item.icon}
-                        {!collapsed && (
+                        {(!collapsed || mobileOpen) && (
                           <Link
                             href={item.href}
                             className="ml-3"
@@ -196,7 +196,7 @@ export default function AdminSidebar() {
                           </Link>
                         )}
                       </span>
-                      {!collapsed && (
+                      {(!collapsed || mobileOpen) && (
                         <ChevronRight
                           className={cn(
                             "ml-auto h-4 w-4 transition-transform",
@@ -205,7 +205,7 @@ export default function AdminSidebar() {
                         />
                       )}
                     </button>
-                    {(openSubmenu === item.title || hasActiveChild(item)) && !collapsed && (
+                    {(openSubmenu === item.title || hasActiveChild(item)) && (!collapsed || mobileOpen) && (
                       <ul className="mt-1 space-y-1 pl-10">
                         {item.submenu?.map((subitem) => (
                           <li key={subitem.title}>
@@ -236,7 +236,7 @@ export default function AdminSidebar() {
                     )}
                   >
                     {item.icon}
-                    {!collapsed && <span className="ml-3">{item.title}</span>}
+                    {(!collapsed || mobileOpen) && <span className="ml-3">{item.title}</span>}
                   </Link>
                 )}
               </li>
@@ -247,7 +247,7 @@ export default function AdminSidebar() {
         {/* Footer */}
         <div className="border-t p-4">
           <div className="flex items-center justify-between">
-            {!collapsed && (
+            {(!collapsed || mobileOpen) && (
               <div className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-gray-200" />
                 <div className="ml-2">

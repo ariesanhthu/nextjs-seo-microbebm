@@ -30,33 +30,37 @@ export class HomepageService {
   }
 
   private static async populateProducts(product_ids: string[]) {
-    // Batch fetch products instead of individual calls
+    // Batch fetch products; skip missing instead of throwing to allow update
     if (product_ids.length === 0) return [];
-    
-    return await Promise.all(
+
+    const results = await Promise.allSettled(
       product_ids.map(async (productId) => {
         const product = await ProductService.getById(productId);
         if (!product) {
-          throw new Error(`Product with id '${productId}' not found`);
+          console.warn(`[homepage] Skipping missing product id: ${productId}`);
         }
-        return product;
+        return product || null;
       })
     );
+
+    return results.flatMap((res) => (res.status === 'fulfilled' && res.value ? [res.value] : []));
   }
 
   private static async populateBlogs(blog_ids: string[]) {
-    // Batch fetch blogs instead of individual calls
+    // Batch fetch blogs; skip missing instead of throwing to allow update
     if (blog_ids.length === 0) return [];
-    
-    return await Promise.all(
+
+    const results = await Promise.allSettled(
       blog_ids.map(async (blogId) => {
         const blog = await BlogService.getById(blogId);
         if (!blog) {
-          throw new Error(`Blog with id '${blogId}' not found`);
+          console.warn(`[homepage] Skipping missing blog id: ${blogId}`);
         }
-        return blog;
+        return blog || null;
       })
     );
+
+    return results.flatMap((res) => (res.status === 'fulfilled' && res.value ? [res.value] : []));
   }
 
   static async create(body: CreateHomepageDto): Promise<HomepageResponseDto> {

@@ -32,8 +32,6 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
       try {
         const res = await axios.get("/api/check-role");
         setIsAdmin(res.data.isAdmin);
-        console.log("after api", isAdmin);
-        console.log(res);
       } catch (error) {
         console.error("Error fetching role:", error);
         setIsAdmin(false);

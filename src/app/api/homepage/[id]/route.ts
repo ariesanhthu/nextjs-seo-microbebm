@@ -85,16 +85,16 @@ export async function PUT(
       const errorResponse = formatErrorResponse(error, 'Failed to update homepage');
       return NextResponse.json(errorResponse, { status: 400 });
     }
-    
-    if (error instanceof Error && error.message.includes('not found')) {
-      const errorResponse = formatErrorResponse(error, 'Homepage not found');
-      return NextResponse.json(errorResponse, { status: 404 });
+    // Handle specific validation errors first
+    if (error instanceof Error && (error.message.includes('Product with id') || error.message.includes('Blog with id'))) {
+      const errorResponse = formatErrorResponse(error, 'Related resource validation failed');
+      return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    // Handle specific validation errors
-    if (error instanceof Error && error.message.includes('Product with id')) {
-      const errorResponse = formatErrorResponse(error, 'Product validation failed');
-      return NextResponse.json(errorResponse, { status: 400 });
+    // Handle homepage not found explicitly
+    if (error instanceof Error && error.message.includes("Homepage with id")) {
+      const errorResponse = formatErrorResponse(error, 'Homepage not found');
+      return NextResponse.json(errorResponse, { status: 404 });
     }
     
     // Handle other errors with 500 status

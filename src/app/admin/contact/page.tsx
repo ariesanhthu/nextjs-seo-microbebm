@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle2, Circle, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import NavbarAdmin from "@/components/NavbarAdmin";
@@ -104,7 +104,54 @@ export default function AdminContactPage() {
 
 				const updated = await requestPromise;
 
-				setContacts((prev) => prev.map((c) => (c.id === contact.id ? updated : c)));
+				// Cập nhật state cho cả hai danh sách
+				if (updated.is_check) {
+					// Chuyển từ unchecked sang checked
+					setUnCheckedContacts((prev) => prev.filter((c) => c.id !== contact.id));
+					setCheckedContacts((prev) => [updated, ...prev]);
+				} else {
+					// Chuyển từ checked sang unchecked
+					setCheckedContacts((prev) => prev.filter((c) => c.id !== contact.id));
+					setUnCheckedContacts((prev) => [updated, ...prev]);
+				}
+			} catch (err) {
+				setError((err as Error).message);
+			} finally {
+				setUpdatingId(null);
+			}
+		},
+		[]
+	);
+
+	const deleteContact = useCallback(
+		async (contact: Contact) => {
+			try {
+				setUpdatingId(contact.id);
+				setError(null);
+
+				const makeRequest = async () => {
+					const res = await fetch(`/api/contact/${contact.id}`, {
+						method: "DELETE",
+					});
+					if (!res.ok) {
+						const e = await res.json().catch(() => ({}));
+						throw new Error(e?.message || `HTTP ${res.status}`);
+					}
+					return true;
+				};
+
+				const requestPromise = makeRequest();
+				toast.promise(requestPromise, {
+					loading: "Đang xóa liên hệ...",
+					success: "Đã xóa liên hệ thành công",
+					error: (err) => err.message || "Xóa thất bại",
+				});
+
+				await requestPromise;
+
+				// Cập nhật state sau khi xóa thành công
+				setCheckedContacts((prev) => prev.filter((c) => c.id !== contact.id));
+				setUnCheckedContacts((prev) => prev.filter((c) => c.id !== contact.id));
 			} catch (err) {
 				setError((err as Error).message);
 			} finally {
@@ -154,6 +201,15 @@ export default function AdminContactPage() {
                                 )}
 							</div>
 						</div>
+						<button
+							title="Xóa liên hệ"
+							aria-label="Xóa liên hệ"
+							onClick={() => deleteContact(c)}
+							disabled={updatingId === c.id}
+							className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full border bg-white border-red-300 text-red-500 hover:bg-red-50 hover:border-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							<Trash2 size={18} />
+						</button>
 					</div>
 				</div>
 			))}
