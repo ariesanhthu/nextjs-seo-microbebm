@@ -1,14 +1,18 @@
 // src/utils/roles.ts
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import type { Roles } from "@/types/globals";
 
 export const checkRole = async (role: Roles) =>
 {
     try {
-        const { sessionClaims } = await auth();
-        return sessionClaims?.metadata?.role === role;
+        const user = await currentUser();
+        if (!user) return false;
+        const userRole = (user.publicMetadata?.role as string | undefined)
+            ?? (user.privateMetadata?.role as string | undefined);
+
+        return userRole === role;
     } catch (_) {
-        // Clerk not configured or auth threw -> treat as unauthorized
+        console.log("Error when check-role")
         return false;
     }
 };

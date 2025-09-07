@@ -29,10 +29,11 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
         setIsAdmin(false);
         return;
       }
-
       try {
         const res = await axios.get("/api/check-role");
         setIsAdmin(res.data.isAdmin);
+        console.log("after api", isAdmin);
+        console.log(res);
       } catch (error) {
         console.error("Error fetching role:", error);
         setIsAdmin(false);
@@ -152,11 +153,11 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
               Liên hệ ngay
             </Link>
             {!isSignedIn ? (
-              <div className="rounded-full bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:from-green-700 hover:to-green-600 hover:shadow-lg hover:shadow-green-600/25 transform hover:scale-105">
                 <SignUpButton signInFallbackRedirectUrl="/" fallbackRedirectUrl="/">
-                  Đăng nhập
+                  <div className="rounded-full bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:from-green-700 hover:to-green-600 hover:shadow-lg hover:shadow-green-600/25 transform hover:scale-105">
+                      Đăng nhập
+                  </div>
                 </SignUpButton>
-              </div>
             ) : (
               <div className="flex items-center">
                 <UserButton afterSignOutUrl="/">

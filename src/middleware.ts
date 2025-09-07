@@ -1,102 +1,60 @@
 // src/middleware.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import type { NextRequest, NextFetchEvent } from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { withRateLimit } from "@/lib/rate-limit/rate-limit-middleware";
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isApiRoute = createRouteMatcher(["/api(.*)", "/sign-in(.*)", "/sign-up(.*)"]);
-const isContactRoute = createRouteMatcher(["/api/contact(.*)"]);
-const isAuthRoute = createRouteMatcher(["/api/auth(.*)", "/sign-in(.*)", "/sign-up(.*)"]);
+// ONLY protect these:
+const isAdminRoute = createRouteMatcher([
+  "/admin(.*)",      // pages under /admin
+  "/api/admin(.*)",  // APIs under /api/admin (nếu có)
+]);
 
-const clerkMw = clerkMiddleware(async (auth, req) =>
-{
-    const claims = (await auth()).sessionClaims;
-    if (isAdminRoute(req) && claims?.metadata?.role !== "admin")
-    {
-        const url = new URL("/", req.url);
-        return NextResponse.redirect(url);
-    }
-
-    if (req.method !== "GET" && claims?.metadata?.role !== "admin") {
-      const url = new URL("/", req.url);
-      return NextResponse.redirect(url);
-    }
-
-    return NextResponse.next();
-});
-
-const checkRateLimit = (req: NextRequest) => {
-  // Check if rate limiting is enabled
-  if (process.env.RATE_LIMIT_ENABLED === 'false') {
-    return null;
-  }
-
-  // Determine the rate limit type
-  let rateLimitType: 'api' | 'auth' | 'contact' | 'none' = 'none';
-
-  if (isApiRoute(req)) {
-    rateLimitType = 'api';
-  }
-  if (isContactRoute(req)) {
-    rateLimitType = 'contact';
-  }
-  if (isAuthRoute(req)) {
-    rateLimitType = 'auth';
-  }
-
-  if (rateLimitType === 'none') {
-    return null; // No rate limiting for this route
-  }
-
-  return withRateLimit(req, rateLimitType);
+const setCORS = (res: NextResponse) => {
+  res.headers.set("Access-Control-Allow-Origin", "*");
+  res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return res;
 };
 
-export default async function middleware(req: NextRequest, event: NextFetchEvent)
-{  
-    // Rate limiting
-    if (process.env.RATE_LIMIT_ENABLED === 'true') {
-        const rateLimitResponse = checkRateLimit(req);
-    
-        if (rateLimitResponse) {
-            return rateLimitResponse; // Rate limit exceeded
-        }
+export default clerkMiddleware(async (auth, req: NextRequest) => {
+  // Preflight (vẫn đi qua Clerk để Clerk "nhìn thấy" middleware)
+  if (req.method === "OPTIONS") {
+    return setCORS(new NextResponse(null, { status: 204 }));
+  }
+
+  // (Tuỳ chọn) Rate limit — chỉ nên trả về Response khi bị chặn, còn cho phép thì trả null
+  if (process.env.RATE_LIMIT_ENABLED === "true") {
+    // tuỳ bạn gắn type theo route; ví dụ: API chung
+    const rl = await withRateLimit(req, "api");
+    if (rl) return setCORS(rl);
+  }
+
+  // ✅ Chỉ bảo vệ /admin & /api/admin
+  if (isAdminRoute(req)) {
+    const { userId, sessionClaims } = await auth();
+    const role =
+      (sessionClaims as any)?.metadata?.role ??
+      (sessionClaims as any)?.publicMetadata?.role ??
+      null;
+
+    // Chưa đăng nhập hoặc không phải admin -> chuyển tới đăng nhập
+    if (!userId || role !== "admin") {
+      const signInUrl = new URL("/sign-in", req.url);
+      signInUrl.searchParams.set("redirect_url", req.url); // quay lại sau khi login
+      return NextResponse.redirect(signInUrl);
     }
+  }
 
-    const DISABLED =
-        process.env.NEXT_PUBLIC_DISABLE_AUTH === "true"; 
+  // Tất cả route khác: luôn cho qua (không yêu cầu đăng nhập)
+  return setCORS(NextResponse.next());
+});
 
-    // CORS headers 
-    const setCORS = (res: NextResponse) =>
-    {
-        res.headers.set("Access-Control-Allow-Origin", "*");
-        res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        return res;
-    };
-
-    if (DISABLED)
-    {
-        const res = NextResponse.next();
-        return setCORS(res);
-    }
-
-    // Production
-    
-    const res = await clerkMw(req, event);
-
-    if (res instanceof NextResponse) setCORS(res);
-
-    return res;
-}
-
+// Matcher: chạy middleware cho toàn bộ app & API
+// (an toàn vì ta CHỈ enforce auth bên trong isAdminRoute)
 export const config = {
-    matcher: [
-        "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-        // API & TRPC
-        "/(api|trpc)(.*)",
-        "/api/:path*",
-        // Admin
-        "/admin/:path*",
-    ],
+  matcher: [
+    "/((?!_next|.*\\..*|favicon.ico).*)",
+    "/(api|trpc)(.*)",
+  ],
 };
