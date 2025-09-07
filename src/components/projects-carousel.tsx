@@ -39,15 +39,6 @@ export default function ProjectsCarousel({ slides = [] }: ProjectsCarouselProps)
                 <>
                   {/* Color overlay (top 50%) with fading to transparent */}
                   <div className="z-10 absolute inset-x-0 top-0 h-full bg-gradient-to-t from-black/90 to-black/0 pointer-events-none"/>
-                  {/* Blur overlay (top 50%) with gradient mask to decrease blur towards bottom */}
-                  <div
-                    className="z-20 absolute inset-x-0 top-0 pointer-events-none backdrop-blur-md"
-                    style={{
-                      height: "50%",
-                      WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
-                      maskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
-                    }}
-                  />
                   {/* Content overlay */}
                   <div className="z-30 absolute bottom-8 left-0 right-0 p-8 text-white ml-10">
                     <h3 className="mb-2 text-2xl font-bold">{slide?.title}</h3>
