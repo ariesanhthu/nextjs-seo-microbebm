@@ -175,14 +175,6 @@ export default function ProductSelectionDialog({
                           {/* <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center">
                             <Package className="h-6 w-6 text-gray-600" />
                           </div> */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm truncate">{product.name}</h4>
-                            {product.categories && product.categories.length > 0 && (
-                              <p className="text-xs text-blue-600 font-medium">
-                                {product.categories[0].name}
-                              </p>
-                            )}
-                          </div>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -191,6 +183,14 @@ export default function ProductSelectionDialog({
                           >
                             <X className="h-3 w-3" />
                           </Button>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm truncate">{product.name}</h4>
+                            {product.categories && product.categories.length > 0 && (
+                              <p className="text-xs text-blue-600 font-medium">
+                                {product.categories[0].name}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

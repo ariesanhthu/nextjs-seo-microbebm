@@ -48,13 +48,24 @@ export default function ProductSelectionDialog({
   refresh
 }: ProductSelectionDialogProps) {
   const [selectedProducts, setSelectedProducts] = useState<ProductResponseDto[]>(currentSelected)
+  const [localSearch, setLocalSearch] = useState<string>(searchQuery)
 
   useEffect(() => {
     if (isOpen) {
       setSelectedProducts(currentSelected)
+      setLocalSearch(searchQuery)
       refresh()
     }
   }, [isOpen, currentSelected])
+
+  // Debounce search
+  useEffect(() => {
+    if (!isOpen) return
+    const handler = setTimeout(() => {
+      if (localSearch !== searchQuery) setSearchQuery(localSearch)
+    }, 300)
+    return () => clearTimeout(handler)
+  }, [localSearch, isOpen])
 
   const toggleProductSelection = (product: ProductResponseDto) => {
     const isSelected = selectedProducts.some(b => b.id === product.id)
@@ -68,7 +79,7 @@ export default function ProductSelectionDialog({
         if (numberSelection === 1) {
           setSelectedProducts([product])
         }
-        // For other limits, don't add more (could show a toast/message here)
+        // For other limits, don't add more
         return
       }
       setSelectedProducts([...selectedProducts, product])
@@ -87,19 +98,19 @@ export default function ProductSelectionDialog({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 will-change-transform">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col transform-gpu">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
             <div>
-              <h2 className="text-xl font-semibold">Chọn bài viết</h2>
+              <h2 className="text-xl font-semibold">Chọn sản phẩm</h2>
               {numberSelection && (
                 <p className="text-sm text-gray-500">
                   {numberSelection === 1 
-                    ? "Chỉ có thể chọn 1 bài viết" 
-                    : `Tối đa ${numberSelection} bài viết`
+                    ? "Chỉ có thể chọn 1 sản phẩm" 
+                    : `Tối đa ${numberSelection} sản phẩm`
                   }
                 </p>
               )}
@@ -116,14 +127,14 @@ export default function ProductSelectionDialog({
           <div className="flex-1 border-r overflow-hidden">
             <div className="p-4 pb-0">
               <div>
-                <Label htmlFor="search">Tìm kiếm bài viết</Label>
+                <Label htmlFor="search">Tìm kiếm sản phẩm</Label>
                 <div className="relative mt-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     id="search"
-                    placeholder="Nhập tiêu đề hoặc nội dung bài viết..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Nhập tên hoặc mô tả sản phẩm..."
+                    value={localSearch}
+                    onChange={(e) => setLocalSearch(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -159,7 +170,7 @@ export default function ProductSelectionDialog({
               </div>
             </div>
             
-            <div className="p-4 pt-2 overflow-y-auto h-full">
+            <div className="p-4 pt-2 overflow-y-auto h-full overscroll-contain">
               {loading || isSearching ? (
                 <div className="text-center py-8 text-foreground">
                   {isSearching ? "Đang tìm kiếm..." : "Đang tải..."}
@@ -174,7 +185,7 @@ export default function ProductSelectionDialog({
               ) : products.length === 0 ? (
                 <div className="text-center py-8 text-foreground">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                  <p>Không tìm thấy bài viết nào</p>
+                  <p>Không tìm thấy sản phẩm nào</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
@@ -183,7 +194,7 @@ export default function ProductSelectionDialog({
                     return (
                       <Card
                         key={product.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
+                        className={`cursor-pointer transition-[box-shadow,transform] duration-200 hover:shadow-md ${
                           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                         }`}
                         onClick={() => toggleProductSelection(product)}
@@ -213,14 +224,14 @@ export default function ProductSelectionDialog({
           {/* Right side - Selected products */}
           <div className="w-80 overflow-hidden">
             <div className="p-4 pb-0">
-              <h3 className="font-medium">Bài viết đã chọn ({selectedProducts.length})</h3>
+              <h3 className="font-medium">Sản phẩm đã chọn ({selectedProducts.length})</h3>
             </div>
             
-            <div className="p-4 pt-2 overflow-y-auto h-full">
+            <div className="p-4 pt-2 overflow-y-auto h-full overscroll-contain">
               {selectedProducts.length === 0 ? (
                 <div className="text-center py-8 text-foreground">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-foreground" />
-                  <p>Chưa có bài viết nào được chọn</p>
+                  <p>Chưa có sản phẩm nào được chọn</p>
                 </div>
               ) : (
                 <div className="space-y-3">

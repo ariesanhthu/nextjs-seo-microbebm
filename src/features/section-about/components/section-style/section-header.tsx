@@ -12,8 +12,8 @@ interface SectionHeaderProps {
 
 export default function SectionHeader({ 
   section, 
-  className = "text-center space-y-2",
-  titleClassName = "text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent leading-tight tracking-tight",
+  className = "text-center space-y-5",
+  titleClassName = "text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent leading-tight tracking-tight mb-5",
   subtitleClassName = "text-lg text-gray-600"
 }: SectionHeaderProps) {
   return (

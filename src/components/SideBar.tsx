@@ -150,7 +150,7 @@ export default function AdminSidebar() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 text-white">
                 <Leaf className="h-5 w-5" />
                 </div>
-                {(!collapsed || mobileOpen) && <span className="ml-2 text-lg font-bold text-green-600">EcoAdmin</span>}
+                {(!collapsed || mobileOpen) && <span className="ml-2 text-lg font-bold text-green-600">Trang quản lý</span>}
             </Link>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -245,7 +245,7 @@ export default function AdminSidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t p-4">
+        {/* <div className="border-t p-4">
           <div className="flex items-center justify-between">
             {(!collapsed || mobileOpen) && (
               <div className="flex items-center">
@@ -257,7 +257,7 @@ export default function AdminSidebar() {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </aside>
     </>
   )

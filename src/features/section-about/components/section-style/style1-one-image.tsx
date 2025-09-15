@@ -51,7 +51,7 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           
           {/* Left: Featured Image */}
-          <div className="relative group animate-in fade-in-0 slide-in-from-left-8 duration-700 animation-delay-200">
+          <div className="relative group animate-in fade-in-0 slide-in-from-left-8 duration-700 animation-delay-200 lg:self-center">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 p-1">
               <div className="relative overflow-hidden rounded-[calc(1.5rem-4px)] bg-card">
                 {section.image_url ? (
@@ -111,7 +111,7 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
                       <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
                         {subsection.name || "Feature Title"}
                       </h3>
-                      <p className="text-sm text-foreground line-clamp-2">
+                      <p className="text-sm text-foreground">
                         {subsection.description || "Add a description for this feature."}
                       </p>
                       

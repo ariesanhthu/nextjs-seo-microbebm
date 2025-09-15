@@ -1,0 +1,5 @@
+export { default as WebsiteSection } from './website-section'
+export { default as ContentSection } from './content-section'
+export { default as SliderSection } from './slider-section'
+export { default as ProductsSection } from './products-section'
+export { default as BlogsSection } from './blogs-section'

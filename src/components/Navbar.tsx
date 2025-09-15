@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -64,26 +65,17 @@ export default function Navbar({ nav = [] as NavItem[] }: { nav?: NavItem[] }) {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <div className="flex items-center">
-              <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-green-600 shadow-md">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-white"
-                >
-                  <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" />
-                  <path d="M16.5 9.4 7.55 4.24" />
-                  <polyline points="3.29 7 12 12 20.71 7" />
-                  <line x1="12" y1="22" x2="12" y2="12" />
-                  <circle cx="18.5" cy="15.5" r="2.5" />
-                  <path d="M20.27 17.27 22 19" />
-                </svg>
+              <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md overflow-hidden">
+                <Image
+                  src="/logo.png"
+                  alt="BME logo"
+                  width={36}
+                  height={36}
+                  className="h-9 w-9 object-contain"
+                  priority
+                />
               </div>
-              <span className="text-xl font-bold text-primary">Môi trường</span>
+              <span className="text-xl font-bold text-primary">BME</span>
             </div>
           </Link>
 

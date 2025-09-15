@@ -49,13 +49,24 @@ export default function BlogSelectionDialog({
   refresh
 }: BlogSelectionDialogProps) {
   const [selectedBlogs, setSelectedBlogs] = useState<BlogResponseDto[]>(currentSelected)
+  const [localSearch, setLocalSearch] = useState<string>(searchQuery)
 
   useEffect(() => {
     if (isOpen) {
       setSelectedBlogs(currentSelected)
+      setLocalSearch(searchQuery)
       refresh()
     }
   }, [isOpen, currentSelected])
+
+  // Debounce search to reduce rerenders/fetches
+  useEffect(() => {
+    if (!isOpen) return
+    const handler = setTimeout(() => {
+      if (localSearch !== searchQuery) setSearchQuery(localSearch)
+    }, 300)
+    return () => clearTimeout(handler)
+  }, [localSearch, isOpen])
 
   const toggleBlogSelection = (blog: BlogResponseDto) => {
     const isSelected = selectedBlogs.some(b => b.id === blog.id)
@@ -115,8 +126,8 @@ export default function BlogSelectionDialog({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 will-change-transform">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col transform-gpu">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -150,8 +161,8 @@ export default function BlogSelectionDialog({
                   <Input
                     id="search"
                     placeholder="Nhập tiêu đề hoặc nội dung bài viết..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={localSearch}
+                    onChange={(e) => setLocalSearch(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -187,7 +198,7 @@ export default function BlogSelectionDialog({
               </div>
             </div>
             
-            <div className="p-4 pt-2 overflow-y-auto h-full">
+            <div className="p-4 pt-2 overflow-y-auto h-full overscroll-contain">
               {loading || isSearching ? (
                 <div className="text-center py-8 text-gray-500">
                   {isSearching ? "Đang tìm kiếm..." : "Đang tải..."}
@@ -211,24 +222,25 @@ export default function BlogSelectionDialog({
                     return (
                       <Card
                         key={blog.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
+                        className={`cursor-pointer transition-[box-shadow,transform] duration-200 hover:shadow-md ${
                           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                         }`}
                         onClick={() => toggleBlogSelection(blog)}
                       >
                         <CardContent className="p-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                            {/* <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                               {blog.thumbnail_url ? (
                                 <img 
                                   src={blog.thumbnail_url} 
                                   alt={blog.title}
+                                  loading="lazy"
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
                                 <BookOpen className="h-8 w-8 text-gray-600" />
                               )}
-                            </div>
+                            </div> */}
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-sm truncate">{blog.title}</h3>
                               <p className="text-xs text-gray-500 truncate">
@@ -265,7 +277,7 @@ export default function BlogSelectionDialog({
               <h3 className="font-medium">Bài viết đã chọn ({selectedBlogs.length})</h3>
             </div>
             
-            <div className="p-4 pt-2 overflow-y-auto h-full">
+            <div className="p-4 pt-2 overflow-y-auto h-full overscroll-contain">
               {selectedBlogs.length === 0 ? (
                 <div className="text-center py-8 text-foreground">
                   <BookOpen className="h-12 w-12 mx-auto mb-2 text-foreground" />
@@ -277,17 +289,18 @@ export default function BlogSelectionDialog({
                     <Card key={blog.id} className="relative">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                          {/* <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                             {blog.thumbnail_url ? (
                               <img 
                                 src={blog.thumbnail_url} 
                                 alt={blog.title}
+                                loading="lazy"
                                 className="w-full h-full object-cover"
                               />
                             ) : (
                               <BookOpen className="h-6 w-6 text-gray-600" />
                             )}
-                          </div>
+                          </div> */}
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-sm truncate">{blog.title}</h4>
                             <p className="text-xs text-gray-500 truncate">

@@ -95,7 +95,7 @@ export default function OpenBlogDialog({
                     className="flex flex-row gap-5 justify-start bg-transparent hover:bg-muted"
                     onClick={() => handleSelect(blog)}
                   >
-                    {
+                    {/* {
                       blog.thumbnail_url !== ""
                       ?
                         <CldImage
@@ -113,7 +113,7 @@ export default function OpenBlogDialog({
                           alt={`Blog ${blog.title}`}
                           className="rounded-lg object-cover"
                         />
-                    }
+                    } */}
                     <div className="truncate font-medium text-black overflow-auto">{blog.title}</div>
                   </Button>
                 ))}
