@@ -42,7 +42,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8 overflow-x-auto">
           <div
             className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r"
             dangerouslySetInnerHTML={{ __html: blog.content }}
