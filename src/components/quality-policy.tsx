@@ -12,24 +12,24 @@ const textContent = {
   badge: {
     iconLabel: "Cam kết chất lượng",
     title: "Chính sách chất lượng",
-    description: "Chúng tôi cam kết mang đến những sản phẩm thân thiện với môi trường, đạt tiêu chuẩn cao nhất về chất lượng và độ bền vững."
+    description: "BME cam kết bền vững, tuân thủ tiêu chuẩn, cải tiến liên tục và đảm bảo hài lòng khách hàng."
   },
   features: [
     {
       title: "Cam kết bền vững",
-      description: "Chúng tôi cam kết sử dụng nguyên liệu tái chế và có nguồn gốc bền vững, giảm thiểu tác động đến môi trường trong toàn bộ quy trình sản xuất."
+      description: "BME sử dụng chủng vi sinh an toàn, có nguồn gốc rõ ràng, thân thiện với môi trường, giảm thiểu ô nhiễm trong toàn bộ quá trình xử lý."
     },
     {
-      title: "Tiêu chuẩn ngành",
-      description: "Sản phẩm của chúng tôi tuân thủ các tiêu chuẩn ngành nghiêm ngặt, được kiểm định và chứng nhận bởi các tổ chức uy tín trong và ngoài nước."
+      title: "Tuân thủ tiêu chuẩn ngành",
+      description: "Mọi chế phẩm vi sinh đều đáp ứng các quy định kỹ thuật nghiêm ngặt, được kiểm định chất lượng trước khi đưa ra thị trường."
     },
     {
       title: "Cải tiến liên tục",
-      description: "Chúng tôi không ngừng nghiên cứu và phát triển để cải tiến sản phẩm, áp dụng công nghệ mới nhằm nâng cao chất lượng và tính bền vững."
+      description: "Chúng tôi nghiên cứu và tối ưu công thức vi sinh, nâng cao hiệu quả xử lý BOD, COD, Nito, Photpho và giảm chi phí vận hành hệ thống."
     },
     {
       title: "Hài lòng khách hàng",
-      description: "Sự hài lòng của khách hàng là ưu tiên hàng đầu. Chúng tôi cam kết cung cấp sản phẩm chất lượng cao và dịch vụ khách hàng xuất sắc."
+      description: "BME luôn đồng hành cùng khách hàng, hỗ trợ kỹ thuật tận nơi và đảm bảo hệ thống vận hành ổn định, đầu ra đạt chuẩn."
     }
   ],
   isoBadge: {
@@ -71,7 +71,7 @@ export default function QualityPolicy() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-white to-green-50 py-16 md:py-24"
+      className="relative overflow-hidden bg-gradient-to-b from-white to-green-50 py-16 md:py-24 px-10"
     >
       {/* Background Pattern */}
       <BackgroundPattern

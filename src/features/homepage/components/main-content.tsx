@@ -69,19 +69,19 @@ export default function MainContent() {
               }}
             />
           <div className="container absolute inset-0 z-10 mx-auto flex flex-col items-center justify-center px-10 text-center text-primary-foreground">
-          <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+          {/* <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
             {data?.title ?? "Tôn vinh thiên nhiên - Sống xanh mỗi ngày"}
           </h1>
           <p className="mb-6 sm:mb-8 max-w-2xl text-base sm:text-lg md:text-xl px-2">
             {data?.subtitle ?? "Chúng tôi cung cấp các sản phẩm thân thiện với môi trường, góp phần xây dựng một tương lai bền vững cho thế hệ mai sau."}
-          </p>
-          <Link
+          </p> */}
+          {/* <Link
             href="#products"
             className="group flex items-center rounded-full bg-green-600 px-4 sm:px-6 py-2 sm:py-3 text-base sm:text-lg font-medium text-white transition-all hover:bg-green-700"
           >
             Khám phá ngay
             <ChevronRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
-          </Link>
+          </Link> */}
         </div>
       </section>
 

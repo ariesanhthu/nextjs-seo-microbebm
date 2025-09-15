@@ -74,14 +74,6 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
                     </div>
                   </div>
                 )}
-                
-                {/* Certification Badge Overlay */}
-                <div className="absolute top-6 left-6">
-                  <Badge className="px-4 py-2 bg-primary text-primary-foreground font-semibold shadow-lg">
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    ISO Certified
-                  </Badge>
-                </div>
               </div>
             </div>
 
@@ -119,7 +111,7 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
                       <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
                         {subsection.name || "Feature Title"}
                       </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-sm text-foreground line-clamp-2">
                         {subsection.description || "Add a description for this feature."}
                       </p>
                       
