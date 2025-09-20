@@ -35,5 +35,6 @@ export const HOMEPAGE_SEED_DATA: HomepageResponseDto = {
     }
   ],
   products: [],
-  blogs: []
+  blogs: [],
+  image_policy: '/images/quality-policy.jpg'
 };
