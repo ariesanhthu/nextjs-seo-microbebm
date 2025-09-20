@@ -65,42 +65,39 @@ export default function OpenImageMetadataDialog({
   }
 
   return (
-    // <div className="">
-      <Card className='w-1/3 h-120 min-h-100 border-4 rounded-2xl'>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Thư viện ảnh
-            <div className="ml-auto">
-              <Button variant="ghost" onClick={clearCache}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" onClick={closeDialog}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardTitle>
-
-        </CardHeader>
-        <CardContent className="max-h-2/3 min-h-2/3 overflow-x-auto overflow-y-auto">
+    <Card className='w-4/5 max-w-4xl h-4/5 max-h-[600px] border-2 rounded-xl shadow-lg'>
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2">
+          Thư viện ảnh
+          <div className="ml-auto flex gap-2">
+            <Button variant="ghost" size="sm" onClick={clearCache}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={closeDialog}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="max-h-[400px] overflow-y-auto px-6">
           {loading ? (
             <div className="text-center py-8">Loading...</div>
           ) : (
             <>
-              <div className="flex flex-col gap-4 w-full">
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 w-full">
                 {imageMetadatas?.map((imageMetadata) => (
                   <Button 
                     key={imageMetadata.id} 
-                    className="flex flex-row gap-5 justify-start bg-transparent hover:bg-primary-foreground"
+                    className="flex bg-transparent hover:bg-gray-100 p-1 h-auto aspect-square"
                     onClick={() => handleSelect(imageMetadata)}
                   >
                     <Image
                       src={imageMetadata.url}
-                      width={50}
-                      height={50}
-                      alt={`ImageMetadata ${imageMetadata.public_id}`}
-                      className="rounded-lg object-cover"
+                      width={100}
+                      height={100}
+                      alt={`Image ${imageMetadata.id}`}
+                      className="rounded-lg object-cover w-full h-full"
                     />
-                    <div className="truncate font-medium text-black overflow-auto">{imageMetadata.public_id}</div>
                   </Button>
                 ))}
               </div>
@@ -113,42 +110,32 @@ export default function OpenImageMetadataDialog({
             </>
           )}
         </CardContent>
-        <CardFooter className='flex flex-row justify-center items-center mt-6 gap-5'>
+        <CardFooter className='flex flex-row justify-between items-center pt-4 border-t'>
           <Button
             variant="outline"
+            size="sm"
             onClick={goToPrevPage}
             disabled={!hasPrevPage || loading}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous
+            Trước
           </Button>
           
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <Badge variant="outline">
-              {imageMetadatas?.length} images
+              {imageMetadatas?.length} ảnh
             </Badge>
-            {/* {cacheSize > 1 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearCache}
-                className="text-xs"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Refresh
-              </Button>
-            )} */}
           </div>
           
           <Button
             variant="outline"
+            size="sm"
             onClick={goToNextPage}
             disabled={!hasNextPage || loading}
           >
-            Next
+            Sau
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
-
         </CardFooter>
       </Card>
   );

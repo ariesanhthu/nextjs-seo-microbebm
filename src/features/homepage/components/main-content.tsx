@@ -133,7 +133,7 @@ export default function MainContent() {
       </section>
 
       {/* Quality Policy Section */}
-      <QualityPolicy />
+      <QualityPolicy imageSrc={data?.image_policy ? getValidImageUrl(data.image_policy) : "/images/quality-policy.jpg"} />
 
 
       {/* Featured Blogs Section */}

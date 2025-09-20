@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProductResponseDto } from "@/lib/dto/product.dto";
 import DialogContact from "@/features/emailSender/components/dialog-contact";
+import ContentPreview from "@/features/blog/components/content-preview";
 import dynamic from "next/dynamic";
 
 type Product = ProductResponseDto;
@@ -219,11 +220,10 @@ export default function ProductPage() {
             </CardHeader>
             <CardContent className="overflow-x-auto">
               {product.content ? (
-                <div 
-                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700 prose-blockquote:border-l-green-500 prose-blockquote:bg-green-50 prose-blockquote:text-gray-700 prose-img:rounded-lg prose-img:shadow-md"
-                  dangerouslySetInnerHTML={{ 
-                    __html: product.content 
-                  }} 
+                <ContentPreview 
+                  html={product.content}
+                  className="overflow-x-auto"
+                  previewClassName="prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700 prose-blockquote:border-l-green-500 prose-blockquote:bg-green-50 prose-blockquote:text-gray-700 prose-img:rounded-lg prose-img:shadow-md"
                 />
               ) : (
                 <div className="text-center py-12 text-gray-500">

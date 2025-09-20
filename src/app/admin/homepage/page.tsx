@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Save, Globe, FileText, Sliders, Package, NotebookPen } from "lucide-react"
+import { Save, Globe, FileText, Sliders, Package, NotebookPen, Shield } from "lucide-react"
 import { HomepageResponseDto, UpdateHomepageDto, HomepageFooter } from "@/lib/dto/homepage.dto"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import NavbarAdmin from "@/components/NavbarAdmin"
@@ -14,6 +14,7 @@ import ContentSection from "@/features/admin/components/content-section"
 import SliderSection from "@/features/admin/components/slider-section"
 import ProductsSection from "@/features/admin/components/products-section"
 import BlogsSection from "@/features/admin/components/blogs-section"
+import PolicySection from "@/features/admin/components/policy-section"
 
 export default function AdminHomepagePage() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -64,7 +65,8 @@ export default function AdminHomepagePage() {
         },
         slider: form?.slider || [],
         product_ids: form?.products?.map(p => p.id) || [],
-        blog_ids: form?.blogs?.map(b => b.id) || []
+        blog_ids: form?.blogs?.map(b => b.id) || [],
+        image_policy: form?.image_policy || ""
       }
 
       // Ensure footer has all required fields, even if empty
@@ -123,6 +125,9 @@ export default function AdminHomepagePage() {
       
       case "blogs":
         return <BlogsSection form={form} setForm={setForm} />
+
+      case "policy":
+        return <PolicySection form={form} setForm={setForm} />
       
       default:
         return null
@@ -166,6 +171,10 @@ export default function AdminHomepagePage() {
               <ToggleGroupItem value="blogs" className="flex items-center gap-2">
                 <NotebookPen className="h-4 w-4" />
                 Bài viết
+              </ToggleGroupItem>
+              <ToggleGroupItem value="policy" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Chính sách
               </ToggleGroupItem>
             </ToggleGroup>
           </div>

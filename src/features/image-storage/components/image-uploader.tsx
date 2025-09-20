@@ -39,9 +39,10 @@ interface UploadResult {
 
 interface ImageUploaderProps {
   refreshGallery?: () => void;
+  onImageSelect?: (url: string) => void;
 }
 
-export default function ImageUploader({ refreshGallery }: ImageUploaderProps) {
+export default function ImageUploader({ refreshGallery, onImageSelect }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const createImageMetadata = async (result: UploadResult) => {
@@ -72,6 +73,7 @@ export default function ImageUploader({ refreshGallery }: ImageUploaderProps) {
     await createImageMetadata(result.info as UploadResult);
     toast.success("Ảnh được tải lên thành công!");
     refreshGallery?.();
+    onImageSelect?.(result.info.secure_url);
     setIsUploading(false);
   };
 

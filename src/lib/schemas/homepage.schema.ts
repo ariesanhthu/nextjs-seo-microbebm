@@ -99,6 +99,10 @@ export const HomepageSchema = GeneralSchema.extend({
   blogs: z.array(BlogResponseSchema, {
     message: "Homepage blogs must be an array"
   }).default([]),
+
+  image_policy: z.string({
+    message: "Homepage image_policy must be a string"
+  }).default(""),
 }).strict()
 
 export const CreateHomepageSchema = HomepageSchema.pick({
@@ -108,6 +112,7 @@ export const CreateHomepageSchema = HomepageSchema.pick({
   navigation_bar: true,
   footer: true,
   slider: true,
+  image_policy: true,
 }).extend({
   product_ids: z.array(z.string({
     message: "Homepage product_ids item must be a string"
@@ -221,6 +226,10 @@ export const UpdateHomepageSchema = z.object({
     message: "Homepage blog_ids item must be a string"
   }), {
     message: "Homepage blog_ids must be a array"
+  }).optional(),
+
+  image_policy: z.string({
+    message: "Homepage image_policy must be a string"
   }).optional()
 })
 

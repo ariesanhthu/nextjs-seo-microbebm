@@ -41,12 +41,15 @@ const textContent = {
     href: "/quality-policy"
   },
   image: {
-    alt: "Cam kết chất lượng",
-    src: "/images/quality-policy.jpg"
+    alt: "Cam kết chất lượng"
   }
 }
 
-export default function QualityPolicy() {
+interface QualityPolicyProps {
+  imageSrc?: string
+}
+
+export default function QualityPolicy({ imageSrc = "/images/quality-policy.jpg" }: QualityPolicyProps) {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
@@ -106,7 +109,7 @@ export default function QualityPolicy() {
             )}
           >
             <Image
-              src={textContent.image.src}
+              src={imageSrc}
               alt={textContent.image.alt}
               fill
               className="object-cover"
