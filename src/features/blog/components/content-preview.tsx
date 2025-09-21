@@ -10,65 +10,57 @@ export interface ContentPreviewProps {
 
 export function processContentForPreview(html: string): string {
   return html
+    // Xử lý bảng với responsive wrapper
     .replace(
       /<table[^>]*>[\s\S]*?<\/table>/gi,
       (match) => {
         return `<div class="table-responsive">${match}</div>`
       }
     )
+    // Xử lý hình ảnh có alt text
     .replace(
-      /<img[^>]*src="[^"]*"[^>]*alt="([^"]*)"[^>]*\/?>(?!<\/img>)/gi,
-      (_match, altText) => {
-        const displayText = altText || "No alt text provided"
-        return `<div class="image-placeholder" style="
-          background: #f3f4f6;
-          border: 2px dashed #d1d5db;
-          border-radius: 0.375rem;
-          padding: 0.75rem 1rem;
-          color: #6b7280;
-          font-style: italic;
-          font-size: 0.875rem;
-          text-align: center;
-          margin: 0.5rem 0;
-          display: inline-block;
-          min-width: 200px;
-        ">📷 Ảnh: ${displayText}</div>`
+      /<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*\/?>(?!<\/img>)/gi,
+      (_match, src, altText) => {
+        const displayText = altText || "Không có mô tả"
+        return `<div class="image-container">
+          <img src="${src}" alt="${altText}" class="responsive-image" loading="lazy" />
+          <div class="image-caption">📷 ${displayText}</div>
+        </div>`
       }
     )
+    // Xử lý hình ảnh không có alt text
     .replace(
-      /<img[^>]*alt="([^"]*)"[^>]*src="[^"]*"[^>]*\/?>(?!<\/img>)/gi,
-      (_match, altText) => {
-        const displayText = altText || "No alt text provided"
-        return `<div class="image-placeholder" style="
-          background: #f3f4f6;
-          border: 2px dashed #d1d5db;
-          border-radius: 0.375rem;
-          padding: 0.75rem 1rem;
-          color: #6b7280;
-          font-style: italic;
-          font-size: 0.875rem;
-          text-align: center;
-          margin: 0.5rem 0;
-          display: inline-block;
-          min-width: 200px;
-        ">📷 Ảnh: ${displayText}</div>`
+      /<img[^>]*src="([^"]*)"[^>]*(?!alt=)[^>]*\/?>(?!<\/img>)/gi,
+      (_match, src) => {
+        return `<div class="image-container">
+          <img src="${src}" alt="Hình ảnh" class="responsive-image" loading="lazy" />
+          <div class="image-caption warning">⚠️ Hình ảnh thiếu mô tả</div>
+        </div>`
       }
     )
+    // Xử lý code blocks với syntax highlighting
     .replace(
-      /<img[^>]*src="[^"]*"[^>]*(?!alt=)[^>]*\/?>(?!<\/img>)/gi,
-      `<div class="image-placeholder" style="
-        background: #fef2f2;
-        border: 2px dashed #fca5a5;
-        border-radius: 0.375rem;
-        padding: 0.75rem 1rem;
-        color: #dc2626;
-        font-style: italic;
-        font-size: 0.875rem;
-        text-align: center;
-        margin: 0.5rem 0;
-        display: inline-block;
-        min-width: 200px;
-      ">Ảnh: không có mô tả</div>`
+      /<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi,
+      (match, code) => {
+        return `<div class="code-block-wrapper">
+          <div class="code-block-header">
+            <span class="code-block-title">Code</span>
+            <button class="copy-button" onclick="copyToClipboard(this)">📋 Copy</button>
+          </div>
+          <pre class="code-block"><code>${code}</code></pre>
+        </div>`
+      }
+    )
+    // Xử lý links với external indicator
+    .replace(
+      /<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/gi,
+      (match, href, text) => {
+        const isExternal = href.startsWith('http') && !href.includes(window?.location?.hostname || '')
+        const externalIcon = isExternal ? '🔗' : ''
+        return `<a href="${href}" class="content-link" ${isExternal ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+          ${text} ${externalIcon}
+        </a>`
+      }
     )
 }
 
@@ -78,6 +70,7 @@ export default function ContentPreview({ html, className, previewClassName }: Co
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            /* Typography */
             .blog-preview ul {
               list-style-type: disc !important;
               padding-left: 1.5rem !important;
@@ -110,6 +103,99 @@ export default function ContentPreview({ html, className, previewClassName }: Co
             .blog-preview strong { color: #111827; font-weight: 600; }
             .blog-preview code { color: #db2777; background: #f3f4f6; padding: 0.125rem 0.25rem; border-radius: 0.25rem; }
             .blog-preview blockquote { border-left: 4px solid #3b82f6; background: #eff6ff; padding: 0.5rem 1rem; margin: 1rem 0; }
+            
+            /* Image Styles */
+            .image-container {
+              margin: 1.5rem 0;
+              text-align: center;
+              border-radius: 0.5rem;
+              overflow: hidden;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .responsive-image {
+              width: 100%;
+              height: auto;
+              max-width: 100%;
+              display: block;
+              transition: transform 0.3s ease;
+            }
+            .responsive-image:hover {
+              transform: scale(1.02);
+            }
+            .image-caption {
+              background: #f8fafc;
+              padding: 0.5rem 1rem;
+              font-size: 0.875rem;
+              color: #64748b;
+              border-top: 1px solid #e2e8f0;
+              font-style: italic;
+            }
+            .image-caption.warning {
+              background: #fef2f2;
+              color: #dc2626;
+              border-top-color: #fca5a5;
+            }
+            
+            /* Code Block Styles */
+            .code-block-wrapper {
+              margin: 1.5rem 0;
+              border-radius: 0.5rem;
+              overflow: hidden;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .code-block-header {
+              background: #1f2937;
+              color: #f9fafb;
+              padding: 0.75rem 1rem;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 0.875rem;
+            }
+            .code-block-title {
+              font-weight: 600;
+            }
+            .copy-button {
+              background: #374151;
+              color: #f9fafb;
+              border: none;
+              padding: 0.25rem 0.5rem;
+              border-radius: 0.25rem;
+              cursor: pointer;
+              font-size: 0.75rem;
+              transition: background 0.2s ease;
+            }
+            .copy-button:hover {
+              background: #4b5563;
+            }
+            .code-block {
+              background: #111827;
+              color: #f9fafb;
+              padding: 1rem;
+              margin: 0;
+              overflow-x: auto;
+              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-size: 0.875rem;
+              line-height: 1.5;
+            }
+            .code-block code {
+              background: transparent !important;
+              color: inherit !important;
+              padding: 0 !important;
+            }
+            
+            /* Link Styles */
+            .content-link {
+              color: #2563eb;
+              text-decoration: underline;
+              text-decoration-color: #93c5fd;
+              text-underline-offset: 2px;
+              transition: all 0.2s ease;
+            }
+            .content-link:hover {
+              color: #1d4ed8;
+              text-decoration-color: #2563eb;
+            }
             .blog-preview table { 
               border-collapse: collapse !important; 
               width: 100% !important; 
@@ -229,6 +315,30 @@ export default function ContentPreview({ html, className, previewClassName }: Co
             }
             .image-placeholder { transition: all 0.2s ease; }
             .image-placeholder:hover { background: #e5e7eb !important; border-color: #9ca3af !important; }
+          `,
+        }}
+      />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            function copyToClipboard(button) {
+              const codeBlock = button.parentElement.nextElementSibling;
+              const code = codeBlock.querySelector('code').textContent;
+              navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#059669';
+                setTimeout(() => {
+                  button.textContent = originalText;
+                  button.style.background = '#374151';
+                }, 2000);
+              }).catch(() => {
+                button.textContent = '❌ Failed';
+                setTimeout(() => {
+                  button.textContent = '📋 Copy';
+                }, 2000);
+              });
+            }
           `,
         }}
       />
