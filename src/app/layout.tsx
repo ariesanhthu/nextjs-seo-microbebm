@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Microbe BM",
-    url: "https://nextjs-seo-microbebm.vercel.app/",
+    url: "https://microbebm.com/",
     title: "Microbe BM- Giải pháp môi trường bền vững",
     description: "Dịch vụ môi trường toàn diện: xử lý nước cấp/thải, khoan giếng, hóa chất, vi sinh. Giải pháp xanh - sạch - bền vững.",
   },

@@ -6,7 +6,7 @@ function normalizeBaseUrl(input?: string | URL) {
   const base =
     input ??
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://nextjs-seo-microbebm.vercel.app";
+    "https://microbebm.com/";
   return new URL(base);
 }
 
