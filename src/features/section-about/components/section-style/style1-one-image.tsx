@@ -170,7 +170,7 @@ export default function Style1OneImage({ section, onUpdate, isPreview = false }:
                   size="lg" 
                   className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                 >
-                  Discover More
+                  Tìm hiểu thêm
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>

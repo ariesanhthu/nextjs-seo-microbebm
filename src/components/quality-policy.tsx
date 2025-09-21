@@ -38,7 +38,7 @@ const textContent = {
   },
   cta: {
     label: "Tìm hiểu thêm",
-    href: "/quality-policy"
+    href: "https://drive.google.com/file/d/10QROd9pesoIdcfZIJk8wo3mag7-Fc9_O/view"
   },
   image: {
     alt: "Cam kết chất lượng"
