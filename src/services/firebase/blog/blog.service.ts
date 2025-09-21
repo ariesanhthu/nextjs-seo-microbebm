@@ -285,4 +285,27 @@ export class BlogService {
       throw new Error(`Failed to delete Blog: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+  
+  static async getAllForSitemap(): Promise<{ slug: string; updatedAt: string }[]> {
+    try {
+      let queryRef = this.getReadCollectionRef().orderBy("created_at", "desc");
+      const snapshot = await queryRef.get();
+  
+      const allDocs = snapshot.docs.map((doc: any) => {
+        const rawData = doc.data();
+        return {
+          slug: rawData.slug,
+          updatedAt: rawData.updated_at?.toDate().toISOString() 
+            ?? rawData.created_at?.toDate().toISOString() 
+            ?? new Date().toISOString(),
+        };
+      });
+  
+      return allDocs;
+    } catch (error) {
+      console.error("Error getting blogs for sitemap:", error);
+      return [];
+    }
+  }
+  
 }

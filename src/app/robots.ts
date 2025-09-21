@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots
       allow: "/",
       disallow: ["/admin"],
     },
-    sitemap: "https://microbebm.com//sitemap.xml",
+    sitemap: "https://microbebm.com/sitemap.xml",
   }
 }
