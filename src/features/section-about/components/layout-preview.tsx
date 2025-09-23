@@ -61,14 +61,14 @@ export default function LayoutPreview({ data }: LayoutPreviewProps) {
   }
 
   return (
-    <div className="w-6xl max-w-7xl mx-auto p-6 mt-10">
+    <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mt-20 sm:mt-10">
       {data?.section && data?.section.length > 0 ? (
-        <div className="space-y-12">
+        <div className="space-y-8 sm:space-y-12">
           {data?.section.map((section, index) => renderSection(section, index))}
         </div>
       ) : (
         <Card>
-          <CardContent className="text-center py-12">
+          <CardContent className="text-center py-10 sm:py-12">
             <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-foreground">Chưa có section nào được tạo</p>
           </CardContent>
